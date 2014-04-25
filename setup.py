@@ -5,7 +5,7 @@ import numpy as np
 # cython_modules = ["pyvlfeat/"]
 cython_modules = []
 
-setup(name='pyvlfeat',
+setup(name='cyvlfeat',
       version='0.2',
       description='Cython wrapper of the VLFeat toolkit',
       author='Patrick Snape',
