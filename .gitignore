@@ -5,3 +5,6 @@ cyvlfeat.egg-info/*
 *~
 *.pyc
 *.so
+
+# Let's just ignore all cython built files
+cyvlfeat/sift/cysift.c
