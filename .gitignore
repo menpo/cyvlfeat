@@ -1,3 +1,6 @@
+dist/*
+build/*
+cyvlfeat.egg-info/*
 .idea/*
 *~
 *.pyc
