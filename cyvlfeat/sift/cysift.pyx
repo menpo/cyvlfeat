@@ -34,35 +34,40 @@ cpdef dsift(np.ndarray[float, ndim=2, mode='fortran'] data, int[:] step,
     cdef int width = data.shape[1]
 
     cdef VlDsiftDescriptorGeometry geom
+    # Note that height, width does not match the vlfeat annotations, switched
+    # for fortran ordering
     cdef VlDsiftFilter* dsift = vl_dsift_new(height, width)
 
     cdef int ndims = 0
     cdef int descriptor_count = 0
     cdef float* linear_descriptor
 
+    # Setup the geometry (number of bins and sizes)
+    # Note the y-axis is taken as the first access but vlfeat expects the x-axis
+    # as the first axis
     geom.numBinX = geometry[1]
     geom.numBinY = geometry[0]
     geom.numBinT = geometry[2]
     geom.binSizeX = size[1]
     geom.binSizeY = size[0]
-
     vl_dsift_set_geometry(dsift, &geom)
+
+    # Set other options
     vl_dsift_set_steps(dsift, step[1], step[0])
-
     vl_dsift_set_bounds(dsift, bounds[0], bounds[1], bounds[2], bounds[3])
-
     vl_dsift_set_flat_window(dsift, fast)
 
     if window_size >= 0:
       vl_dsift_set_window_size(dsift, window_size)
 
+    # Get calculated values from the dsift object
     num_frames = vl_dsift_get_keypoint_num(dsift)
     descriptor_length = vl_dsift_get_descriptor_size(dsift)
     geom = deref(vl_dsift_get_geometry(dsift))
 
     if verbose:
-      vl_dsift_get_steps (dsift, &step_x, &step_x)
-      vl_dsift_get_bounds (dsift, &min_x, &min_y, &max_x, &max_y)
+      vl_dsift_get_steps(dsift, &step_x, &step_x)
+      vl_dsift_get_bounds(dsift, &min_x, &min_y, &max_x, &max_y)
 
       printf("vl_dsift: image size         [W, H] = [%d, %d]\n",  width, height)
       printf("vl_dsift: bounds:            "
@@ -84,19 +89,23 @@ cpdef dsift(np.ndarray[float, ndim=2, mode='fortran'] data, int[:] step,
       printf("vl_dsift: num of features:   %d\n", num_frames)
 
 
+    # Actually compute the SIFT features
     vl_dsift_process(dsift, &data[0, 0])
 
+    # Grab the results
     frames_array = vl_dsift_get_keypoints(dsift)
     descriptors_array = vl_dsift_get_descriptors(dsift)
 
     # Create output arrays
-    # TODO: if not float_descriptors then should be uint8
     out_descriptors = np.empty((descriptor_length, num_frames),
                                dtype=np.float32, order='F')
+    # Get a temporary array for each descriptor
     single_descriptor_array = np.empty(descriptor_length,
                                        order='F', dtype=np.float32)
+    # Grab the pointer to the data so we can walk it linearly
     linear_descriptor = &out_descriptors[0, 0]
 
+    # The norm is added as the third component if set
     if norm:
         ndims = 3
         out_frames = np.empty((ndims, num_frames), dtype=np.float64)
@@ -105,6 +114,9 @@ cpdef dsift(np.ndarray[float, ndim=2, mode='fortran'] data, int[:] step,
         out_frames = np.empty((ndims, num_frames), dtype=np.float64)
 
     # Copy results out
+    # This is slightly complicated, it follows the Matlab conventions because
+    # of the horror that is converting between F and C contiguous arrays
+    # with linear indexing.
     for k in range(num_frames):
         out_frames[0, k] = frames_array[k].x
         out_frames[1, k] = frames_array[k].y
