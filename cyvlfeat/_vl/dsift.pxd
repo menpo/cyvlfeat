@@ -5,7 +5,7 @@
 # under the terms of the BSD license.
 from cyvlfeat._vl.host cimport vl_bool
 
-cdef extern from "../../vlfeat/vl/dsift.h":
+cdef extern from "../vlfeat/vl/dsift.h":
     ctypedef struct VlDsiftKeypoint:
         double x  #< x coordinate */
         double y  #< y coordinate */
