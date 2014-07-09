@@ -12,7 +12,7 @@ for s in glob(op.join('vlfeat', 'vl', '*.c')):
 extensions = [
     Extension("cysift", ["cyvlfeat/sift/cysift.pyx"] + vl_feat_sources,
               include_dirs=['vlfeat'],
-              extra_compile_args=['-DDISABLE_OPENMP=1', '-DVL_DISABLE_AVX=1']
+              extra_compile_args=['-DDISABLE_OPENMP=1', '-mavx']
     )
 ]
 

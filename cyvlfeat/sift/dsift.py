@@ -11,13 +11,23 @@ def dsift(image, step=1, size=3, bounds=None, window_size=2, norm=False,
 
     # Validate bounds
     if bounds is None:
-        bounds = np.array([0, 0, image.shape[0], image.shape[1]])
+        bounds = np.array([0, 0, image.shape[0] - 1, image.shape[1] - 1])
+    else:
+        bounds = np.asarray(bounds)
     if bounds.shape[0] != 4:
         raise ValueError('Bounds must be contain 4 elements.')
+    for b in bounds:
+        if b < 0:
+            raise ValueError('Bounds must only contain integers greater than '
+                             'or equal to 0.')
+    if bounds[2] > image.shape[0] - 1 or bounds[3] > image.shape[1] - 1:
+        raise ValueError('Bounds must be the size of the image or less.')
 
     # Validate size
     if isinstance(size, int):
         size = np.array([size, size])
+    else:
+        size = np.asarray(size)
     if size.shape[0] != 2:
         raise ValueError('Size vector must contain exactly 2 elements.')
     for s in size:
@@ -27,6 +37,8 @@ def dsift(image, step=1, size=3, bounds=None, window_size=2, norm=False,
     # Validate step
     if isinstance(step, int):
         step = np.array([step, step])
+    else:
+        step = np.asarray(step)
     if step.shape[0] != 2:
         raise ValueError('Step vector must contain exactly 2 elements.')
     for s in step:
@@ -50,9 +62,8 @@ def dsift(image, step=1, size=3, bounds=None, window_size=2, norm=False,
     step = step.astype(np.int32)
     size = size.astype(np.int32)
     bounds = bounds.astype(np.int32)
-    image = image.astype(np.float32)
+    image = np.require(image, dtype=np.float32, requirements='F')
     frames, descriptors = cysift.dsift(image, step, size, bounds, window_size,
                                        norm, fast, float_descriptors, geometry,
                                        verbose)
-    print frames
-    print descriptors
+    return frames, np.ascontiguousarray(descriptors)
