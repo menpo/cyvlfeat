@@ -5,16 +5,24 @@ import os.path as op
 import os
 import fnmatch
 from glob import glob
+import platform
 
 
-vl_feat_sources = []
-for s in glob(op.join('cyvlfeat', 'vlfeat', 'vl', '*.c')):
-    vl_feat_sources.append(s)
+vl_feat_sources = [s for s in glob(op.join('cyvlfeat', 'vlfeat', 'vl', '*.c'))]
+
+if platform.system() == 'Windows':
+    compile_args = ['/DVL_BUILD_DLL', '/DDISABLE_OPENMP', 
+			        '/D__SSE2__',
+	                '/MD', '/D_CRT_SECURE_NO_DEPRECATE', 
+					'/D__LITTLE_ENDIAN__', '/DVL_DISABLE_AVX']
+else:  # Assume unix
+    compile_args = ['-DDISABLE_OPENMP=1', '-mavx']
+
 
 extensions = [
-    Extension("cysift", ["cyvlfeat/sift/cysift.pyx"] + vl_feat_sources,
+    Extension('cysift', [op.join('cyvlfeat', 'sift', 'cysift.pyx')] + vl_feat_sources,
               include_dirs=['vlfeat'],
-              extra_compile_args=['-DDISABLE_OPENMP=1', '-mavx']
+              extra_compile_args=compile_args
     )
 ]
 
