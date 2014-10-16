@@ -18,6 +18,7 @@ init:
 - cmd: python C:\\condaci.py setup %PYTHON_VERSION% --channel %BINSTAR_USER%
 
 install:
+- cmd: git submodule update --init --recursive
 - cmd: C:\\Miniconda\\python C:\\condaci.py auto ./conda --binstaruser %BINSTAR_USER% --binstarkey %BINSTAR_KEY%
 
 notifications:
