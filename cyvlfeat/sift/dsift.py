@@ -1,5 +1,5 @@
 import numpy as np
-import cysift
+import cyvlfeat.sift.cysift as cysift
 
 
 def dsift(image, step=1, size=3, bounds=None, window_size=2, norm=False,
