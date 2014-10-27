@@ -1,4 +1,3 @@
-# distutils : language = c++
 # Copyright (C) 2007-12 Andrea Vedaldi and Brian Fulkerson.
 # All rights reserved.
 

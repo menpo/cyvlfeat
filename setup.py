@@ -15,17 +15,21 @@ if platform.system() == 'Windows':
                     '/D__SSE2__',
                     '/MD', '/D_CRT_SECURE_NO_DEPRECATE',
                     '/D__LITTLE_ENDIAN__', '/DVL_DISABLE_AVX']
+    link_args = []
 elif platform.system() == 'Darwin':
     compile_args = ['-DDISABLE_OPENMP=1', '-mavx', '-mmacosx-version-min=10.5']
+    link_args = ['-mmacosx-version-min=10.5']
 else:  # Assume unix
     compile_args = ['-DDISABLE_OPENMP=1', '-mavx']
+    link_args = []
 
 
 extensions = [
     Extension('cyvlfeat.sift.cysift',
               [op.join('cyvlfeat', 'sift', 'cysift.pyx')] + vl_feat_sources,
               include_dirs=['vlfeat'],
-              extra_compile_args=compile_args
+              extra_compile_args=compile_args,
+              extra_link_args=link_args
     )
 ]
 
