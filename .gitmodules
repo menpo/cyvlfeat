@@ -1,3 +1,0 @@
-[submodule "vlfeat"]
-	path = cyvlfeat/vlfeat
-	url = https://github.com/vlfeat/vlfeat.git

@@ -4,5 +4,5 @@
 # This file is modified from part of the VLFeat library and is made available
 # under the terms of the BSD license.
 
-cdef extern from "../vlfeat/vl/sift.h":
+cdef extern from "vl/sift.h":
     ctypedef float vl_sift_pix
