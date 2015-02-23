@@ -1,6 +1,6 @@
 package:
   name: cyvlfeat
-  version: "0.2"
+  version: {{ CONDACI_VERSION }}
 
 requirements:
   build:

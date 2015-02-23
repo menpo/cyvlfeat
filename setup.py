@@ -22,7 +22,7 @@ for root, dirnames, filenames in os.walk('cyvlfeat'):
 
 setup(
     name='cyvlfeat',
-    version='0.2',
+    version='0.3',
     description='Cython wrapper of the VLFeat toolkit',
     url='https://github.com/menpo/cyvlfeat/',
     author='Patrick Snape',
