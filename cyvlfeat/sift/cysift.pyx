@@ -1,3 +1,4 @@
+# distutils: language = c
 # Copyright (C) 2007-12 Andrea Vedaldi and Brian Fulkerson.
 # All rights reserved.
 
@@ -8,6 +9,7 @@ cimport numpy as np
 cimport cython
 from cython.operator cimport dereference as deref
 from libc.stdio cimport printf
+
 # Import the header files
 from cyvlfeat._vl.dsift cimport *
 from cyvlfeat._vl.host cimport *

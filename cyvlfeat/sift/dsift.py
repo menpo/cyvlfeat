@@ -2,7 +2,7 @@ import numpy as np
 import cyvlfeat.sift.cysift as cysift
 
 
-def dsift(image, step=1, size=3, bounds=None, window_size=2, norm=False,
+def dsift(image, step=1, size=3, bounds=None, window_size=-1, norm=False,
           fast=False, float_descriptors=False, geometry=(4, 4, 8),
           verbose=False):
     # Validate image size
@@ -48,8 +48,6 @@ def dsift(image, step=1, size=3, bounds=None, window_size=2, norm=False,
     # Validate window_size
     if not isinstance(window_size, int):
         raise ValueError('Window size must be an integer.')
-    if window_size < 0:
-        raise ValueError('Window size must be a positive integer.')
 
     # Validate geometry
     geometry = np.asarray(geometry)
