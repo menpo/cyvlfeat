@@ -48,8 +48,14 @@ vl_extensions = [
               [op.join('cyvlfeat', 'sift', 'cysift.pyx')],
               include_dirs=include_dirs,
               library_dirs=library_dirs,
-              libraries=['vl'], 
-              language='c++')
+              libraries=['vl'],
+              language='c++'),
+    Extension('cyvlfeat.sift.cy_sift',
+              [op.join('cyvlfeat', 'sift', 'cy_sift.pyx')] ,
+              include_dirs=include_dirs,
+              library_dirs=library_dirs,
+              libraries=['vl'],
+			  language='c++')
 ]
 
 # Grab all the pyx and pxd Cython files for uploading to pypi
