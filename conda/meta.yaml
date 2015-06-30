@@ -17,6 +17,9 @@ requirements:
     - numpy >=1.9.1,<1.10
 
 test:
+  requires:
+    - nose
+
   imports:
     - cyvlfeat.sift.dsift
     - cyvlfeat.sift.sift
