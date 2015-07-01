@@ -136,7 +136,7 @@ cpdef dsift(np.ndarray[float, ndim=2, mode='c'] data, int[:] step,
 
 
 cdef int korder(const void *a, const void *b) nogil:
-    cdef double x = (<double*> a)[2] - (<double*> b)[2]
+    cdef float x = (<float*> a)[2] - (<float*> b)[2]
     if x < 0: return -1
     if x > 0: return +1
     return 0
@@ -152,61 +152,63 @@ cdef inline void transpose_descriptor(vl_sift_pix* dst, vl_sift_pix* src) nogil:
         for i in range(BP):
             o  = BO * i + BP * BO * j
             op = BO * i + BP * BO * jp
-            dst [op] = src[o]
+            dst[op] = src[o]
             for t in range(1, BO):
                 dst [BO - t + op] = src [t + o]
 
 
 @cython.boundscheck(False)
-cpdef sift(np.ndarray[float, ndim=2, mode='fortran'] data, int n_octaves,
-           int n_levels, int first_octave, int peak_thresh,
-           int edge_thresh, float norm_thresh, int magnif,
+cpdef sift(np.ndarray[float, ndim=2, mode='c'] data, int n_octaves,
+           int n_levels, int first_octave, int peak_threshold,
+           int edge_threshold, float norm_threshold, int magnification,
            int window_size, float[:, :] frames, bint force_orientations,
            bint float_descriptors, bint compute_descriptor, bint verbose):
 
     cdef:
-        bint first = False
-        int nikeys = 0, nframes = 0, reserved = 0, i = 0, j = 0, q = 0
+        bint is_first_octave = True
+        int n_user_keypoints = 0, total_keypoints = 0, reserved = 0, i = 0, j = 0, q = 0
         int height = data.shape[0]
         int width = data.shape[1]
-        float *ikeys
-        VlSiftFilt *filt = vl_sift_new (height, width, n_octaves,
-                                        n_levels, first_octave)
+        float *user_keypoints_arr
+        VlSiftFilt *filt = vl_sift_new(width, height, n_octaves, n_levels,
+                                       first_octave)
 
-        np.ndarray[float, ndim=2, mode='fortran'] out_descriptors = np.empty((1, 1), dtype=np.float32, order='F')
-        np.ndarray[float, ndim=2, mode='c'] out_frames = np.empty((1, 4), dtype=np.float32, order='C')
+        # Create empty 2D output arrays
+        np.ndarray[float, ndim=2, mode='c'] out_descriptors = np.empty(
+            (0, 128), dtype=np.float32, order='C')
+        np.ndarray[float, ndim=2, mode='c'] out_frames = np.empty(
+            (0, 4), dtype=np.float32, order='C')
 
-        float *descr = &out_descriptors[0, 0]
+        float *flat_descriptors = &out_descriptors[0, 0]
         float *flat_out_frames = &out_frames[0, 0]
 
-        int err = 0
-        VlSiftKeypoint *keys
-        int nkeys = 0
+        int is_octaves_complete = 0
+        VlSiftKeypoint *keypoints
+        int n_keypoints = 0
 
         double[4] angles
-        int nangles = 0
+        int n_angles = 0
+        VlSiftKeypoint *curr_keypoint
         VlSiftKeypoint ik
-        VlSiftKeypoint *k
 
-        vl_sift_pix[128] buf
-        vl_sift_pix[128] rbuf
-
-        float x = 0
+        vl_sift_pix[128] single_descriptor_arr
+        vl_sift_pix[128] single_descriptor_arr_t
 
         bint user_specified_frames = False
 
     user_specified_frames = frames is not None
     if user_specified_frames:
-        nikeys = frames.shape[0]
-        ikeys = &frames[0, 0]
-        # Ensure frames array is sorted
-        qsort(ikeys, nikeys, 4 * sizeof(double), korder)
+        n_user_keypoints = frames.shape[0]
+        user_keypoints_arr = &frames[0, 0]
+        # Ensure frames array is sorted by increasing scale
+        qsort(user_keypoints_arr, n_user_keypoints,
+              4 * sizeof(float), korder)
 
-    if peak_thresh >= 0: vl_sift_set_peak_thresh(filt, peak_thresh)
-    if edge_thresh >= 0: vl_sift_set_edge_thresh(filt, edge_thresh)
-    if norm_thresh >= 0: vl_sift_set_norm_thresh(filt, norm_thresh)
-    if magnif      >= 0: vl_sift_set_magnif(filt, magnif)
-    if window_size >= 0: vl_sift_set_window_size(filt, window_size)
+    if peak_threshold  >= 0: vl_sift_set_peak_thresh(filt, peak_threshold)
+    if edge_threshold  >= 0: vl_sift_set_edge_thresh(filt, edge_threshold)
+    if norm_threshold  >= 0: vl_sift_set_norm_thresh(filt, norm_threshold)
+    if magnification   >= 0: vl_sift_set_magnif(filt, magnification)
+    if window_size     >= 0: vl_sift_set_window_size(filt, window_size)
 
     if verbose:
         printf("vl_sift: filter settings:\n")
@@ -221,108 +223,137 @@ cpdef sift(np.ndarray[float, ndim=2, mode='fortran'] data, int n_octaves,
 
         printf("vl_sift: will source frames? yes (%d read)\n"
                if user_specified_frames
-               else "vl_sift: will source frames? no\n", nikeys)
+               else "vl_sift: will source frames? no\n", n_user_keypoints)
         printf("vl_sift: will force orientations? %d\n", force_orientations)
 
-    # Process each octave
-    i = 0
-    first = True
-    while True:
-        err = 0
-        nkeys = 0
 
+    if user_specified_frames:
+        # If we have specified the frames, we know how many frames
+        # will be calculated, so we can skip the dynamic reallocation
+        # which is normally done inside the keypoints loop
+        out_frames = np.resize(out_frames, (n_user_keypoints, 4))
+        flat_out_frames = &out_frames[0, 0]
+        # Similar for the descriptors, if necessary
+        if compute_descriptor:
+            out_descriptors = np.resize(out_descriptors,
+                                        (n_user_keypoints, 128))
+            flat_descriptors = &out_descriptors[0, 0]
+
+    # Process each octave
+    while True:
         if verbose:
-            printf("vl_sift: processing octave %d\n", vl_sift_get_octave_index(filt))
+            printf("vl_sift: processing octave %d\n",
+                   vl_sift_get_octave_index(filt))
 
         # Calculate the GSS for the next octave ....................
-        if first:
-            err = vl_sift_process_first_octave(filt, &data[0, 0])
-            first = False
+        if is_first_octave:
+            is_octaves_complete = vl_sift_process_first_octave(filt,
+                                                               &data[0, 0])
+            is_first_octave = False
         else:
-            err = vl_sift_process_next_octave(filt)
+            is_octaves_complete = vl_sift_process_next_octave(filt)
 
-        if err:
+        if is_octaves_complete:
             break
 
         if verbose:
-            printf("vl_sift: GSS octave %d computed\n", vl_sift_get_octave_index(filt))
+            printf("vl_sift: GSS octave %d computed\n",
+                   vl_sift_get_octave_index(filt))
 
         # Run detector .............................................
         if not user_specified_frames:
+            i = 0
             vl_sift_detect(filt)
 
-            keys = vl_sift_get_keypoints (filt)
-            nkeys = vl_sift_get_nkeypoints(filt)
-            i = 0
+            keypoints = vl_sift_get_keypoints(filt)
+            n_keypoints = vl_sift_get_nkeypoints(filt)
 
             if verbose:
-                printf("vl_sift: detected %d (unoriented) keypoints\n", nkeys)
+                printf("vl_sift: detected %d (unoriented) keypoints\n",
+                       n_keypoints)
         else:
-            nkeys = nikeys
+            n_keypoints = n_user_keypoints
 
-        # For each keypoint ........................................
-        for i in range(nkeys):
-            # Obtain keypoint orientations ...........................
+        # For each keypoint
+        while i < n_keypoints:
+            # Obtain keypoint orientations
             if user_specified_frames:
-                vl_sift_keypoint_init (filt, &ik,
-                                       ikeys[4 * i + 1] - 1,
-                                       ikeys[4 * i + 0] - 1,
-                                       ikeys[4 * i + 2])
+                vl_sift_keypoint_init(filt, &ik,
+                                      user_keypoints_arr[4 * i + 1],
+                                      user_keypoints_arr[4 * i + 0],
+                                      user_keypoints_arr[4 * i + 2])
 
                 if ik.o != vl_sift_get_octave_index(filt):
                     break
 
-                k = &ik
+                curr_keypoint = &ik
 
-                # optionally compute orientations too
+                # Optionally force computation of orientations
                 if force_orientations:
-                    nangles = vl_sift_calc_keypoint_orientations(filt, angles, k)
+                    n_angles = vl_sift_calc_keypoint_orientations(filt, angles,
+                                                                  curr_keypoint)
                 else:
-                    angles[0] = VL_PI / 2 - ikeys [4 * i + 3]
-                    nangles    = 1
+                    angles[0] = (VL_PI / 2) - user_keypoints_arr[4 * i + 3]
+                    n_angles  = 1
             else:
-                k = keys + i
-                nangles = vl_sift_calc_keypoint_orientations(filt, angles, k)
+                # This is equivalent to &keypoints[i] - just get the pointer
+                # to the i'th element.
+                curr_keypoint = keypoints + i
+                n_angles = vl_sift_calc_keypoint_orientations(filt, angles,
+                                                              curr_keypoint)
 
-                # For each orientation ...................................
-                for q in range(nangles):
-                    # compute descriptor (if necessary)
-                    if compute_descriptor:
-                        vl_sift_calc_keypoint_descriptor(filt, buf, k,
-                                                         angles[q])
-                        transpose_descriptor(rbuf, buf)
+            # For each orientation
+            for q in range(n_angles):
+                if compute_descriptor:
+                    vl_sift_calc_keypoint_descriptor(filt,
+                                                     single_descriptor_arr,
+                                                     curr_keypoint, angles[q])
+                    transpose_descriptor(single_descriptor_arr_t,
+                                         single_descriptor_arr)
 
-                    # make enough room for all these keypoints and more
-                    if reserved < nframes + 1:
-                        reserved += 2 * nkeys
-                        out_frames = np.resize(out_frames, (reserved, 4))
-                        flat_out_frames = &out_frames[0, 0]
-                        if compute_descriptor:
-                            out_descriptors = np.resize(out_descriptors, (128, reserved))
-                            descr = &out_descriptors[0, 0]
+                # Dynamically reallocate the output arrays so that they can
+                # fit all the keypoints being requested. Only dynamically
+                # reallocate if we are detecting keypoints (if the user hasn't
+                # supplied them).
+                if not user_specified_frames and reserved < total_keypoints + 1:
+                    reserved += 2 * n_keypoints
 
-                    # Save back with MATLAB conventions. Notice tha the input
-                    # image was the transpose of the actual image.
-                    flat_out_frames[4 * nframes + 0] = k.y + 1
-                    flat_out_frames[4 * nframes + 1] = k.x + 1
-                    flat_out_frames[4 * nframes + 2] = k.sigma
-                    flat_out_frames[4 * nframes + 3] = VL_PI / 2 - angles[q]
+                    out_frames = np.resize(out_frames, (reserved, 4))
+                    flat_out_frames = &out_frames[0, 0]
 
                     if compute_descriptor:
-                        if not float_descriptors:
-                            for j in range(128):
-                                x = min(512.0 * rbuf[j], 255.0)
-                                descr[128 * nframes + j] = x
+                        out_descriptors = np.resize(out_descriptors,
+                                                    (reserved, 128))
+                        flat_descriptors = &out_descriptors[0, 0]
 
-                    nframes += 1
+                # Notice that this method will give different results
+                # from MATLAB because MATLAB actually runs on the
+                # transpose of the image due to it's fortran ordering!
+                flat_out_frames[total_keypoints * 4 + 0] = curr_keypoint.y
+                flat_out_frames[total_keypoints * 4 + 1] = curr_keypoint.x
+                flat_out_frames[total_keypoints * 4 + 2] = curr_keypoint.sigma
+                flat_out_frames[total_keypoints * 4 + 3] = (VL_PI / 2) - angles[q]
+
+                if compute_descriptor:
+                    for j in range(128):
+                        flat_descriptors[total_keypoints * 128 + j] = \
+                            min(512.0 * single_descriptor_arr_t[j], 255.0)
+
+                total_keypoints += 1
+            i += 1
 
     if verbose:
-        printf("vl_sift: found %d keypoints\n", nframes)
+        printf("vl_sift: found %d keypoints\n", total_keypoints)
 
     # cleanup
     vl_sift_delete(filt)
 
-    out_frames = np.resize(out_frames, (nframes, 4))
+    # If we have dynamically allocated memory for the frames, make sure that
+    # we resize the array back to the correct size (since we optimistically
+    # allocated previously to reduce the number of total resizes)
+    if not user_specified_frames:
+        out_frames = np.resize(out_frames, (total_keypoints, 4))
+        out_descriptors = np.resize(out_descriptors, (total_keypoints, 128))
 
     if compute_descriptor:
         if float_descriptors:
