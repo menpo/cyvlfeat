@@ -3,20 +3,23 @@ from cyvlfeat.sift.sift import sift
 import numpy as np
 from scipy.misc import lena
 
+
+img = lena().astype(np.float32)
+
+
 def test_dsift_non_float_descriptors():
-    img = np.random.random([100, 100])
-    frames, descriptors = dsift(img, float_descriptors=False)
+    i = img.copy()
+    frames, descriptors = dsift(i, float_descriptors=False)
     assert descriptors.dtype == np.uint8
 
 
 def test_dsift_float_descriptors():
-    img = np.random.random([100, 100])
-    frames, descriptors = dsift(img, float_descriptors=True)
+    i = img.copy()
+    frames, descriptors = dsift(i, float_descriptors=True)
     assert descriptors.dtype == np.float32
 
 
 def test_sift_float_descriptors():
-    img = lena().astype(np.float32)
-    frames = sift(img, verbose=True)
-    print(frames[0])
+    i = img.copy()
+    frames = sift(i, verbose=True)
     assert frames.shape[0] == 728

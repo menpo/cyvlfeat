@@ -60,8 +60,8 @@ def dsift(image, step=1, size=3, bounds=None, window_size=-1, norm=False,
     step = step.astype(np.int32)
     size = size.astype(np.int32)
     bounds = bounds.astype(np.int32)
-    image = np.require(image, dtype=np.float32, requirements='F')
+    image = np.require(image, dtype=np.float32, requirements='C')
     frames, descriptors = cysift.dsift(image, step, size, bounds, window_size,
                                        norm, fast, float_descriptors, geometry,
                                        verbose)
-    return frames, np.ascontiguousarray(descriptors)
+    return frames, descriptors

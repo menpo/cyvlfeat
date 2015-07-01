@@ -19,32 +19,28 @@ from cyvlfeat._vl.mathop cimport VL_PI
 
 
 @cython.boundscheck(False)
-cpdef dsift(np.ndarray[float, ndim=2, mode='fortran'] data, int[:] step,
+cpdef dsift(np.ndarray[float, ndim=2, mode='c'] data, int[:] step,
             int[:] size, int[:] bounds, int window_size, bint norm, bint fast,
             bint float_descriptors, int[:] geometry, bint verbose):
 
     cdef:
         int num_frames = 0
-        int descriptor_length = 0
-        VlDsiftKeypoint* frames_array
-        float* descriptors_array
-        int k, i = 0
-        int step_x, step_y, min_x, min_y, max_x, max_y = 0
+        VlDsiftKeypoint *frames_array
+        float *descriptors_array
+        int k = 0, i = 0
+        int step_x = 0, step_y = 0, min_x = 0, min_y = 0, max_x = 0, max_y = 0
 
-        np.ndarray[float, ndim=2, mode='fortran'] out_descriptors
+        np.ndarray[float, ndim=2, mode='c'] out_descriptors
         np.ndarray[float, ndim=2, mode='c'] out_frames
-        np.ndarray[float, ndim=1, mode='fortran'] single_descriptor_array
 
         int height = data.shape[0]
         int width = data.shape[1]
 
         VlDsiftDescriptorGeometry geom
-        # Note that height, width does not match the vlfeat annotations,
-        # switched for fortran ordering
-        VlDsiftFilter* dsift = vl_dsift_new(height, width)
+        VlDsiftFilter *dsift = vl_dsift_new(height, width)
 
         int ndims = 0
-        int descriptor_count = 0
+        int descriptor_index = 0
         float* linear_descriptor
 
     # Setup the geometry (number of bins and sizes)
@@ -93,7 +89,6 @@ cpdef dsift(np.ndarray[float, ndim=2, mode='fortran'] data, int[:] step,
              "%g\n", vl_dsift_get_window_size(dsift))
       printf("vl_dsift: num of features:   %d\n", num_frames)
 
-
     # Actually compute the SIFT features
     vl_dsift_process(dsift, &data[0, 0])
 
@@ -102,45 +97,34 @@ cpdef dsift(np.ndarray[float, ndim=2, mode='fortran'] data, int[:] step,
     descriptors_array = vl_dsift_get_descriptors(dsift)
 
     # Create output arrays
-    out_descriptors = np.empty((descriptor_length, num_frames),
-                               dtype=np.float32, order='F')
-    # Get a temporary array for each descriptor
-    single_descriptor_array = np.empty(descriptor_length,
-                                       order='F', dtype=np.float32)
+    out_descriptors = np.empty((num_frames, descriptor_length),
+                               dtype=np.float32, order='C')
     # Grab the pointer to the data so we can walk it linearly
     linear_descriptor = &out_descriptors[0, 0]
 
     # The norm is added as the third component if set
     if norm:
         ndims = 3
-        out_frames = np.empty((ndims, num_frames), dtype=np.float32)
+        out_frames = np.empty((num_frames, ndims), dtype=np.float32)
     else:
         ndims = 2
-        out_frames = np.empty((ndims, num_frames), dtype=np.float32)
+        out_frames = np.empty((num_frames, ndims), dtype=np.float32)
 
     # Copy results out
-    # This is slightly complicated, it follows the Matlab conventions because
-    # of the horror that is converting between F and C contiguous arrays
-    # with linear indexing.
     for k in range(num_frames):
-        out_frames[0, k] = frames_array[k].x
-        out_frames[1, k] = frames_array[k].y
+        out_frames[k, 0] = frames_array[k].x
+        out_frames[k, 1] = frames_array[k].y
 
-        # We have an implied / 2 in the norm, because of the clipping
-        #   below
+        # We have an implied / 2 in the norm, because of the clipping below
         if norm:
-            out_frames[2, k] = frames_array[k].norm
+            out_frames[k, 2] = frames_array[k].norm
 
-        vl_dsift_transpose_descriptor(&single_descriptor_array[0],
-                                      descriptors_array + descriptor_length * k,
-                                      geom.numBinT,
-                                      geom.numBinX,
-                                      geom.numBinY)
-
+        # We don't need to transpose because our memory is in the correct
+        # order already!
         for i in range(descriptor_length):
-            linear_descriptor[descriptor_count] = \
-                min(512.0 * single_descriptor_array[i], 255.0)
-            descriptor_count += 1
+            descriptor_index = num_frames * i + k
+            linear_descriptor[descriptor_index] = \
+                min(512.0 * descriptors_array[descriptor_index], 255.0)
 
     # Clean up the allocated memory
     vl_dsift_delete(dsift)
