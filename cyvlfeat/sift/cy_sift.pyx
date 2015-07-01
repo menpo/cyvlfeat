@@ -110,7 +110,7 @@ cpdef sift(
     int octaves, int levels, int first_octave,
     double edge_thresh, double peak_thresh, double norm_thresh,
     double magnif, double window_size, bint force_orientations, 
-    bint verbose, bint returnDescriptors, bint floatDescriptors ):
+    int verbose, bint returnDescriptors, bint floatDescriptors ):
 	# what to do about missing
     
     cdef double  *ikeys = <double *>0

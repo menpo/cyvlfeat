@@ -21,8 +21,8 @@ def walk_for_package_data(ext_pattern):
 IS_WIN = platform.system() == 'Windows'
 IS_CONDA = os.environ.get('CONDA_BUILD', False)
 
-include_dirs = []
-library_dirs = []
+include_dirs = [r'C:\Users\Sean Violante\Documents\Projects\vlfeat-0.9.20']
+library_dirs = [r'C:\Users\Sean Violante\Documents\Projects\vlfeat-0.9.20\bin\win64']
 
 # If we are building from the conda folder,
 # then we know we can manually copy some files around
