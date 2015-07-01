@@ -37,15 +37,14 @@ cpdef dsift(np.ndarray[float, ndim=2, mode='c'] data, int[:] step,
         int width = data.shape[1]
 
         VlDsiftDescriptorGeometry geom
-        VlDsiftFilter *dsift = vl_dsift_new(height, width)
+        VlDsiftFilter *dsift = vl_dsift_new(width, height)
 
         int ndims = 0
         int descriptor_index = 0
         float* linear_descriptor
 
     # Setup the geometry (number of bins and sizes)
-    # Note the y-axis is taken as the first access but vlfeat expects the x-axis
-    # as the first axis
+    # Note the y-axis is taken as the first (zeroth) axis
     geom.numBinX = geometry[1]
     geom.numBinY = geometry[0]
     geom.numBinT = geometry[2]
@@ -55,7 +54,7 @@ cpdef dsift(np.ndarray[float, ndim=2, mode='c'] data, int[:] step,
 
     # Set other options
     vl_dsift_set_steps(dsift, step[1], step[0])
-    vl_dsift_set_bounds(dsift, bounds[0], bounds[1], bounds[2], bounds[3])
+    vl_dsift_set_bounds(dsift, bounds[1], bounds[0], bounds[3], bounds[2])
     vl_dsift_set_flat_window(dsift, fast)
 
     if window_size >= 0:
@@ -67,14 +66,15 @@ cpdef dsift(np.ndarray[float, ndim=2, mode='c'] data, int[:] step,
     geom = deref(vl_dsift_get_geometry(dsift))
 
     if verbose:
-      vl_dsift_get_steps(dsift, &step_x, &step_x)
+      vl_dsift_get_steps(dsift, &step_x, &step_y)
       vl_dsift_get_bounds(dsift, &min_x, &min_y, &max_x, &max_y)
 
-      printf("vl_dsift: image size         [W, H] = [%d, %d]\n",  width, height)
+      printf("vl_dsift: image size         [W, H] = [%d, %d]\n", width, height)
       printf("vl_dsift: bounds:            "
-             "[minX,minY,maxX,maxY] = [%d, %d, %d, %d]\n",
+             "[minX, minY, maxX, maxY] = [%d, %d, %d, %d]\n",
              min_x, min_y, max_x, max_y)
-      printf("vl_dsift: subsampling steps: stepX=%d, stepY=%d\n", step_x, step_x)
+      printf("vl_dsift: subsampling steps: stepX=%d, stepY=%d\n",
+             step_x, step_y)
       printf("vl_dsift: num bins:          "
              "[numBinT, numBinX, numBinY] = [%d, %d, %d]\n",
              geom.numBinT,
@@ -112,8 +112,8 @@ cpdef dsift(np.ndarray[float, ndim=2, mode='c'] data, int[:] step,
 
     # Copy results out
     for k in range(num_frames):
-        out_frames[k, 0] = frames_array[k].x
-        out_frames[k, 1] = frames_array[k].y
+        out_frames[k, 0] = frames_array[k].y
+        out_frames[k, 1] = frames_array[k].x
 
         # We have an implied / 2 in the norm, because of the clipping below
         if norm:
@@ -130,10 +130,9 @@ cpdef dsift(np.ndarray[float, ndim=2, mode='c'] data, int[:] step,
     vl_dsift_delete(dsift)
 
     if float_descriptors:
-        return out_frames, np.require(out_descriptors, requirements=['C'])
+        return out_frames, out_descriptors
     else:
-        return out_frames, np.require(out_descriptors, dtype=np.uint8,
-                                      requirements=['C'])
+        return out_frames, out_descriptors.astype(np.uint8)
 
 
 cdef int korder(const void *a, const void *b) nogil:
