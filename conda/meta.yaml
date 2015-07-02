@@ -21,8 +21,8 @@ test:
     - nose
 
   imports:
-    - cyvlfeat.sift.dsift
     - cyvlfeat.sift.sift
+    - cyvlfeat.sift.dsift
 
 about:
   home: https://github.com/menpo/cyvlfeat/

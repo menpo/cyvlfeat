@@ -19,9 +19,10 @@ from cyvlfeat._vl.mathop cimport VL_PI
 
 
 @cython.boundscheck(False)
-cpdef dsift(np.ndarray[float, ndim=2, mode='c'] data, int[:] step,
-            int[:] size, int[:] bounds, int window_size, bint norm, bint fast,
-            bint float_descriptors, int[:] geometry, bint verbose):
+cpdef cy_dsift(np.ndarray[float, ndim=2, mode='c'] data, int[:] step,
+               int[:] size, int[:] bounds, int window_size, bint norm,
+               bint fast, bint float_descriptors, int[:] geometry,
+               bint verbose):
 
     cdef:
         int num_frames = 0
@@ -158,11 +159,11 @@ cdef inline void transpose_descriptor(vl_sift_pix* dst, vl_sift_pix* src) nogil:
 
 
 @cython.boundscheck(False)
-cpdef sift(np.ndarray[float, ndim=2, mode='c'] data, int n_octaves,
-           int n_levels, int first_octave, int peak_threshold,
-           int edge_threshold, float norm_threshold, int magnification,
-           int window_size, float[:, :] frames, bint force_orientations,
-           bint float_descriptors, bint compute_descriptor, bint verbose):
+cpdef cy_sift(np.ndarray[float, ndim=2, mode='c'] data, int n_octaves,
+              int n_levels, int first_octave, int peak_threshold,
+              int edge_threshold, float norm_threshold, int magnification,
+              int window_size, float[:, :] frames, bint force_orientations,
+              bint float_descriptors, bint compute_descriptor, bint verbose):
 
     cdef:
         bint is_first_octave = True

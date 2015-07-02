@@ -1,5 +1,5 @@
 import numpy as np
-import cyvlfeat.sift.cysift as cysift
+from .cysift import cy_dsift
 
 
 def dsift(image, step=1, size=3, bounds=None, window_size=-1, norm=False,
@@ -36,8 +36,8 @@ def dsift(image, step=1, size=3, bounds=None, window_size=-1, norm=False,
     upper-left spatial bin center is aligned with the upper-left
     corner of the rectangle.
 
-    By default, dsift computes features equivalent to
-    sift. However, the ``fast`` option can be used to turn on an
+    By default, ``dsift`` computes features equivalent to
+    ``sift``. However, the ``fast`` option can be used to turn on an
     variant of the descriptor which, while not strictly equivalent, is much
     faster.
 
@@ -173,7 +173,7 @@ def dsift(image, step=1, size=3, bounds=None, window_size=-1, norm=False,
     size = size.astype(np.int32)
     bounds = bounds.astype(np.int32)
     image = np.require(image, dtype=np.float32, requirements='C')
-    frames, descriptors = cysift.dsift(image, step, size, bounds, window_size,
-                                       norm, fast, float_descriptors, geometry,
-                                       verbose)
+    frames, descriptors = cy_dsift(image, step, size, bounds, window_size,
+                                   norm, fast, float_descriptors, geometry,
+                                   verbose)
     return frames, descriptors

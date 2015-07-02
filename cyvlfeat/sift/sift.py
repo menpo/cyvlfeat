@@ -1,5 +1,5 @@
 import numpy as np
-import cyvlfeat.sift.cysift as cysift
+from .cysift import cy_sift
 
 
 def sift(image, n_octaves=None, n_levels=3,  first_octave=0,  peak_thresh=0,
@@ -115,11 +115,11 @@ def sift(image, n_octaves=None, n_levels=3,  first_octave=0,  peak_thresh=0,
     # Ensure types are correct before passing to Cython
     image = np.require(image, dtype=np.float32, requirements='C')
 
-    result = cysift.sift(image, n_octaves, n_levels,
-                         first_octave,  peak_thresh,
-                         edge_thresh, norm_thresh,  magnification,
-                         window_size, frames, force_orientations,
-                         float_descriptors, compute_descriptor,
-                         verbose)
+    result = cy_sift(image, n_octaves, n_levels,
+                     first_octave,  peak_thresh,
+                     edge_thresh, norm_thresh,  magnification,
+                     window_size, frames, force_orientations,
+                     float_descriptors, compute_descriptor,
+                     verbose)
     # May be a tuple or a single return of only the calculated frames
     return result
