@@ -21,8 +21,8 @@ def walk_for_package_data(ext_pattern):
 IS_WIN = platform.system() == 'Windows'
 IS_CONDA = os.environ.get('CONDA_BUILD', False)
 
-include_dirs = []
-library_dirs = []
+include_dirs = [r'C:\Users\Sean Violante\Documents\Projects\vlfeat-0.9.20']
+library_dirs = [r'C:\Users\Sean Violante\Documents\Projects\vlfeat-0.9.20\bin\win64']
 
 # If we are building from the conda folder,
 # then we know we can manually copy some files around
@@ -48,8 +48,14 @@ vl_extensions = [
               [op.join('cyvlfeat', 'sift', 'cysift.pyx')],
               include_dirs=include_dirs,
               library_dirs=library_dirs,
-              libraries=['vl'], 
-              language='c++')
+              libraries=['vl'],
+              language='c++'),
+    Extension('cyvlfeat.sift.cy_sift',
+              [op.join('cyvlfeat', 'sift', 'cy_sift.pyx')] ,
+              include_dirs=include_dirs,
+              library_dirs=library_dirs,
+              libraries=['vl'],
+			  language='c++')
 ]
 
 # Grab all the pyx and pxd Cython files for uploading to pypi
