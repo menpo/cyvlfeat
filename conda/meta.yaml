@@ -19,6 +19,7 @@ requirements:
 test:
   requires:
     - nose
+    - scipy
 
   imports:
     - cyvlfeat.sift.sift
