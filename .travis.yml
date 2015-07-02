@@ -1,3 +1,5 @@
+sudo: false
+
 env:
   global:
     - BINSTAR_USER: menpo
