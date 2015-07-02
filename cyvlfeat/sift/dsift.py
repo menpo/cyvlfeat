@@ -86,30 +86,30 @@ def dsift(image, step=1, size=3, bounds=None, window_size=-1, norm=False,
         option is not specified, the entire image is used. The
         bounding box is clipped to the image boundaries.
     norm : `bool`, optional
-        If specified, adds to the ``frames`` output argument a third
+        If ``True``, adds to the ``frames`` output argument a third
         row containing the descriptor norm, or energy, before
         contrast normalization. This information can be used to
         suppress low contrast descriptors.
     fast : `bool`, optional
-        If specified, use a piecewise-flat, rather than Gaussian,
+        If ``True``, use a piecewise-flat, rather than Gaussian,
         windowing function. While this breaks exact SIFT equivalence,
         in practice is much faster to compute.
     float_descriptors : `bool`, optional
-        If specified, the descriptor are returned in floating point
+        If ``True``, the descriptor are returned in floating point
         rather than integer format.
     geometry : [`int`, `int`, `int`], optional
         Specify the geometry of the descriptor as ``[NY, NX, NO]``, where ``NY``
         is the number of bins in the Y direction, NX in the X direction,
         and NO the number of orientation bins.
     verbose : `bool`, optional
-        If specified, be verbose.
+        If ``True``, be verbose.
 
     Returns
     -------
-    frames : `[F, 2]` `float32` `ndarray`
+    frames : `(F, 2)` or `(F, 3)` `float32` `ndarray`
         ``F`` is the number of keypoints (frames) used. This is the center
         of every dense SIFT descriptor that is extracted.
-    descriptors : `[F, 128]` `uint8` or `float32` `ndarray`
+    descriptors : `(F, 128)` `uint8` or `float32` `ndarray`
         ``F`` is the number of keypoints (frames) used. The 128 length vectors
         per keypoint extracted. ``uint8`` by default.
     """
