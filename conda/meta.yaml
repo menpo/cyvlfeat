@@ -17,9 +17,13 @@ requirements:
     - numpy >=1.9.1,<1.10
 
 test:
+  requires:
+    - nose
+    - scipy
+
   imports:
-    - cyvlfeat.sift.dsift
     - cyvlfeat.sift.sift
+    - cyvlfeat.sift.dsift
 
 about:
   home: https://github.com/menpo/cyvlfeat/
