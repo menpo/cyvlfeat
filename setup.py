@@ -6,6 +6,7 @@ import os
 import platform
 import fnmatch
 import shutil
+import versioneer
 
 
 def walk_for_package_data(ext_pattern):
@@ -63,7 +64,8 @@ else:
             
 setup(
     name='cyvlfeat',
-    version='0.3',
+    version=versioneer.get_version(),
+    cmdclass=versioneer.get_cmdclass(),
     description='Cython wrapper of the VLFeat toolkit',
     url='https://github.com/menpo/cyvlfeat/',
     author='Patrick Snape',
