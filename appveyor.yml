@@ -8,21 +8,23 @@ environment:
   matrix:
     - PYTHON_VERSION: 2.7
     - PYTHON_VERSION: 3.4
-    
+
 matrix:
   fast_finish: true
 
 platform:
-  - x86
-  - x64
+- x86
+- x64
 
 init:
-  - ps: Start-FileDownload 'https://raw.githubusercontent.com/menpo/condaci/v0.4.1/condaci.py' C:\\condaci.py; echo "Done"
-  - cmd: python C:\\condaci.py setup
+- ps: Start-FileDownload 'https://raw.githubusercontent.com/menpo/condaci/v0.4.6/condaci.py' C:\\condaci.py; echo "Done"
+- cmd: python C:\\condaci.py setup
 
 install:
-  - cmd: git submodule update --init --recursive
-  - cmd: C:\\Miniconda\\python C:\\condaci.py build ./conda
+- cmd: set tmp_cmd=python C:\\condaci.py miniconda_dir
+- cmd: "FOR /F %%i IN (' %tmp_cmd% ') DO SET APPV_MINICONDA_DIR=%%i"
+- cmd: set APPV_MINICONDA_EXE="%APPV_MINICONDA_DIR%\python.exe"
+- cmd: "%APPV_MINICONDA_EXE% C:\\condaci.py build conda"
 
 notifications:
   - provider: Slack
