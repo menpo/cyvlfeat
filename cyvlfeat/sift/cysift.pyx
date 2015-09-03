@@ -313,10 +313,8 @@ cpdef cy_sift(np.ndarray[float, ndim=2, mode='c'] data, int n_octaves,
                                          single_descriptor_arr)
 
                 # Dynamically reallocate the output arrays so that they can
-                # fit all the keypoints being requested. Only dynamically
-                # reallocate if we are detecting keypoints (if the user hasn't
-                # supplied them).
-                if not user_specified_frames and reserved < total_keypoints + 1:
+                # fit all the keypoints being requested.
+                if reserved < total_keypoints + 1:
                     reserved += 2 * n_keypoints
 
                     out_frames = np.resize(out_frames, (reserved, 4))
