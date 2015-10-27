@@ -1,1 +1,1 @@
-__author__ = 'pts08'
+from .fisher import fisher
