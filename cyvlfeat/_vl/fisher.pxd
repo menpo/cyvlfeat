@@ -7,7 +7,6 @@
 from .host cimport vl_size
 from .host cimport vl_type
 
-
 cdef extern from "vl/fisher.h":
     vl_size vl_fisher_encode(void * enc,
                              vl_type dataType,
@@ -19,3 +18,7 @@ cdef extern from "vl/fisher.h":
                              void const * data,
                              vl_size numData,
                              int flags)
+    cdef int VL_FISHER_FLAG_SQUARE_ROOT "VL_FISHER_FLAG_SQUARE_ROOT"
+    cdef int VL_FISHER_FLAG_NORMALIZED "VL_FISHER_FLAG_NORMALIZED"
+    cdef int VL_FISHER_FLAG_IMPROVED "VL_FISHER_FLAG_IMPROVED"
+    cdef int VL_FISHER_FLAG_FAST "VL_FISHER_FLAG_FAST"
