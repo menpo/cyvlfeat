@@ -14,11 +14,10 @@ def fisher(X, MEANS, COVARIANCES, PRIORS,
     MEANS and COVARIANCES one column per GMM component (covariance
     matrices are assumed diagonal, hence these are simply the variance
     of each data dimension). PRIORS has size equal to the number of
-    GMM components. All data must be of the same class, either SINGLE
-    or DOUBLE.
+    GMM components. All data must be of the class np.float32
  
-    ENC is a vector of the same class of X of size equal to the
-    product of the data dimension and the number of components.
+    ENC is a vector of the class np.float32 of size equal to the
+    product of 2 * the data dimension * the number of components.
  
     By default, the standard Fisher vector is computed. FISHER()
     accepts the following options:
