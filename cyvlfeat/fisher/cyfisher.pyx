@@ -9,7 +9,9 @@ cimport numpy as np
 cimport cython
 
 # Import the header files
+from cyvlfeat._vl.fisher cimport vl_size
 from cyvlfeat._vl.fisher cimport vl_fisher_encode
+from cyvlfeat._vl.fisher cimport VL_TYPE_FLOAT
 from cyvlfeat._vl.fisher cimport VL_FISHER_FLAG_NORMALIZED
 from cyvlfeat._vl.fisher cimport VL_FISHER_FLAG_SQUARE_ROOT
 from cyvlfeat._vl.fisher cimport VL_FISHER_FLAG_IMPROVED
@@ -53,15 +55,15 @@ cpdef cy_fisher(np.ndarray[float, ndim=2, mode='c'] X,
         print('vl_fisher: normalized: %d' % Normalized)
         print('vl_fisher: fast: %d' % Fast)
 
-    cdef float[:] enc = np.zeros((2*numClusters*dimension,),dtype=np.float32)
-    cdef int numTerms = vl_fisher_encode(&enc.types,
-                                         dataType,
-                                         MEANS.ctype,
+    enc = np.zeros((2*numClusters*dimension,),dtype=np.float32)
+    cdef int numTerms = vl_fisher_encode(<void*>enc.ctypes,
+                                         VL_TYPE_FLOAT,
+                                         <void*>MEANS.ctypes,
                                          dimension,
                                          numClusters,
-                                         COVARIANCES.ctypes,
-                                         PRIORS.ctypes,
-                                         X.ctypes,
+                                         <void*>COVARIANCES.ctypes,
+                                         <void*>PRIORS.ctypes,
+                                         <void*>X.ctypes,
                                          numData,
                                          flags)
 
