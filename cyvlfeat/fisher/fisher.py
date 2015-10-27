@@ -63,11 +63,6 @@ def fisher(X, MEANS, COVARIANCES, PRIORS,
     if X.shape[0]!=D:
         raise ValueError('X and MEANS do not have the same dimensionality')
     
-    geometry = geometry.astype(np.int32)
-    step = step.astype(np.int32)
-    size = size.astype(np.int32)
-    bounds = bounds.astype(np.int32)
-    image = np.require(image, dtype=np.float32, requirements='C')
     ENC = cy_fisher(X.astype(np.float32),
                     MEANS.astype(np.float32),
                     COVARIANCES.astype(np.float32),
