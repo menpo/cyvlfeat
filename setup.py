@@ -41,12 +41,12 @@ if IS_WIN and IS_CONDA:
     
     # On Windows, there is no relative linking against DLLS,
     # so every extension MUST have a copy of the vl.dll next to it.
-    sift_dll_path = op.join('cyvlfeat', 'sift', 'vl.dll')
-    shutil.copy(conda_vl_dll_path, sift_dll_path)
+    vl_ext_dll_path = op.join('cyvlfeat', 'sift', 'fisher', 'vl.dll')
+    shutil.copy(conda_vl_dll_path, vl_ext_dll_path)
     
 vl_extensions = [
     Extension('cyvlfeat.sift.cysift',
-              [op.join('cyvlfeat', 'sift', 'cysift.pyx')],
+              [op.join('cyvlfeat', 'sift', 'cysift.pyx', 'fisher', 'cyfisher.pyx')],
               include_dirs=include_dirs,
               library_dirs=library_dirs,
               libraries=['vl'], 
