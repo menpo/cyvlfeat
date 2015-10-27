@@ -7,7 +7,6 @@
 import numpy as np
 cimport numpy as np
 cimport cython
-from cython.operator cimport dereference as deref
 
 # Import the header files
 from cyvlfeat._vl.fisher cimport vl_fisher_encode
