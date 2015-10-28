@@ -57,16 +57,18 @@ cpdef cy_fisher(np.ndarray[float, ndim=2, mode='c'] X,
         print('vl_fisher: fast: %d' % Fast)
 
     enc = np.zeros((2*numClusters*dimension,),dtype=np.float32)
-    cdef int numTerms = vl_fisher_encode(<void*>enc.data,
-                                         VL_TYPE_FLOAT,
-                                         <void*>MEANS.data,
-                                         dimension,
-                                         numClusters,
-                                         <void*>COVARIANCES.data,
-                                         <void*>PRIORS.data,
-                                         <void*>X.data,
-                                         numData,
-                                         flags)
+    
+    cdef int numTerms = 0
+    #numTerms = vl_fisher_encode(<void*>enc.data,
+                                 #VL_TYPE_FLOAT,
+                                 #<void*>MEANS.data,
+                                 #dimension,
+                                 #numClusters,
+                                 #<void*>COVARIANCES.data,
+                                 #<void*>PRIORS.data,
+                                 #<void*>X.data,
+                                 #numData,
+                                 #flags)
 
     if Verbose:
         print('vl_fisher: sparsity of assignments: %.2f%% (%d non-negligible assignments)' \
