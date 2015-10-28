@@ -2,79 +2,69 @@ import numpy as np
 from .cyfisher import cy_fisher
 
 
-def fisher(X, MEANS, COVARIANCES, PRIORS,
-           Normalized=True, SquareRoot=True,
-           Improved=True, Fast=False, Verbose=False):
-    '''
-    Computes the Fisher vector encoding of the vectors x relative to
-    the diagonal covariance Gaussian mixture model with means MEANS,
-    covariances COVARIANCES, and prior mode probabilities PRIORS.
+def fisher(x, means, covariances, priors, normalized=True, square_root=True,
+           improved=True, fast=False, verbose=False):
+    r"""
+    Computes the Fisher vector encoding of the vectors ``x`` relative to
+    the diagonal covariance Gaussian mixture model with ``means``,
+    ``covariances``, and prior mode probabilities ``priors``.
 
-    X has one column per data vector (e.g. a SIFT descriptor), and
-    MEANS and COVARIANCES one column per GMM component (covariance
-    matrices are assumed diagonal, hence these are simply the variance
-    of each data dimension). PRIORS has size equal to the number of
-    GMM components. All data must be of the class np.float32
- 
-    ENC is a vector of the class np.float32 of size equal to the
-    product of 2 * the data dimension * the number of components.
- 
-    By default, the standard Fisher vector is computed. FISHER()
-    accepts the following options:
- 
-    Normalized::
-      If specified, L2 normalize the Fisher vector.
- 
-    SquareRoot::
-      If specified, the signed square root function is applied to
-      ENC before normalization.
- 
-    Improved::
-      If specified, compute the improved variant of the Fisher
-      Vector. This is equivalent to specifying the Normalized and
-      SquareRoot options.
- 
-    Fast::
-      If specified, uses slightly less accurate computations but
-      significantly increase the speed in some cases (particularly
-      with a large number of Gaussian modes).
- 
-    Verbose::
-      Increase the verbosity level.
-      '''
+    By default, the standard Fisher vector is computed.
 
+    Parameters
+    ----------
+    x : [D, N]  `float32` `ndarray`
+        One column per data vector (e.g. a SIFT descriptor)
+    means :  [F, N]  `float32` `ndarray`
+        One column per GMM component.
+    covariances :  [F, N]  `float32` `ndarray`
+        One column per GMM component (covariance matrices are assumed diagonal,
+        hence these are simply the variance of each data dimension).
+    priors :  [F, N]  `float32` `ndarray`
+        Equal to the number of GMM components.
+    normalized : `bool`, optional
+        If ``True``, L2 normalize the Fisher vector.
+    square_root : `bool`, optional
+        If ``True``, the signed square root function is applied to the return
+        vector before normalization.
+    improved : `bool`, optional
+        If ``True``, compute the improved variant of the Fisher Vector. This is
+        equivalent to specifying the ``normalized`` and ``square_root` options.
+    fast : `bool`, optional
+        If ``True``, uses slightly less accurate computations but significantly
+        increase the speed in some cases (particularly with a large number of
+        Gaussian modes).
+    verbose: `bool`, optional
+        If ``True``, print information.
+
+    Returns
+    -------
+    enc : [k, 1] `float32` `ndarray`
+        A vector of size equal to the product of
+        ``k = 2 * the n_data_dimensions * n_components``.
+    """
     # check for None
-    if X is None or MEANS is None or COVARIANCES is None or PRIORS is None:
-        raise ValueError('a required input is None')
+    if x is None or means is None or covariances is None or priors is None:
+        raise ValueError('A required input is None')
 
     # validate the gmm parameters
-    D = MEANS.shape[0] # the feature dimensionality
-    K = MEANS.shape[1] # the number of GMM modes
-    N = X.shape[1] # the number of samples
-    if COVARIANCES.shape[0]!=D:
-        raise ValueError('COVARIANCES and MEANS do not have the same dimensionality')
+    D = means.shape[0]  # the feature dimensionality
+    K = means.shape[1]  # the number of GMM modes
+    N = x.shape[1]  # the number of samples
+    if covariances.shape[0] != D:
+        raise ValueError('covariances and means do not have the same '
+                         'dimensionality')
     
-    if PRIORS.ndim!=1:
-        raise ValueError('PRIORS had unexpected shape')
+    if priors.ndim != 1:
+        raise ValueError('priors has an unexpected shape')
     
-    if COVARIANCES.shape[1]!=K or PRIORS.shape[0]!=K:
-        raise ValueError('COVARIANCES or PRIORS does not have the correct number of modes')
+    if covariances.shape[1] != K or priors.shape[0] != K:
+        raise ValueError('covariances or priors does not have the correct '
+                         'number of modes')
 
-    if X.shape[0]!=D:
-        raise ValueError('X and MEANS do not have the same dimensionality')
-    
-    try:
-        ENC = cy_fisher(X,
-                        MEANS,
-                        COVARIANCES,
-                        PRIORS,
-                        np.int32(Normalized),
-                        np.int32(SquareRoot),
-                        np.int32(Improved),
-                        np.int32(Fast),
-                        np.int32(Verbose))
-    except Exception as e:
-        print 'Runtime error: ', e
-        raise Exception(e)
-    return ENC
-    
+    if x.shape[0] != D:
+        raise ValueError('x and means do not have the same dimensionality')
+
+    return cy_fisher(x, means, covariances, priors,
+                     np.int32(normalized), np.int32(square_root),
+                     np.int32(improved), np.int32(fast), np.int32(verbose))

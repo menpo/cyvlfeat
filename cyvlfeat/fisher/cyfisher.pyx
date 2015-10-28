@@ -19,15 +19,15 @@ from cyvlfeat._vl.fisher cimport VL_FISHER_FLAG_IMPROVED
 from cyvlfeat._vl.fisher cimport VL_FISHER_FLAG_FAST
 
 @cython.boundscheck(False)
-cpdef cy_fisher(np.ndarray[float, ndim=2, mode='c'] X,
-                np.ndarray[float, ndim=2, mode='c'] MEANS,
-                np.ndarray[float, ndim=2, mode='c'] COVARIANCES,
-                np.ndarray[float, ndim=1, mode='c'] PRIORS,
-                bint Normalized,
-                bint SquareRoot,
-                bint Improved,
-                bint Fast,
-                bint Verbose):
+cpdef cy_fisher(float[:, :] X,
+                float[:, :] MEANS,
+                float[:, :] COVARIANCES,
+                float[:] PRIORS,
+                bint normalized,
+                bint square_root,
+                bint improved,
+                bint fast,
+                bint verbose):
 
     cdef:
         vl_size numClusters = MEANS.shape[1]
@@ -35,43 +35,47 @@ cpdef cy_fisher(np.ndarray[float, ndim=2, mode='c'] X,
         vl_size numData = X.shape[1]
         int flags = 0
 
-    if Normalized:
+    if normalized:
         flags |= VL_FISHER_FLAG_NORMALIZED
     
-    if SquareRoot:
+    if square_root:
         flags |= VL_FISHER_FLAG_SQUARE_ROOT
         
-    if Improved:
+    if improved:
         flags |= VL_FISHER_FLAG_IMPROVED
         
-    if Fast:
+    if fast:
         flags |= VL_FISHER_FLAG_FAST
     
-    if Verbose:
-        print('vl_fisher: num data: %d' % numData)
-        print('vl_fisher: num clusters: %d' % numClusters)
-        print('vl_fisher: data dimension: %d' % dimension)
-        print('vl_fisher: code dimension: %d' % 2 * numClusters * dimension)
-        print('vl_fisher: square root: %d' % SquareRoot)
-        print('vl_fisher: normalized: %d' % Normalized)
-        print('vl_fisher: fast: %d' % Fast)
+    if verbose:
+        print('vl_fisher: num data:       {}\n'
+              'vl_fisher: num clusters:   {}\n'
+              'vl_fisher: data dimension: {}\n'
+              'vl_fisher: code dimension: {}\n'
+              'vl_fisher: square root:    {}\n'
+              'vl_fisher: normalized:     {}\n'
+              'vl_fisher: fast:           {}'.format(
+            numData, numClusters, dimension, 2 * numClusters * dimension,
+            square_root, normalized, fast))
 
-    enc = np.zeros((2*numClusters*dimension,),dtype=np.float32)
-    
-    cdef int numTerms = 0
-    #numTerms = vl_fisher_encode(<void*>enc.data,
-                                 #VL_TYPE_FLOAT,
-                                 #<void*>MEANS.data,
-                                 #dimension,
-                                 #numClusters,
-                                 #<void*>COVARIANCES.data,
-                                 #<void*>PRIORS.data,
-                                 #<void*>X.data,
-                                 #numData,
-                                 #flags)
+    cdef float[:] enc = np.zeros((2*numClusters*dimension,),
+                                 dtype=np.float32)
 
-    if Verbose:
-        print('vl_fisher: sparsity of assignments: %.2f%% (%d non-negligible assignments)' \
-              % (100.0 * (1.0 - np.float32(numTerms)/(numData*numClusters+1e-12)),numTerms))
+    cdef int numTerms = vl_fisher_encode(&enc[0],
+                                         VL_TYPE_FLOAT,
+                                         &MEANS[0, 0],
+                                         dimension,
+                                         numClusters,
+                                         &COVARIANCES[0, 0],
+                                         &PRIORS[0],
+                                         &X[0, 0],
+                                         numData,
+                                         flags)
 
-    return enc
+    if verbose:
+        print('vl_fisher: sparsity of assignments: {:.2f}% '
+              '({} non-negligible assignments)'.format(
+            100.0 * (1.0 - <float>numTerms / (numData * numClusters + 1e-12)),
+            numTerms))
+
+    return np.asarray(enc)
