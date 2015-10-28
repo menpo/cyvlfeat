@@ -56,16 +56,16 @@ cpdef cy_fisher(np.ndarray[float, ndim=2, mode='c'] X,
         print 'vl_fisher: normalized: %d' % Normalized
         print 'vl_fisher: fast: %d' % Fast
 
-    enc = np.zeros((2*numClusters*dimension,),dtype=np.float32)
+    cdef np.ndarray[float, ndim=1, mode='c'] enc = np.zeros((2*numClusters*dimension,),dtype=np.float32)
     cdef int numTerms = 0
-    numTerms = vl_fisher_encode(<void*>enc.data,
+    numTerms = vl_fisher_encode(enc.data,
                                 VL_TYPE_FLOAT,
-                                <void*>MEANS.data,
+                                MEANS.data,
                                 dimension,
                                 numClusters,
-                                <void*>COVARIANCES.data,
-                                <void*>PRIORS.data,
-                                <void*>X.data,
+                                COVARIANCES.data,
+                                PRIORS.data,
+                                X.data,
                                 numData,
                                 flags)
 
