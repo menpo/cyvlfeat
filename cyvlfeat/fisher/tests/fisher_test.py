@@ -6,10 +6,10 @@ def test_fisher():
     K = 512
     D = 128
     
-    x = np.random.uniform(size=(D,N))
-    means = np.random.uniform(size=(D,K))
-    covariances = np.random.uniform(size=(D,K))
-    priors = np.random.uniform(size=(K,))
+    x = np.random.uniform(size=(D,N)).astype(dtype=np.float32)
+    means = np.random.uniform(size=(D,K)).astype(dtype=np.float32)
+    covariances = np.random.uniform(size=(D,K)).astype(dtype=np.float32)
+    priors = np.random.uniform(size=(K,)).astype(dtype=np.float32)
     priors /= np.linalg.norm(priors)
     enc = fisher(x,means,covariances,priors,Verbose=True)
     
