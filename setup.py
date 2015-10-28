@@ -46,7 +46,7 @@ if IS_WIN and IS_CONDA:
 
     vl_fisher_dll_path = op.join('cyvlfeat', 'fisher', 'vl.dll')
     shutil.copy(conda_vl_dll_path, vl_fisher_dll_path)
-    
+
 vl_extensions = [
     Extension('cyvlfeat.sift.cysift',
               sources=[op.join('cyvlfeat', 'sift', 'cysift.pyx')],
@@ -58,7 +58,7 @@ vl_extensions = [
               sources=[op.join('cyvlfeat', 'fisher', 'cyfisher.pyx')],
               include_dirs=include_dirs,
               library_dirs=library_dirs,
-              libraries=['vl'], 
+              libraries=['vl'],
               language='c++')
 ]
 

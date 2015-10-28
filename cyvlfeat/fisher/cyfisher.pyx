@@ -10,9 +10,10 @@ cimport numpy as np
 cimport cython
 
 # Import the header files
-from cyvlfeat._vl.fisher cimport vl_size
+from cyvlfeat._vl.host cimport VL_TYPE_FLOAT
+from cyvlfeat._vl.host cimport vl_size
+from cyvlfeat._vl.fisher cimport foo
 from cyvlfeat._vl.fisher cimport vl_fisher_encode
-from cyvlfeat._vl.fisher cimport VL_TYPE_FLOAT
 from cyvlfeat._vl.fisher cimport VL_FISHER_FLAG_NORMALIZED
 from cyvlfeat._vl.fisher cimport VL_FISHER_FLAG_SQUARE_ROOT
 from cyvlfeat._vl.fisher cimport VL_FISHER_FLAG_IMPROVED
@@ -48,27 +49,26 @@ cpdef cy_fisher(np.ndarray[float, ndim=2, mode='c'] X,
         flags |= VL_FISHER_FLAG_FAST
     
     if Verbose:
-        print('vl_fisher: num data: %d' % numData)
-        print('vl_fisher: num clusters: %d' % numClusters)
-        print('vl_fisher: data dimension: %d' % dimension)
-        print('vl_fisher: code dimension: %d' % 2 * numClusters * dimension)
-        print('vl_fisher: square root: %d' % SquareRoot)
-        print('vl_fisher: normalized: %d' % Normalized)
-        print('vl_fisher: fast: %d' % Fast)
+        print 'vl_fisher: num data: %d' % numData
+        print 'vl_fisher: num clusters: %d' % numClusters
+        print 'vl_fisher: data dimension: %d' % dimension
+        print 'vl_fisher: code dimension: %d' % (2 * numClusters * dimension)
+        print 'vl_fisher: square root: %d' % SquareRoot
+        print 'vl_fisher: normalized: %d' % Normalized
+        print 'vl_fisher: fast: %d' % Fast
 
     enc = np.zeros((2*numClusters*dimension,),dtype=np.float32)
-    
     cdef int numTerms = 0
-    #numTerms = vl_fisher_encode(<void*>enc.data,
-                                 #VL_TYPE_FLOAT,
-                                 #<void*>MEANS.data,
-                                 #dimension,
-                                 #numClusters,
-                                 #<void*>COVARIANCES.data,
-                                 #<void*>PRIORS.data,
-                                 #<void*>X.data,
-                                 #numData,
-                                 #flags)
+    numTerms = vl_fisher_encode(<void*>enc.data,
+                                VL_TYPE_FLOAT,
+                                <void*>MEANS.data,
+                                dimension,
+                                numClusters,
+                                <void*>COVARIANCES.data,
+                                <void*>PRIORS.data,
+                                <void*>X.data,
+                                numData,
+                                flags)
 
     if Verbose:
         print('vl_fisher: sparsity of assignments: %.2f%% (%d non-negligible assignments)' \
