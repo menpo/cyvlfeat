@@ -63,14 +63,18 @@ def fisher(X, MEANS, COVARIANCES, PRIORS,
     if X.shape[0]!=D:
         raise ValueError('X and MEANS do not have the same dimensionality')
     
-    ENC = cy_fisher(X.astype(np.float32),
-                    MEANS.astype(np.float32),
-                    COVARIANCES.astype(np.float32),
-                    PRIORS.astype(np.float32),
-                    np.int32(Normalized),
-                    np.int32(SquareRoot),
-                    np.int32(Improved),
-                    np.int32(Fast),
-                    np.int32(Verbose))
+    try:
+        ENC = cy_fisher(X.astype(np.float32),
+                        MEANS.astype(np.float32),
+                        COVARIANCES.astype(np.float32),
+                        PRIORS.astype(np.float32),
+                        np.int32(Normalized),
+                        np.int32(SquareRoot),
+                        np.int32(Improved),
+                        np.int32(Fast),
+                        np.int32(Verbose))
+    except Exception as e:
+        print 'Runtime error: ', e
+        raise Exception(e)
     return ENC
     
