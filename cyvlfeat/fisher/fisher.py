@@ -2,8 +2,8 @@ import numpy as np
 from .cyfisher import cy_fisher
 
 
-def fisher(x, means, covariances, priors, normalized=True, square_root=True,
-           improved=True, fast=False, verbose=False):
+def fisher(x, means, covariances, priors, normalized=False, square_root=False,
+           improved=False, fast=False, verbose=False):
     r"""
     Computes the Fisher vector encoding of the vectors ``x`` relative to
     the diagonal covariance Gaussian mixture model with ``means``,
