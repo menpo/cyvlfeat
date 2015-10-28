@@ -12,7 +12,6 @@ cimport cython
 # Import the header files
 from cyvlfeat._vl.host cimport VL_TYPE_FLOAT
 from cyvlfeat._vl.host cimport vl_size
-from cyvlfeat._vl.fisher cimport foo
 from cyvlfeat._vl.fisher cimport vl_fisher_encode
 from cyvlfeat._vl.fisher cimport VL_FISHER_FLAG_NORMALIZED
 from cyvlfeat._vl.fisher cimport VL_FISHER_FLAG_SQUARE_ROOT
