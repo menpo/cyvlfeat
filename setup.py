@@ -49,17 +49,17 @@ if IS_WIN and IS_CONDA:
     
 vl_extensions = [
     Extension('cyvlfeat.sift.cysift',
-              [op.join('cyvlfeat', 'sift', 'cysift.pyx')],
+              sources=[op.join('cyvlfeat', 'sift', 'cysift.pyx')],
               include_dirs=include_dirs,
               library_dirs=library_dirs,
               libraries=['vl'], 
               language='c++'),
     Extension('cyvlfeat.fisher.cyfisher',
-              [op.join('cyvlfeat', 'fisher', 'cyfisher.pyx')],
+              sources=[op.join('cyvlfeat', 'fisher', 'cyfisher.pyx')],
               include_dirs=include_dirs,
               library_dirs=library_dirs,
               libraries=['vl'], 
-              language='c++'),
+              language='c++')
 ]
 
 # Grab all the pyx and pxd Cython files for uploading to pypi
