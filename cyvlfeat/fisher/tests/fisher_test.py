@@ -1,5 +1,6 @@
 from cyvlfeat.fisher import fisher
 import numpy as np
+from numpy.testing import assert_allclose
 
 def test_fisher_dimension():
     N = 1000
@@ -48,4 +49,4 @@ def test_fisher_encoding():
                              -0.058321182,-0.058321182,-0.058321182,
                              -0.058321182,3073.876220703,3073.876220703,
                              3073.876220703,3073.876220703,3073.876220703]).astype(np.float32)
-    assert(np.sum(np.abs(expected_enc-observed_enc))<1e-6)
+    assert_allclose(expected_enc,observed_enc)
