@@ -5,6 +5,7 @@
 # This file is modified from part of the VLFeat library and is made available
 # under the terms of the BSD license.
 import numpy as np
+import ctypes
 cimport numpy as np
 cimport cython
 
@@ -56,14 +57,14 @@ cpdef cy_fisher(np.ndarray[float, ndim=2, mode='c'] X,
         print('vl_fisher: fast: %d' % Fast)
 
     enc = np.zeros((2*numClusters*dimension,),dtype=np.float32)
-    cdef int numTerms = vl_fisher_encode(<void*>enc.ctypes,
+    cdef int numTerms = vl_fisher_encode(<void*>enc.data,
                                          VL_TYPE_FLOAT,
-                                         <void*>MEANS.ctypes,
+                                         <void*>MEANS.data,
                                          dimension,
                                          numClusters,
-                                         <void*>COVARIANCES.ctypes,
-                                         <void*>PRIORS.ctypes,
-                                         <void*>X.ctypes,
+                                         <void*>COVARIANCES.data,
+                                         <void*>PRIORS.data,
+                                         <void*>X.data,
                                          numData,
                                          flags)
 
