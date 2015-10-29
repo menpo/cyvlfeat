@@ -50,7 +50,7 @@ def fisher(x, means, covariances, priors, normalized=False, square_root=False,
     # validate the gmm parameters
     D = means.shape[0]  # the feature dimensionality
     K = means.shape[1]  # the number of GMM modes
-    N = x.shape[1]  # the number of samples
+    # N = x.shape[1] is the number of samples
     if covariances.shape[0] != D:
         raise ValueError('covariances and means do not have the same '
                          'dimensionality')

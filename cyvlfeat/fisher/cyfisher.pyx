@@ -18,6 +18,7 @@ from cyvlfeat._vl.fisher cimport VL_FISHER_FLAG_SQUARE_ROOT
 from cyvlfeat._vl.fisher cimport VL_FISHER_FLAG_IMPROVED
 from cyvlfeat._vl.fisher cimport VL_FISHER_FLAG_FAST
 
+
 @cython.boundscheck(False)
 cpdef cy_fisher(float[:, :] X,
                 float[:, :] MEANS,
@@ -30,9 +31,9 @@ cpdef cy_fisher(float[:, :] X,
                 bint verbose):
 
     cdef:
-        vl_size numClusters = MEANS.shape[1]
-        vl_size dimension = MEANS.shape[0]
-        vl_size numData = X.shape[1]
+        vl_size n_clusters = MEANS.shape[1]
+        vl_size n_dimensions = MEANS.shape[0]
+        vl_size n_data = X.shape[1]
         int flags = 0
 
     if normalized:
@@ -55,27 +56,27 @@ cpdef cy_fisher(float[:, :] X,
               'vl_fisher: square root:    {}\n'
               'vl_fisher: normalized:     {}\n'
               'vl_fisher: fast:           {}'.format(
-            numData, numClusters, dimension, 2 * numClusters * dimension,
+            n_data, n_clusters, n_dimensions, 2 * n_clusters * n_dimensions,
             square_root, normalized, fast))
 
-    cdef float[:] enc = np.zeros((2*numClusters*dimension,),
+    cdef float[:] enc = np.zeros(2 * n_clusters * n_dimensions,
                                  dtype=np.float32)
 
-    cdef int numTerms = vl_fisher_encode(&enc[0],
-                                         VL_TYPE_FLOAT,
-                                         &MEANS[0, 0],
-                                         dimension,
-                                         numClusters,
-                                         &COVARIANCES[0, 0],
-                                         &PRIORS[0],
-                                         &X[0, 0],
-                                         numData,
-                                         flags)
+    cdef int num_terms = vl_fisher_encode(&enc[0],
+                                          VL_TYPE_FLOAT,
+                                          &MEANS[0, 0],
+                                          n_dimensions,
+                                          n_clusters,
+                                          &COVARIANCES[0, 0],
+                                          &PRIORS[0],
+                                          &X[0, 0],
+                                          n_data,
+                                          flags)
 
     if verbose:
         print('vl_fisher: sparsity of assignments: {:.2f}% '
               '({} non-negligible assignments)'.format(
-            100.0 * (1.0 - <float>numTerms / (numData * numClusters + 1e-12)),
-            numTerms))
+            100.0 * (1.0 - <float>num_terms / (n_data * n_clusters + 1e-12)),
+            num_terms))
 
     return np.asarray(enc)
