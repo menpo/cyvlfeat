@@ -5,10 +5,12 @@
 # under the terms of the BSD license.
 
 cdef extern from "vl/host.h":
+    ctypedef unsigned int vl_type
     ctypedef int vl_bool
     ctypedef unsigned char vl_uint8
     ctypedef unsigned long long vl_size
     ctypedef unsigned long long vl_uindex
+    cdef int VL_TYPE_FLOAT "VL_TYPE_FLOAT"
     cdef enum:
         VL_FALSE = 0
     cdef enum:
