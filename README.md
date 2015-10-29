@@ -49,12 +49,22 @@ You can now locally install a development version/build cyvlfeat by using:
 This will build and install a local version of cyvlfeat for your development. You can also build and test this by using conda itself (from inside the cyvlfeat git repository):
 
     conda install conda-build
+    CONDACI_VERSION=VERSION_HERE conda build ./conda
+
+You need to fill in the version number, as this is normally supplied by the continuous integration systems (CI). Usually, you want to use a number that is tagged to the git repository. For example, in bash you could use the command:
+
+    CONDACI_VERSION=`git describe --tags` conda build ./conda
+
+For Windows, you will need to set the variable before building:
+
+    set CONDACI_VERSION=VERSION_HERE
     conda build ./conda
 
-Which simulate building the conda package, including running tests. To run the tests manually, ensure ``nose`` is installed, and run
+To run the tests manually, ensure ``nose`` is installed (``conda install nose``), and run
 
     nosetests -v .
 
 From inside the git repository.
 
 To add a new feature, please start a pull request. This will also kick off the automated building systems for both Linux and Windows. I will oversee any new additions, and providing they pass on both automated build systems, will merge the new functionality in.
+
