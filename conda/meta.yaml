@@ -24,6 +24,8 @@ test:
   imports:
     - cyvlfeat.sift.sift
     - cyvlfeat.sift.dsift
+    - cyvlfeat.fisher.fisher
+    - cyvlfeat.hog.hog
 
 about:
   home: https://github.com/menpo/cyvlfeat/
