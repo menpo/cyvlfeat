@@ -9,6 +9,10 @@ import shutil
 import versioneer
 
 
+INCLUDE_DIRS = []
+LIBRARY_DIRS = []
+
+
 def walk_for_package_data(ext_pattern):
     paths = []
     for root, dirnames, filenames in os.walk('cyvlfeat'):
@@ -19,11 +23,20 @@ def walk_for_package_data(ext_pattern):
     return paths
 
 
+def gen_extension(path_name, sources):
+    global INCLUDE_DIRS, LIBRARY_DIRS
+    return Extension(
+        path_name,
+        sources=sources,
+        include_dirs=INCLUDE_DIRS,
+        library_dirs=LIBRARY_DIRS,
+        libraries=['vl'],
+        language='c'
+    )
+
+
 IS_WIN = platform.system() == 'Windows'
 IS_CONDA = os.environ.get('CONDA_BUILD', False)
-
-include_dirs = []
-library_dirs = []
 
 # If we are building from the conda folder,
 # then we know we can manually copy some files around
@@ -35,53 +48,31 @@ library_dirs = []
 if IS_WIN and IS_CONDA:
     conda_bin_dir = os.environ['LIBRARY_BIN']
     conda_vl_dll_path = op.join(conda_bin_dir, 'vl.dll')
-    
-    include_dirs.append(os.environ['LIBRARY_INC'])
-    library_dirs.append(conda_bin_dir)
-    
-    # On Windows, there is no relative linking against DLLS,
-    # so every extension MUST have a copy of the vl.dll next to it.
-    vl_sift_dll_path = op.join('cyvlfeat', 'sift', 'vl.dll')
-    shutil.copy(conda_vl_dll_path, vl_sift_dll_path)
-
-    vl_fisher_dll_path = op.join('cyvlfeat', 'fisher', 'vl.dll')
-    shutil.copy(conda_vl_dll_path, vl_fisher_dll_path)
+    INCLUDE_DIRS.append(os.environ['LIBRARY_INC'])
+    LIBRARY_DIRS.append(conda_bin_dir)
 
 vl_extensions = [
-    Extension('cyvlfeat.sift.cysift',
-              sources=[op.join('cyvlfeat', 'sift', 'cysift.pyx')],
-              include_dirs=include_dirs,
-              library_dirs=library_dirs,
-              libraries=['vl'], 
-              language='c++'),
-    Extension('cyvlfeat.fisher.cyfisher',
-              sources=[op.join('cyvlfeat', 'fisher', 'cyfisher.pyx')],
-              include_dirs=include_dirs,
-              library_dirs=library_dirs,
-              libraries=['vl'],
-              language='c++')
+    gen_extension('cyvlfeat.sift.cysift',
+                  [op.join('cyvlfeat', 'sift', 'cysift.pyx')]),
+    gen_extension('cyvlfeat.fisher.cyfisher',
+                  [op.join('cyvlfeat', 'fisher', 'cyfisher.pyx')]),
+    gen_extension('cyvlfeat.hog.cyhog',
+                  [op.join('cyvlfeat', 'hog', 'cyhog.pyx')])
 ]
 
 # Grab all the pyx and pxd Cython files for uploading to pypi
 cython_files = walk_for_package_data('*.p[xy][xd]')
-
-# Move the dlls next to the package if on Windows
-if IS_WIN:
-    dll_paths = walk_for_package_data('*.dll')
-else:
-    dll_paths = []
             
 setup(
     name='cyvlfeat',
     version=versioneer.get_version(),
     cmdclass=versioneer.get_cmdclass(),
     description='Cython wrapper of the VLFeat toolkit',
-    url='https://github.com/menpo/cyvlfeat/',
+    url='https://github.com/menpo/cyvlfeat',
     author='Patrick Snape',
     author_email='p.snape@imperial.ac.uk',
     include_dirs=[np.get_include()],
     ext_modules=cythonize(vl_extensions),
     packages=find_packages(),
-    package_data={'cyvlfeat': cython_files + dll_paths}
+    package_data={'cyvlfeat': cython_files}
 )
-

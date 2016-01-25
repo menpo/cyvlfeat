@@ -31,6 +31,7 @@ def test_dsift_steps():
     assert_allclose(frames[:3], [[4.5, 4.5], [4.5, 8.5], [4.5, 12.5]],
                     rtol=1e-3)
 
+
 def test_dsift_windowsize():
     i = half_img.copy()
     frames, descriptors = dsift(i, window_size=3)
@@ -41,6 +42,7 @@ def test_dsift_windowsize():
     assert_allclose(descriptors[0, -3:], [74, 55, 71],
                     rtol=1e-3)
 
+
 def test_dsift_fast():
     i = half_img.copy()
     frames, descriptors = dsift(i, fast=True)
@@ -50,6 +52,7 @@ def test_dsift_fast():
                     rtol=1e-3)
     assert_allclose(descriptors[0, -3:], [61, 45, 60],
                     rtol=1e-3)
+
 
 def test_dsift_norm():
     i = half_img.copy()
@@ -62,6 +65,7 @@ def test_dsift_norm():
                     rtol=1e-3)
     assert_allclose(descriptors[0, -3:], [65, 48, 62],
                     rtol=1e-3)
+
 
 def test_sift_n_frames():
     i = img.copy()

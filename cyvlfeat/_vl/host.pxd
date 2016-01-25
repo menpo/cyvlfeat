@@ -10,6 +10,7 @@ cdef extern from "vl/host.h":
     ctypedef unsigned char vl_uint8
     ctypedef unsigned long long vl_size
     ctypedef unsigned long long vl_uindex
+    ctypedef long long vl_index
     cdef int VL_TYPE_FLOAT "VL_TYPE_FLOAT"
     cdef enum:
         VL_FALSE = 0
