@@ -9,6 +9,10 @@ import shutil
 import versioneer
 
 
+INCLUDE_DIRS = []
+LIBRARY_DIRS = []
+
+
 def walk_for_package_data(ext_pattern):
     paths = []
     for root, dirnames, filenames in os.walk('cyvlfeat'):
@@ -20,11 +24,12 @@ def walk_for_package_data(ext_pattern):
 
 
 def gen_extension(path_name, sources):
+    global INCLUDE_DIRS, LIBRARY_DIRS
     return Extension(
         path_name,
         sources=sources,
-        include_dirs=include_dirs,
-        library_dirs=library_dirs,
+        include_dirs=INCLUDE_DIRS,
+        library_dirs=LIBRARY_DIRS,
         libraries=['vl'],
         language='c'
     )
@@ -33,9 +38,6 @@ def gen_extension(path_name, sources):
 IS_WIN = platform.system() == 'Windows'
 IS_CONDA = os.environ.get('CONDA_BUILD', False)
 
-include_dirs = []
-library_dirs = []
-
 # If we are building from the conda folder,
 # then we know we can manually copy some files around
 # because we have control of the setup. If you are
@@ -43,12 +45,11 @@ library_dirs = []
 # that the vlfeat vl folder is on the PATH (for the headers)
 # and that the vl.dll file is visible to the build system
 # as well.
-# if IS_WIN and IS_CONDA:
-#     conda_bin_dir = os.environ['LIBRARY_BIN']
-#     conda_vl_dll_path = op.join(conda_bin_dir, 'vl.dll')
-#
-#     include_dirs.append(os.environ['LIBRARY_INC'])
-#     library_dirs.append(conda_bin_dir)
+if IS_WIN and IS_CONDA:
+    conda_bin_dir = os.environ['LIBRARY_BIN']
+    conda_vl_dll_path = op.join(conda_bin_dir, 'vl.dll')
+    INCLUDE_DIRS.append(os.environ['LIBRARY_INC'])
+    LIBRARY_DIRS.append(conda_bin_dir)
 
 vl_extensions = [
     gen_extension('cyvlfeat.sift.cysift',
