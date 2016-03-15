@@ -5,7 +5,6 @@ import os.path as op
 import os
 import platform
 import fnmatch
-import shutil
 import versioneer
 
 

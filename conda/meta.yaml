@@ -19,13 +19,16 @@ requirements:
 test:
   requires:
     - nose
-    - scipy
+    - coverage
 
   imports:
     - cyvlfeat.sift.sift
     - cyvlfeat.sift.dsift
     - cyvlfeat.fisher.fisher
     - cyvlfeat.hog.hog
+
+  commands:
+    - nosetests cyvlfeat -v --cover-package=menpo
 
 about:
   home: https://github.com/menpo/cyvlfeat/

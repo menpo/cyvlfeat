@@ -2,10 +2,10 @@ from __future__ import division
 from cyvlfeat.hog import hog
 import numpy as np
 from numpy.testing import assert_allclose
-from scipy.misc import lena
+from cyvlfeat.test_util import lena
 
-
-img = lena().astype(np.float32) / 255.0
+        
+img = lena().astype(np.float32) / 255.
 half_img = img[:, :256]
 
 

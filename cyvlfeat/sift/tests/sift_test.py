@@ -3,7 +3,7 @@ from cyvlfeat.sift.dsift import dsift
 from cyvlfeat.sift.sift import sift
 import numpy as np
 from numpy.testing import assert_allclose
-from scipy.misc import lena
+from cyvlfeat.test_util import lena
 
 
 img = lena().astype(np.float32)
