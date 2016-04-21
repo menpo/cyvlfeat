@@ -1,1 +1,1 @@
-__author__ = 'pts08'
+from .kmeans import kmeans
