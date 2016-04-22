@@ -8,10 +8,17 @@ cdef extern from "vl/host.h":
     ctypedef unsigned int vl_type
     ctypedef int vl_bool
     ctypedef unsigned char vl_uint8
+    ctypedef unsigned long long vl_uint64  # @brief Unsigned 64-bit integer.
+    ctypedef unsigned int vl_uint32  # @brief Unsigned 32-bit integer.
+    ctypedef unsigned short vl_uint16  # @brief Unsigned 16-bit integer.
+    ctypedef unsigned char vl_uint8  # @brief Unsigned  8-bit integer.
     ctypedef unsigned long long vl_size
     ctypedef unsigned long long vl_uindex
     ctypedef long long vl_index
     cdef int VL_TYPE_FLOAT "VL_TYPE_FLOAT"
+    cdef int VL_TYPE_DOUBLE "VL_TYPE_DOUBLE"
+    inline char* vl_get_type_name(vl_type type)
+    inline vl_size vl_get_type_size(vl_type type)
     cdef enum:
         VL_FALSE = 0
     cdef enum:
