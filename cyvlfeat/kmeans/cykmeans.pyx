@@ -18,7 +18,6 @@ cpdef cy_kmeans(np.ndarray data, int num_centers, bytes distance, bytes initiali
            bytes algorithm, int num_repetitions, int num_trees, int max_num_comparisons,
            int max_num_iterations, int min_energy_variation, bint verbose):
 
-    #check data_type of data, will change the algorithm used
     cdef:
         VlKMeans* kmeans
         double energy
