@@ -9,7 +9,7 @@ requirements:
     - numpy >=1.10,<1.11
     - cython 0.23.*
     - vlfeat 0.9.*
-    - msinttypes r26 [win]
+    - msinttypes r26  # [win]
 
   run:
     - python
@@ -26,9 +26,10 @@ test:
     - cyvlfeat.sift.dsift
     - cyvlfeat.fisher.fisher
     - cyvlfeat.hog.hog
+    - cyvlfeat.kmeans.kmeans
 
   commands:
-    - nosetests cyvlfeat -v --cover-package=menpo
+    - nosetests cyvlfeat -v --cover-package=cyvlfeat
 
 about:
   home: https://github.com/menpo/cyvlfeat/
