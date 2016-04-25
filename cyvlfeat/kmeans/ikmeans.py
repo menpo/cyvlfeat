@@ -1,5 +1,5 @@
 import numpy as np
-from .cykmeans import cy_ikmeans, cy_ikmeans_push, algorithm_type
+from .cykmeans import cy_ikmeans, cy_ikmeans_push, algorithm_type_ikmeans
 
 
 def ikmeans(data, num_centers, algorithm="LLOYD", max_num_iterations=200, verbose=False):
@@ -40,7 +40,7 @@ def ikmeans(data, num_centers, algorithm="LLOYD", max_num_iterations=200, verbos
         raise ValueError('num_centers should be a positive integer smaller than the number of data points')
 
     algorithm_b = algorithm.encode()
-    if algorithm_b not in algorithm_type.keys():
+    if algorithm_b not in algorithm_type_ikmeans.keys():
         raise ValueError('algorithm field invalid')
 
     if (not isinstance(max_num_iterations, int)) or max_num_iterations <= 0:

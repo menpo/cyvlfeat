@@ -1,5 +1,5 @@
 from __future__ import division
-from cyvlfeat.kmeans import kmeans, ikmeans, ikmeans_push
+from cyvlfeat.kmeans import kmeans, ikmeans, ikmeans_push, hikmeans, hikmeans_push
 import numpy as np
 
 
@@ -145,4 +145,25 @@ def test_ikmeans():
     #     assert found_assignments[i] == found_assignments[i % num_centers]
 
     assignments_2 = ikmeans_push(data, found_centers)
+    assert np.allclose(found_assignments, assignments_2)
+
+
+def test_hikmeans():
+    num_data = 5000
+    num_centers = 40
+    dimension = 128
+    noise_level = 3
+
+    centers = np.random.random_integers(0, 200, (num_centers, dimension)).astype(np.uint8)
+    data = np.empty((num_data, dimension), dtype=np.uint8)
+    for i in range(num_data):
+        data[i] = centers[i % num_centers]
+    data = data + np.random.random_integers(0, noise_level, (num_data, dimension)).astype(np.uint8)
+
+    tree_structure, found_assignments = hikmeans(data, 4, 64)
+
+    assert found_assignments.dtype == np.uint32
+    assert found_assignments.shape == (num_data, tree_structure.depth)
+
+    assignments_2 = hikmeans_push(data, tree_structure)
     assert np.allclose(found_assignments, assignments_2)
