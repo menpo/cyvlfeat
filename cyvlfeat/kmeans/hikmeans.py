@@ -16,7 +16,8 @@ def hikmeans(data, num_centers, num_leaves, algorithm='LLOYD', verbose=False):
     num_centers : int
         Number of clusters (leaves) per level
     num_leaves : int
-        Number of final leaves in the tree
+        Minimum number of final leaves in the tree. The depth of the tree
+        is computed from this parameter and ``num_centers`
     algorithm : str, optional
         Algorithm to be used for clustering ('LLOYD', 'ELKAN')
     verbose : bool, optional
