@@ -158,7 +158,7 @@ class PyHIKMNode:
 
 class PyHIKMTree(PyHIKMNode):
     def __init__(self, K, depth):
-        super().__init__()
+        PyHIKMNode.__init__(self)
         self.K = K
         self.depth = depth
 
