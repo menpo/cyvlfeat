@@ -28,10 +28,10 @@ def set_distance(values1, values2):
 def test_kmeans_float():
     num_data = 50
     num_centers = 4
-    dimension = 4
+    dimension = 8
     noise_level = 0.1
 
-    centers = np.random.random_integers(-20, 20, (num_centers, dimension)).astype(np.float32)
+    centers = np.random.random_integers(-40, 40, (num_centers, dimension)).astype(np.float32)
     data = np.empty((num_data, dimension), dtype=np.float32)
     for i in range(num_data):
         data[i] = centers[i % num_centers] + np.random.random_sample(dimension)*noise_level
@@ -58,10 +58,10 @@ def test_kmeans_float():
 def test_kmeans_double():
     num_data = 50
     num_centers = 4
-    dimension = 4
+    dimension = 8
     noise_level = 0.1
 
-    centers = np.random.random_integers(-20, 20, (num_centers, dimension)).astype(np.float64)
+    centers = np.random.random_integers(-40, 40, (num_centers, dimension)).astype(np.float64)
     data = np.empty((num_data, dimension), dtype=np.float64)
     for i in range(num_data):
         data[i] = centers[i % num_centers] + np.random.random_sample(dimension)*noise_level
@@ -88,10 +88,10 @@ def test_kmeans_double():
 def test_kmeans_ANN():
     num_data = 5000
     num_centers = 4
-    dimension = 4
+    dimension = 8
     noise_level = 0.1
 
-    centers = np.random.random_integers(-20, 20, (num_centers, dimension)).astype(np.float32)
+    centers = np.random.random_integers(-40, 40, (num_centers, dimension)).astype(np.float32)
     data = np.empty((num_data, dimension), dtype=np.float32)
     for i in range(num_data):
         data[i] = centers[i % num_centers] + np.random.random_sample(dimension)*noise_level
@@ -132,7 +132,7 @@ def test_ikmeans():
     assert found_assignments.dtype == np.uint32
     assert found_assignments.shape == (num_data,)
 
-    ## Because the initialization is random, these tests does not work all the time. Two clusters might be merged.
+    # Because the initialization is random, these tests does not work all the time. Two clusters might be merged.
     # dist = set_distance(centers.astype(np.float32), found_centers.astype(np.float32))
     # assert dist <= noise_level, dist
 
