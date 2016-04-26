@@ -171,10 +171,10 @@ cdef build_py_node(py_node, VlHIKMNode *node):
     node_K = vl_ikm_get_K(node.filter)
     M = vl_ikm_get_ndims(node.filter)
 
+    centers = np.empty((node_K, M), dtype=np.int32, order='C')
     if node_K>0:
-        centers = np.empty((node_K, M), dtype=np.int32, order='C')
         memcpy(&centers[0,0], vl_ikm_get_centers(node.filter), sizeof(vl_ikmacc_t) * M * node_K)
-        py_node.centers = centers
+    py_node.centers = centers
 
     if node.children:
         for k in range(node_K):
@@ -210,8 +210,11 @@ cdef VlHIKMNode* build_vl_node(py_node, VlHIKMTree *tree):
     node.filter = vl_ikm_new(tree.method)
     node.children = NULL
 
-    centers_view = py_node.centers.view(np.uint32)
-    vl_ikm_init(node.filter, <vl_ikmacc_t*>&centers_view[0,0], M, node_K)
+    if node_K>0:
+        centers_view = py_node.centers.view(np.uint32)
+        vl_ikm_init(node.filter, <vl_ikmacc_t*>&centers_view[0,0], M, node_K)
+    else:
+        vl_ikm_init(node.filter, <vl_ikmacc_t*>NULL, M, node_K)
 
     if len(py_node.children)>0:
         assert len(py_node.children) == node_K

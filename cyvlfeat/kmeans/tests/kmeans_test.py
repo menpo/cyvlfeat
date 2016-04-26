@@ -148,6 +148,41 @@ def test_ikmeans():
     assert np.allclose(found_assignments, assignments_2)
 
 
+def test_ikmeans_2():
+    num_data = 5000
+    num_centers = 2
+    dimension = 2
+    noise_level = 3
+
+    centers = np.array([[0, 0], [50, 100]], dtype=np.uint8)
+    data = np.empty((num_data, dimension), dtype=np.uint8)
+    for i in range(num_data):
+        data[i] = centers[i % num_centers]
+    data = data + np.random.random_integers(0, noise_level, (num_data, dimension)).astype(np.uint8)
+
+    found_centers, found_assignments = ikmeans(data, num_centers)
+
+    assert found_centers.dtype == np.int32
+    assert found_centers.shape == (num_centers, dimension)
+
+    assert found_assignments.dtype == np.uint32
+    assert found_assignments.shape == (num_data,)
+
+    dist = set_distance(centers.astype(np.float32), found_centers.astype(np.float32))
+    assert dist <= noise_level, dist
+
+    for i in range(num_centers):
+        for j in range(num_centers):
+            if i != j:
+                assert found_assignments[i] != found_assignments[j]
+
+    for i in range(num_data):
+        assert found_assignments[i] == found_assignments[i % num_centers]
+
+    assignments_2 = ikmeans_push(data, found_centers)
+    assert np.allclose(found_assignments, assignments_2)
+
+
 def test_hikmeans():
     num_data = 5000
     num_centers = 40
