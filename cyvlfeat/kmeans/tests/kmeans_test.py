@@ -1,5 +1,5 @@
 from __future__ import division
-from cyvlfeat.kmeans import kmeans
+from cyvlfeat.kmeans import kmeans, kmeans_quantize
 import numpy as np
 
 
@@ -37,7 +37,8 @@ def test_kmeans_float():
     for i in range(num_data):
         data[i] = centers[i % num_centers] + np.random.random_sample(dimension)*noise_level
 
-    found_centers, found_assignments = kmeans(data, num_centers, initialization="PLUSPLUS")
+    found_centers = kmeans(data, num_centers, initialization="PLUSPLUS")
+    found_assignments = kmeans_quantize(data, found_centers)
 
     assert found_centers.dtype == np.float32
     assert found_centers.shape == (num_centers, dimension)
@@ -63,7 +64,8 @@ def test_kmeans_double():
     for i in range(num_data):
         data[i] = centers[i % num_centers] + np.random.random_sample(dimension)*noise_level
 
-    found_centers, found_assignments = kmeans(data, num_centers, initialization="PLUSPLUS")
+    found_centers = kmeans(data, num_centers, initialization="PLUSPLUS")
+    found_assignments = kmeans_quantize(data, found_centers)
 
     assert found_centers.dtype == np.float64
     assert found_centers.shape == (num_centers, dimension)
@@ -89,7 +91,8 @@ def test_kmeans_ANN():
     for i in range(num_data):
         data[i] = centers[i % num_centers] + np.random.random_sample(dimension)*noise_level
 
-    found_centers, found_assignments = kmeans(data, num_centers, initialization="PLUSPLUS", algorithm="ANN")
+    found_centers = kmeans(data, num_centers, initialization="PLUSPLUS", algorithm="ANN")
+    found_assignments = kmeans_quantize(data, found_centers, algorithm="ANN")
 
     assert found_centers.dtype == np.float32
     assert found_centers.shape == (num_centers, dimension)
