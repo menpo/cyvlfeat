@@ -7,7 +7,7 @@ requirements:
     - python
     - setuptools
     - numpy >=1.10,<1.11
-    - cython 0.23.*
+    - cython 0.24.*
     - vlfeat 0.9.*
     - msinttypes r26  # [win]
 
