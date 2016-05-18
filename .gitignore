@@ -10,3 +10,4 @@ cyvlfeat.egg-info/*
 cyvlfeat/hog/cyhog.c
 cyvlfeat/sift/cysift.c
 cyvlfeat/fisher/cyfisher.c
+*.iml
