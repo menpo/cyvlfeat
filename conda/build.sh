@@ -13,7 +13,6 @@ fi
 
 "$PYTHON" setup.py install --single-version-externally-managed --record=/tmp/record.txt
 
-
 if [ "$(uname -s)" == "Darwin" ]; then
   # For some reason Cython refuses to generate @rpath/vlfeat.dylib - so
   # we manually do it here
