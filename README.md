@@ -10,7 +10,22 @@ We thank the authors of VLFeat for their contribution to the computer vision com
 
 Current State
 -------------
-At the moment, only the basics of the SIFT package is implemented. This includes implementations of the SIFT and Dense SIFT functions. These two methods replicate the ``vl_sift`` and ``vl_dsift`` methods. None of the other helper methods are implemented, but should be fairly simply to replicate in pure Python using Matplotlib.
+At the moment, the following methods from vlfeat are exposed:
+
+  - sift
+    - dsift
+    - sift
+  - fisher
+    - fisher
+  - kmeans
+    - kmeans
+    - kmeans_quantize
+    - ikmeans, ikmeans_push
+    - hikmeans, hikmeans_push
+  - generic
+    - set_simd_enabled, get_simd_enabled, cpu_has_avx, cpu_has_sse3, cpu_has_sse2
+    - get_num_cpus,
+    - get_max_threads, set_num_threads, get_thread_limit
 
 To install cyvlfeat, we **strongly suggest you use conda**:
 
