@@ -7,7 +7,8 @@ def kmeans(data, num_centers, distance="l2", initialization="RANDSEL",
            max_num_iterations=100, min_energy_variation=0., verbose=False):
     """
     Clusters ``data`` using the K-means algorithm. ``data`` can be either np.float32 or np.foat64. Returns the centers
-    of the clusters as an np.ndarray of the same dtype as ``data``. Also returns the cluster assignments
+    of the clusters as an np.ndarray of the same dtype as ``data``. Also returns the cluster assignments.
+
     Parameters
     ----------
     data : [N,D] np.ndarray of dtype in [np.float32, np.float64]
@@ -95,13 +96,15 @@ def kmeans_quantize(data, centers, distance="l2", algorithm="LLOYD", num_trees=3
                     max_num_comparisons=100, verbose=False):
     """
     Project the given data to the corresponding cluster indices.
+
     Parameters
     ----------
     data : [N,D] np.ndarray of dtype in [np.float32, np.float64]
         Input data to be projected.
     centers : [K,D] np.ndarray of same dtype as ``data``
         Clusters centers
-    distance
+    distance : `str`, optional
+        Distance to be used ["l1", "l2"]. Default : "l2"
     algorithm : `str`, optional
         One of "LLOYD", "ELKAN", or "ANN". LLOYD is the standard Lloyd
         algorithm (similar to expectation maximisation). ELKAN is a

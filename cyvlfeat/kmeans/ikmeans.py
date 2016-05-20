@@ -51,6 +51,7 @@ def ikmeans(data, num_centers, algorithm="LLOYD", max_num_iterations=200, verbos
 
 def ikmeans_push(data, centers):
     """
+    Projects the data on the KMeans nearest elements (similar to kmeans_quantize but for integer data).
 
     Parameters
     ----------

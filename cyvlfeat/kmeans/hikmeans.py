@@ -51,7 +51,8 @@ def hikmeans(data, num_centers, num_leaves, algorithm='LLOYD', verbose=False):
 
 def hikmeans_push(data, py_tree, verbose=False):
     """
-    Projects the data on the HKMeans nearest elements
+    Projects the data on the HKMeans nearest elements.
+
     Parameters
     ----------
     data : [N,D] np.ndarray of type np.uint8
