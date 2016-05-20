@@ -12,20 +12,23 @@ Current State
 -------------
 At the moment, the following methods from vlfeat are exposed:
 
-  - sift
-    - dsift
-    - sift
+
   - fisher
     - fisher
+  - generic
+    - set_simd_enabled, get_simd_enabled, cpu_has_avx, cpu_has_sse3, cpu_has_sse2
+    - get_num_cpus,
+    - get_max_threads, set_num_threads, get_thread_limit
+  - hog
+    - hog
   - kmeans
     - kmeans
     - kmeans_quantize
     - ikmeans, ikmeans_push
     - hikmeans, hikmeans_push
-  - generic
-    - set_simd_enabled, get_simd_enabled, cpu_has_avx, cpu_has_sse3, cpu_has_sse2
-    - get_num_cpus,
-    - get_max_threads, set_num_threads, get_thread_limit
+  - sift
+    - dsift
+    - sift
 
 To install cyvlfeat, we **strongly suggest you use conda**:
 
