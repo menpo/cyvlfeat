@@ -1,13 +1,14 @@
 import numpy as np
-from .cykmeans import cy_kmeans, algorithm_type, initialization_type, distance_type
+from .cykmeans import cy_kmeans, cy_kmeans_quantize, algorithm_type, initialization_type, distance_type
 
 
 def kmeans(data, num_centers, distance="l2", initialization="RANDSEL",
            algorithm="LLOYD", num_repetitions=1, num_trees=3, max_num_comparisons=100,
-           max_num_iterations=100, min_energy_variation=0, verbose=False):
+           max_num_iterations=100, min_energy_variation=0., verbose=False):
     """
     Clusters ``data`` using the K-means algorithm. ``data`` can be either np.float32 or np.foat64. Returns the centers
-    of the clusters as an np.ndarray of the same dtype as ``data``. Also returns the cluster assignments
+    of the clusters as an np.ndarray of the same dtype as ``data``. Also returns the cluster assignments.
+
     Parameters
     ----------
     data : [N,D] np.ndarray of dtype in [np.float32, np.float64]
@@ -40,14 +41,15 @@ def kmeans(data, num_centers, distance="l2", initialization="RANDSEL",
         Maximum number of iterations allowed for the kmeans algorithm
         to converge (for "ANN"). Default : 100
     min_energy_variation : `float`, optional
-        Default : 0 (no effect)
+        The minimum relative energy variation before the algorithm choose to stop.
+        Default : 0, will use a default value from VLFEAT.
     verbose : `bool`, optional
         Outputs information of the converging process
 
     Returns
     -------
-    (centers, assignments) : ([num_centers,D] np.ndarray of same dtype as ``data``, [N] `np.uint32` np.ndarray)
-        Computed clusters and the respective assignments of the data points.
+    centers : [num_centers,D] np.ndarray of same dtype as ``data``
+        Computed clusters centers from the data points.
     """
 
     assert isinstance(data, np.ndarray)
@@ -82,7 +84,75 @@ def kmeans(data, num_centers, distance="l2", initialization="RANDSEL",
         raise ValueError('max_num_comparisons should be a positive integer')
     if (not isinstance(max_num_iterations, int)) or max_num_iterations <= 0:
         raise ValueError('max_num_iterations should be a positive integer')
+    if (not isinstance(min_energy_variation, float)) or min_energy_variation < 0:
+        raise ValueError('min_energy_variation should be a positive float')
 
     return cy_kmeans(data, num_centers, distance_b, initialization_b,
                      algorithm_b, num_repetitions, num_trees, max_num_comparisons,
                      max_num_iterations, min_energy_variation, verbose)
+
+
+def kmeans_quantize(data, centers, distance="l2", algorithm="LLOYD", num_trees=3,
+                    max_num_comparisons=100, verbose=False):
+    """
+    Project the given data to the corresponding cluster indices.
+
+    Parameters
+    ----------
+    data : [N,D] np.ndarray of dtype in [np.float32, np.float64]
+        Input data to be projected.
+    centers : [K,D] np.ndarray of same dtype as ``data``
+        Clusters centers
+    distance : `str`, optional
+        Distance to be used ["l1", "l2"]. Default : "l2"
+    algorithm : `str`, optional
+        One of "LLOYD", "ELKAN", or "ANN". LLOYD is the standard Lloyd
+        algorithm (similar to expectation maximisation). ELKAN is a
+        faster version of LLOYD using triangular inequalities to cut
+        down significantly the number of sample-to-center
+        comparisons. ANN is the same as Lloyd, but uses an approximated
+        nearest neighbours (ANN) algorithm to accelerate the
+        sample-to-center comparisons. The latter is particularly
+        suitable for very large problems. Default : "LLOYD"
+    num_trees : `int`, optional
+        The number of trees int the randomized KD-Tree forest (for "ANN"). Default : 3
+    max_num_comparisons : `int`, optional
+        Maximum number of sample-to-center comparisons when searching
+        for the closest center (for "ANN"). Default : 100
+    verbose : `bool`, optional
+        Outputs information of the converging process
+
+    Returns
+    -------
+    assignments :  [N] `np.uint32` np.ndarray
+        Assignments to the clusters centers.
+    """
+    assert isinstance(data, np.ndarray)
+    assert isinstance(centers, np.ndarray)
+    assert isinstance(verbose, bool)
+    if data.ndim != 2:
+        raise ValueError('Data should be a 2-D matrix')
+
+    if data.dtype not in [np.float32, np.float64]:
+        raise ValueError('Data should be float32 or float64')
+
+    if centers.dtype != data.dtype or centers.shape[1] != data.shape[1]:
+        raise ValueError('Data and centers should be of the same dtype and with the same number of columns')
+
+    assert centers.shape[0] > 0
+    assert data.shape[0] > 0
+
+    distance_b = distance.encode()
+    if distance_b not in distance_type.keys():
+        raise ValueError('distance field invalid')
+
+    algorithm_b = algorithm.encode()
+    if algorithm_b not in algorithm_type.keys():
+        raise ValueError('algorithm field invalid')
+
+    if (not isinstance(num_trees, int)) or num_trees <= 0:
+        raise ValueError('num_trees should be a positive integer')
+    if (not isinstance(max_num_comparisons, int)) or max_num_comparisons <= 0:
+        raise ValueError('max_num_comparisons should be a positive integer')
+
+    return cy_kmeans_quantize(data, centers, distance_b, algorithm_b, num_trees, max_num_comparisons, verbose)
