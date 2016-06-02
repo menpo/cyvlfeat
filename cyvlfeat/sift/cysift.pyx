@@ -212,7 +212,7 @@ cpdef cy_sift(np.ndarray[float, ndim=2, mode='c'] data, int n_octaves,
     if window_size     >= 0: vl_sift_set_window_size(filt, window_size)
 
     if verbose:
-        printf("vl_sift: filter settings:\n")
+        printf("%s", "vl_sift: filter settings:\n")
         printf("vl_sift:   octaves      (O)      = %d\n", vl_sift_get_noctaves(filt))
         printf("vl_sift:   levels       (S)      = %d\n", vl_sift_get_nlevels(filt))
         printf("vl_sift:   first octave (o_min)  = %d\n", vl_sift_get_octave_first(filt))

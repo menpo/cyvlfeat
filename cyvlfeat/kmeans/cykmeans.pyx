@@ -55,7 +55,7 @@ cpdef cy_kmeans(np.ndarray data, int num_centers, bytes distance, bytes initiali
 
     if min_energy_variation>0:
         vl_kmeans_set_min_energy_variation(kmeans, min_energy_variation)
-        
+
     if verbose:
         printf("kmeans: Initialization = %s\n", initialization)
         printf("kmeans: Algorithm = %s\n", algorithm)
@@ -69,7 +69,7 @@ cpdef cy_kmeans(np.ndarray data, int num_centers, bytes distance, bytes initiali
         printf("kmeans: num. centers = %d\n", num_centers)
         printf("kmeans: max num. comparisons = %d\n", max_num_comparisons)
         printf("kmeans: num. trees = %d\n", num_trees)
-        printf("\n")
+        printf("%s", "\n")
 
     energy = vl_kmeans_cluster(kmeans, &data_view[0, 0], dimension, num_data, num_centers)
 
@@ -152,7 +152,7 @@ cpdef cy_ikmeans(np.uint8_t[:,:] data, int num_centers, bytes algorithm, int max
 
     err = vl_ikm_train(ikmf, &data[0,0], N)
     if err:
-        printf("ikmeans: possible overflow!\n")
+        printf("%s", "ikmeans: possible overflow!\n")
 
     centers = np.empty((K, M), dtype=np.int32, order='C')
     memcpy(&centers[0,0], vl_ikm_get_centers(ikmf), sizeof(vl_ikmacc_t) * M * K)
@@ -163,7 +163,7 @@ cpdef cy_ikmeans(np.uint8_t[:,:] data, int num_centers, bytes algorithm, int max
     vl_ikm_delete(ikmf)
 
     if verbose:
-        printf("ikmeans: done\n")
+        printf("%s", "ikmeans: done\n")
 
     return centers, assignments
 
@@ -311,7 +311,7 @@ cpdef cy_hikmeans(np.uint8_t[:,:] data, int num_clusters, int num_leaves, int de
     vl_hikm_push(tree, &assignments[0,0], &data[0,0], N)
 
     if verbose:
-        printf("hikmeans: done.\n")
+        printf("%s", "hikmeans: done.\n")
 
     vl_hikm_delete(tree)
 
