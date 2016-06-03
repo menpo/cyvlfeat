@@ -13,14 +13,14 @@ def fisher(x, means, covariances, priors, normalized=False, square_root=False,
 
     Parameters
     ----------
-    x : [D, N]  `float32` `ndarray`
+    x : [n_samples, n_features]  `float32` `ndarray`
         One column per data vector (e.g. a SIFT descriptor)
-    means :  [F, N]  `float32` `ndarray`
+    means :  [n_clusters, n_features]  `float32` `ndarray`
         One column per GMM component.
-    covariances :  [F, N]  `float32` `ndarray`
+    covariances :  [n_clusters, n_features]  `float32` `ndarray`
         One column per GMM component (covariance matrices are assumed diagonal,
         hence these are simply the variance of each data dimension).
-    priors :  [F, N]  `float32` `ndarray`
+    priors :  [n_clusters]  `float32` `ndarray`
         Equal to the number of GMM components.
     normalized : `bool`, optional
         If ``True``, L2 normalize the Fisher vector.
@@ -48,22 +48,27 @@ def fisher(x, means, covariances, priors, normalized=False, square_root=False,
         raise ValueError('A required input is None')
 
     # validate the gmm parameters
-    D = means.shape[0]  # the feature dimensionality
-    K = means.shape[1]  # the number of GMM modes
+    D = means.shape[1]  # the feature dimensionality
+    K = means.shape[0]  # the number of GMM modes
     # N = x.shape[1] is the number of samples
-    if covariances.shape[0] != D:
+    if covariances.shape[1] != D:
         raise ValueError('covariances and means do not have the same '
                          'dimensionality')
-    
+
     if priors.ndim != 1:
         raise ValueError('priors has an unexpected shape')
-    
-    if covariances.shape[1] != K or priors.shape[0] != K:
+
+    if covariances.shape[0] != K or priors.shape[0] != K:
         raise ValueError('covariances or priors does not have the correct '
                          'number of modes')
 
-    if x.shape[0] != D:
+    if x.shape[1] != D:
         raise ValueError('x and means do not have the same dimensionality')
+
+    x = np.ascontiguousarray(x)
+    means = np.ascontiguousarray(means)
+    covariances = np.ascontiguousarray(covariances)
+    priors = np.ascontiguousarray(priors)
 
     return cy_fisher(x, means, covariances, priors,
                      np.int32(normalized), np.int32(square_root),
