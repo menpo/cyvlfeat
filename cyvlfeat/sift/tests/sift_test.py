@@ -70,7 +70,7 @@ def test_dsift_norm():
 def test_sift_n_frames():
     i = img.copy()
     frames = sift(i)
-    assert_allclose(frames[0], [2.16217, 128.056, 2.13029, -4.3617], rtol=1e-3)
+    assert_allclose(frames[0], [2.16217, 128.056, 2.13029, 5.9325], rtol=1e-3)
     assert frames.shape[0] == 730
 
 
@@ -78,8 +78,8 @@ def test_sift_non_float_descriptors():
     i = half_img.copy()
     frames, descriptors = sift(i, compute_descriptor=True)
 
-    assert_allclose(frames[0], [2.16217, 128.056, 2.13029, -4.3617], rtol=1e-3)
-    assert_allclose(descriptors[0, 47:52], [53, 131, 137, 32, 14])
+    assert_allclose(frames[0], [2.16217, 128.056, 2.13029, 5.9325], rtol=1e-3)
+    assert_allclose(descriptors[0, 84:88], [4,  14,  32, 137])
     assert frames.shape[0] == 358
 
 
@@ -90,7 +90,7 @@ def test_sift_user_defined_frames():
     new_frames, descriptors = sift(i, frames=frames, compute_descriptor=True)
 
     assert_allclose(new_frames[0], frames[0], rtol=1e-3)
-    assert_allclose(descriptors[0, -5:], [2, 10, 23, 22, 14])
+    assert_allclose(descriptors[0, -5:], [14, 22, 23, 10,  2])
     assert new_frames.shape[0] == 3
 
 
@@ -101,7 +101,7 @@ def test_sift_sort_user_defined_scales():
     new_frames, descriptors = sift(i, frames=frames, compute_descriptor=True)
 
     assert_allclose(new_frames[0], frames[-1], rtol=1e-3)
-    assert_allclose(descriptors[0, -5:], [22, 137, 36, 0, 0])
+    assert_allclose(descriptors[0, -5:], [46, 14,  0,  0,  0])
     assert new_frames.shape[0] == 3
 
 
@@ -112,6 +112,6 @@ def test_sift_force_orientations():
     new_frames, descriptors = sift(i, frames=frames, compute_descriptor=True,
                                    force_orientations=True)
 
-    assert_allclose(new_frames[0], [4, 5, 2, -3.0531], rtol=1e-3)
-    assert_allclose(descriptors[0, :5], [8, 28, 30, 19, 38])
+    assert_allclose(new_frames[0], [4, 5, 2, 4.6239], rtol=1e-3)
+    assert_allclose(descriptors[0, :5], [5, 1, 0, 0, 1])
     assert new_frames.shape[0] == 3

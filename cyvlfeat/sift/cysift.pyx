@@ -142,21 +142,6 @@ cdef int korder(const void *a, const void *b) nogil:
     if x > 0: return +1
     return 0
 
-cdef inline void transpose_descriptor(vl_sift_pix* dst, vl_sift_pix* src) nogil:
-    cdef:
-        int BO = 8  # number of orientation bins
-        int BP = 4  # number of spatial bins
-        int i = 0, j = 0, t = 0, jp = 0, o = 0, op = 0
-
-    for j in range(BP):
-        jp = BP - 1 - j
-        for i in range(BP):
-            o  = BO * i + BP * BO * j
-            op = BO * i + BP * BO * jp
-            dst[op] = src[o]
-            for t in range(1, BO):
-                dst [BO - t + op] = src [t + o]
-
 
 @cython.boundscheck(False)
 cpdef cy_sift(np.ndarray[float, ndim=2, mode='c'] data, int n_octaves,
@@ -193,7 +178,6 @@ cpdef cy_sift(np.ndarray[float, ndim=2, mode='c'] data, int n_octaves,
         VlSiftKeypoint ik
 
         vl_sift_pix[128] single_descriptor_arr
-        vl_sift_pix[128] single_descriptor_arr_t
 
         bint user_specified_frames = False
 
@@ -294,7 +278,7 @@ cpdef cy_sift(np.ndarray[float, ndim=2, mode='c'] data, int n_octaves,
                     n_angles = vl_sift_calc_keypoint_orientations(filt, angles,
                                                                   curr_keypoint)
                 else:
-                    angles[0] = (VL_PI / 2) - user_keypoints_arr[4 * i + 3]
+                    angles[0] = user_keypoints_arr[4 * i + 3]
                     n_angles  = 1
             else:
                 # This is equivalent to &keypoints[i] - just get the pointer
@@ -309,8 +293,6 @@ cpdef cy_sift(np.ndarray[float, ndim=2, mode='c'] data, int n_octaves,
                     vl_sift_calc_keypoint_descriptor(filt,
                                                      single_descriptor_arr,
                                                      curr_keypoint, angles[q])
-                    transpose_descriptor(single_descriptor_arr_t,
-                                         single_descriptor_arr)
 
                 # Dynamically reallocate the output arrays so that they can
                 # fit all the keypoints being requested.
@@ -338,12 +320,12 @@ cpdef cy_sift(np.ndarray[float, ndim=2, mode='c'] data, int n_octaves,
                 flat_out_frames[total_keypoints * 4 + 0] = curr_keypoint.y
                 flat_out_frames[total_keypoints * 4 + 1] = curr_keypoint.x
                 flat_out_frames[total_keypoints * 4 + 2] = curr_keypoint.sigma
-                flat_out_frames[total_keypoints * 4 + 3] = (VL_PI / 2) - angles[q]
+                flat_out_frames[total_keypoints * 4 + 3] = angles[q]
 
                 if compute_descriptor:
                     for j in range(128):
                         flat_descriptors[total_keypoints * 128 + j] = \
-                            min(512.0 * single_descriptor_arr_t[j], 255.0)
+                            min(512.0 * single_descriptor_arr[j], 255.0)
 
                 total_keypoints += 1
             i += 1
