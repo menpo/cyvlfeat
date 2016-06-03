@@ -48,6 +48,7 @@ def _fisher_encoding(X, means, covars, priors):
 
 
 def test_fisher_encoding():
+    np.random.seed(1)
     X = np.random.randn(1000, 2)
     X[500:] *= (2, 3)
     X[500:] += (4, 4)
