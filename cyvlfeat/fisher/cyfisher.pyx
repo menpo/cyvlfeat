@@ -34,22 +34,21 @@ cpdef cy_fisher(np.ndarray X,
         vl_size n_clusters = MEANS.shape[0]
         vl_size n_dimensions = MEANS.shape[1]
         vl_size n_data = X.shape[0]
-        void* data
-        void* means_data
-        void* covariances_data
-        void* priors_data
-        void* envc_data
-        np.ndarray enc
+
+        np.ndarray[np.float32_t, ndim=1, mode="c"] encf
+        np.ndarray[np.float32_t, ndim=2, mode="c"] meansf
+        np.ndarray[np.float32_t, ndim=2, mode="c"] covarsf
+        np.ndarray[np.float32_t, ndim=1, mode="c"] priorsf
+        np.ndarray[np.float32_t, ndim=2, mode="c"] Xf
+
+        np.ndarray[np.float64_t, ndim=1, mode="c"] encd
+        np.ndarray[np.float64_t, ndim=2, mode="c"] meansd
+        np.ndarray[np.float64_t, ndim=2, mode="c"] covarsd
+        np.ndarray[np.float64_t, ndim=1, mode="c"] priorsd
+        np.ndarray[np.float64_t, ndim=2, mode="c"] Xd
 
         int flags = 0
-
-        vl_type dataType
-    if X.dtype == "float32":
-        dataType = VL_TYPE_FLOAT
-    elif X.dtype == "float64":
-        dataType = VL_TYPE_DOUBLE
-    else:
-        raise TypeError("Unsupported data type for X")
+        int num_terms
 
     if MEANS.dtype != X.dtype:
         raise TypeError("MEANS does not have the same type as X")
@@ -83,26 +82,52 @@ cpdef cy_fisher(np.ndarray X,
             n_data, n_clusters, n_dimensions, 2 * n_clusters * n_dimensions,
             square_root, normalized, fast))
 
-    enc = np.zeros(2 * n_clusters * n_dimensions,
-                                 dtype=X.dtype)
+    if X.dtype == "float32":
 
+        encf = np.zeros(
+            2 * n_clusters * n_dimensions, dtype=X.dtype
+        )
+        meansf = MEANS
+        covarsf = COVARIANCES
+        priorsf = PRIORS
+        Xf = X
 
-    data = <void*> X.data
-    means_data = <void*> MEANS.data
-    covariances_data = <void*> COVARIANCES.data
-    priors_data = <void*> PRIORS.data
-    enc_data = <void*> enc.data
+        num_terms = vl_fisher_encode(&encf[0],
+                                     VL_TYPE_FLOAT,
+                                     &meansf[0, 0],
+                                     n_dimensions,
+                                     n_clusters,
+                                     &covarsf[0, 0],
+                                     &priorsf[0],
+                                     &Xf[0, 0],
+                                     n_data,
+                                     flags)
+        enc = encf
 
-    cdef int num_terms = vl_fisher_encode(enc_data,
-                                          dataType,
-                                          means_data,
-                                          n_dimensions,
-                                          n_clusters,
-                                          covariances_data,
-                                          priors_data,
-                                          data,
-                                          n_data,
-                                          flags)
+    elif X.dtype == "float64":
+
+        encd = np.zeros(
+            2 * n_clusters * n_dimensions, dtype=X.dtype
+        )
+        meansd = MEANS
+        covarsd = COVARIANCES
+        priorsd = PRIORS
+        Xd = X
+
+        num_terms = vl_fisher_encode(&encd[0],
+                                     VL_TYPE_DOUBLE,
+                                     &meansd[0, 0],
+                                     n_dimensions,
+                                     n_clusters,
+                                     &covarsd[0, 0],
+                                     &priorsd[0],
+                                     &Xd[0, 0],
+                                     n_data,
+                                     flags)
+        enc = encd
+    else:
+        raise ValueError("The type of the input data X is not 'float32' nor "
+                         "'float64'.")
 
     if verbose:
         print('vl_fisher: sparsity of assignments: {:.2f}% '
