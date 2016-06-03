@@ -91,7 +91,7 @@ def test_sift_user_defined_frames():
 
     assert_allclose(new_frames[0], frames[0], rtol=1e-3)
     assert_allclose(descriptors[0, -5:], [2, 10, 23, 22, 14])
-    assert frames.shape[0] == 3
+    assert new_frames.shape[0] == 3
 
 
 def test_sift_sort_user_defined_scales():
@@ -102,7 +102,7 @@ def test_sift_sort_user_defined_scales():
 
     assert_allclose(new_frames[0], frames[-1], rtol=1e-3)
     assert_allclose(descriptors[0, -5:], [22, 137, 36, 0, 0])
-    assert frames.shape[0] == 3
+    assert new_frames.shape[0] == 3
 
 
 def test_sift_force_orientations():
@@ -114,4 +114,4 @@ def test_sift_force_orientations():
 
     assert_allclose(new_frames[0], [4, 5, 2, -3.0531], rtol=1e-3)
     assert_allclose(descriptors[0, :5], [8, 28, 30, 19, 38])
-    assert frames.shape[0] == 3
+    assert new_frames.shape[0] == 3

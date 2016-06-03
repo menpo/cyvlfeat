@@ -314,7 +314,14 @@ cpdef cy_sift(np.ndarray[float, ndim=2, mode='c'] data, int n_octaves,
 
                 # Dynamically reallocate the output arrays so that they can
                 # fit all the keypoints being requested.
-                if reserved < total_keypoints + 1:
+                # If statement says: IF we will run out of space next iteration
+                #                    AND we have computed the frame OR the user
+                #                        has allowed estimation of the number of
+                #                        orientations AND there was more than one
+                #                    THEN reallocate memory
+                if (reserved < total_keypoints + 1 and
+                   (not user_specified_frames or
+                    (force_orientations and n_angles > 1))):
                     reserved += 2 * n_keypoints
 
                     out_frames = np.resize(out_frames, (reserved, 4))
@@ -350,7 +357,7 @@ cpdef cy_sift(np.ndarray[float, ndim=2, mode='c'] data, int n_octaves,
     # If we have dynamically allocated memory for the frames, make sure that
     # we resize the array back to the correct size (since we optimistically
     # allocated previously to reduce the number of total resizes)
-    if not user_specified_frames:
+    if out_frames.shape[0] != total_keypoints:
         out_frames = np.resize(out_frames, (total_keypoints, 4))
         out_descriptors = np.resize(out_descriptors, (total_keypoints, 128))
 
