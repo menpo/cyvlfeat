@@ -1,8 +1,5 @@
-# -*- coding: utf-8 -*-
 # Author: Alexis Mignon <alexis.mignon@probayes.com>
-# Date: Wed Jun  1 15:57:05 2016
-# Copyright (c) 2016 ProbaYes SAS
-"""
+""" Wrapper for the GMM module from vlfeat
 """
 
 from .cygmm import cy_gmm

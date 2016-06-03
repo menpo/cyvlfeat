@@ -1,9 +1,6 @@
 # -*- coding: utf-8 -*-
 # Author: Alexis Mignon <alexis.mignon@probayes.com>
-# Date: Wed Jun  1 14:58:43 2016
-# Copyright (c) 2016 ProbaYes SAS
-"""
-"""
+
 
 from .host cimport vl_size, vl_type
 from .kmeans cimport VlKMeans

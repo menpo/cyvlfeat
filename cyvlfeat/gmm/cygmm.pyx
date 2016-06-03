@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 # Author: Alexis Mignon <alexis.mignon@probayes.com>
-# Date: Wed Jun  1 11:44:32 2016
-"""
+""" Wrapper for the gmm module of vlfeat
 """
 
 from cyvlfeat._vl.host cimport *
