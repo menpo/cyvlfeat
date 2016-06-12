@@ -12,7 +12,7 @@ half_img = img[:, :256]
 def test_phow_frames_float_descriptors():
     i = img.copy()
     frames, descriptors = phow(i, float_descriptors=True)
-    assert frames.dtype == np.float32
+    assert descriptors.dtype == np.float32
 
 def test_dsift_non_float_descriptors():
     i = img.copy()
