@@ -57,12 +57,12 @@ def phow(image, verbose=False, fast=True, sizes=(4, 6, 8, 10), step=2, color='gr
             # case when user inputs, color ='hsv' and I belongs to RGB space.
             color_lower = 'hsv'
             I = colors.rgb_to_hsv(I)
-            print ('Color space not recognized, defaulting to HSV color space.')
+            print('Color space not recognized, defaulting to HSV color space.')
 
     if verbose:
-        print ('Color space: {}'.format(color))
-        print ('I size: {}x{}'.format(I.shape[0], I.shape[1]))
-        print ('Sizes: [{} {} {} {}]'.format(sizes[0], sizes[1], sizes[2], sizes[3]))
+        print('Color space: {}'.format(color))
+        print('I size: {}x{}'.format(I.shape[0], I.shape[1]))
+        print('Sizes: [{} {} {} {}]'.format(sizes[0], sizes[1], sizes[2], sizes[3]))
 
     for si in range(1, len(sizes)):
         off = math.floor(1.0 + 3.0 / 2.0 * (max(sizes) - sizes[si]))
