@@ -8,7 +8,7 @@ if [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
 fi
 if [ "$(uname -s)" == "Darwin" ]; then
   export CFLAGS="-I$PREFIX/include -mmacosx-version-min=$MACOSX_DEPLOYMENT_TARGET $CFLAGS"
-  export LDFLAGS="-L$PREFIX/lib $LDFLAGS"
+  export LDFLAGS="-L$PREFIX/lib -Wl,-headerpad_max_install_names $LDFLAGS"
 fi
 
 "$PYTHON" setup.py install --single-version-externally-managed --record=/tmp/record.txt
