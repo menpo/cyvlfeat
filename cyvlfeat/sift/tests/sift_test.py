@@ -9,10 +9,23 @@ from cyvlfeat.test_util import lena
 img = lena().astype(np.float32)
 half_img = img[:, :256]
 
-def test_phow_frames_float_descriptors():
+def test_phow_float_descriptors():
     i = img.copy()
     frames, descriptors = phow(i, float_descriptors=True)
     assert descriptors.dtype == np.float32
+
+
+def test_phow_frames():
+    i = img.copy()
+    frames, descriptors = phow(i, float_descriptors=True)
+    assert frames.shape[0] == 236206
+
+
+def test_phow_descriptors():
+    i = img.copy()
+    frames, descriptors = phow(i, float_descriptors=True)
+    assert descriptors.shape[0] == 236206
+
 
 def test_dsift_non_float_descriptors():
     i = img.copy()
