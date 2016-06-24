@@ -2,7 +2,7 @@ import numpy as np
 from .cysift import cy_dsift
 
 
-def dsift(image, step=1, size=3, bounds=None, window_size=-1, norm=False,
+def dsift(image, step=1, size=3, bounds=None, window_size=-1, norm=True,
           fast=False, float_descriptors=False, geometry=(4, 4, 8),
           verbose=False):
     r"""
