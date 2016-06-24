@@ -9,6 +9,7 @@ from cyvlfeat.test_util import lena
 img = lena().astype(np.float32)
 half_img = img[:, :256]
 
+
 def test_phow_float_descriptors():
     i = img.copy()
     frames, descriptors = phow(i, float_descriptors=True)
