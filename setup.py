@@ -65,7 +65,7 @@ vl_extensions = [
 
 # Grab all the pyx and pxd Cython files for uploading to pypi
 cython_files = walk_for_package_data('*.p[xy][xd]')
-            
+      
 setup(
     name='cyvlfeat',
     version=versioneer.get_version(),
@@ -77,5 +77,5 @@ setup(
     include_dirs=[np.get_include()],
     ext_modules=cythonize(vl_extensions),
     packages=find_packages(),
-    package_data={'cyvlfeat': cython_files}
+    package_data={'cyvlfeat': cython_files}, requires=['scipy', 'matplotlib', 'numpy']
 )

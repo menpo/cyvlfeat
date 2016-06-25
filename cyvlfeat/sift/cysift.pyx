@@ -144,6 +144,65 @@ cdef int korder(const void *a, const void *b) nogil:
 
 
 @cython.boundscheck(False)
+cpdef cy_siftdescriptor(np.ndarray[float, ndim=2, mode='c'] in_grad,
+                    np.ndarray[float, ndim=3, mode='c'] in_frames, 
+                    int magnification, bint float_descriptors, 
+                    bint verbose, float norm_threshold):
+    cdef:
+        # used for sorting later
+        int i = 0, j = 0
+        int m = in_grad.shape[0]
+        int n = in_grad.shape[1]
+        int num_frames = in_frames.shape[1]
+
+        #create a filter to process the image
+        VlSiftFilt *filt = vl_sift_new(m, n, -1, -1, 0)
+
+        # Create empty 2D output array
+        np.ndarray[float, ndim=2, mode='c'] out_descriptors = np.empty(
+            (0, 128), dtype=np.float32, order='C')
+
+        #float *flat_descriptors = &out_descriptors[0, 0]
+
+        vl_sift_pix[128] single_descriptor_arr
+        vl_sift_pix[128] single_descriptor_arr_t
+
+        # transpose angles
+        for i in range(0, 2*m*n-1, 2):
+            in_grad[i] = VL_PI/2 - in_grad[i]
+
+        if magnification >= 0:
+            vl_sift_set_magnif(filt, magnification)
+
+        if norm_threshold >= 0:
+            vl_sift_set_norm_thresh(filt, norm_threshold)
+
+        if verbose:
+            printf("vl_sift: filter settings:\n")
+            printf("vl_sift:   magnif                = %g\n", vl_sift_get_magnif(filt))
+            printf("vl_sift:   num of frames         = %g\n", num_frames)
+            printf("vl_sift:   float descriptor      = %d\n", float_descriptors)
+            printf("vl_sift:   norm thresh           = %g\n", vl_sift_get_norm_thresh(filt))
+
+        for i in range(num_frames):
+            double y = in_frames [i]-1
+            double x = in_frames [i]-1
+            double s = in_frames [i]
+            double th = VL_PI/2 - in_frames [i]
+
+            vl_sift_calc_raw_descriptor(filt, in_grad, single_descriptor_arr, m, n, x, y, s, th)
+
+            transpose_descriptor(single_descriptor_arr_t, single_descriptor_arr)
+
+            for j in range(128):
+                flat_descriptors[j] = \
+                min(512.0 * single_descriptor_arr_t[j], 255.0)
+
+        # cleanup 
+        vl_sift_delete(filt)
+
+
+@cython.boundscheck(False)
 cpdef cy_sift(np.ndarray[float, ndim=2, mode='c'] data, int n_octaves,
               int n_levels, int first_octave, int peak_threshold,
               int edge_threshold, float norm_threshold, int magnification,

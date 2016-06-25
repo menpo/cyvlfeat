@@ -9,12 +9,16 @@ requirements:
     - numpy >=1.10
     - cython >0.23
     - vlfeat 0.9.*
+    - matplotlib
+    - scipy
     - msinttypes r26  # [win]
 
   run:
     - python
     - vlfeat 0.9.*
     - numpy >=1.10
+    - matplotlib
+    - scipy
 
 test:
   requires:
