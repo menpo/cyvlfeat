@@ -97,16 +97,24 @@ def plotsiftdescriptor(d, f=None, magnification=3.0, num_spatial_bins=4, num_ori
         max_value = max(d[1, :] + np.finfo(float).eps)
 
     def render_descr(d, num_spatial_bins, num_orientation_bins, max_value):
-        r"""
-        render_descr(d, num_spatial_bins, num_orientation_bins, max_value)
+
+        # Get the coordinates of the lines of the SIFT grid; each bin has side 1
+        """
 
         Parameters
         ----------
-        num_spatial_bins:: 4
-          Number of spatial bins in both spatial directions X and Y.
+        d : `(F, 128)` `uint8` or `float32` `ndarray`
+            ``descriptors as returned by ``sift()``
+        num_spatial_bins : `int`
+            Number of spatial bins in both spatial directions X and Y.
+        num_orientation_bins : `int`
+            Number of orientation bis.
+        max_value : `int`
 
-        num_orientation_bins:: 8
-          Number of orientation bis.
+        Returns
+        -------
+        x_render: ``X coordinates`` `float64` `ndarray`
+        y_render: ``Y coordinates`` `float64` `ndarray`
         """
 
         # Get the coordinates of the lines of the SIFT grid; each bin has side 1
