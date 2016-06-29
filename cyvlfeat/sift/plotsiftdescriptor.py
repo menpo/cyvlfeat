@@ -71,7 +71,9 @@ def plotsiftdescriptor(d, f=None, magnification=3.0, num_spatial_bins=4, num_ori
 
         if f.shape[0] == 2:
             # translation only
-            f = np.row_stack((f, 10 * np.ones((1, f.shape[1])), 0 * np.zeros(1, f.shape[1])))
+            col3 = 10 * np.ones((f.shape[0], 1))
+            col4 = 0 * np.zeros((f.shape[0], 1))
+            f = np.concatenate((f, col3, col4), axis=1)
 
         if f.shape[0] == 3:
             # translation and scale
