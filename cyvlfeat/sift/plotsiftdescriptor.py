@@ -132,13 +132,17 @@ def plotsiftdescriptor(d, f=None, magnification=3.0, num_spatial_bins=4, num_ori
         y_center = np.matlib.repmat(y_center.flatten(), num_orientation_bins, 1)
 
         # Do the stars
-        th = np.linspace(0, 2 * math.pi, num_orientation_bins + 2)
-        th = th[1:]
-        xd = np.matlib.repmat(np.cos(th), 1, num_spatial_bins * num_spatial_bins)
-        yd = np.matlib.repmat(np.sin(th), 1, num_spatial_bins * num_spatial_bins)
-        # d in Matlab is a 128x1 double but here it is 128x1 array, hence no transposing required.
-        xd = xd * d.flatten()
-        yd = yd * d.flatten()
+        th = np.linspace(0, 2 * 3.15, num_orientation_bins + 2)
+        th = th[:-2]
+        x_rep = np.matlib.repmat(np.cos(th), num_spatial_bins * num_spatial_bins, 1)
+        # FIXME: Error introduction due to numpy.cos(floating points)
+        x_rep = np.reshape(x_rep, (128,))
+        y_rep = np.matlib.repmat(np.sin(th), 1, num_spatial_bins * num_spatial_bins)
+        y_rep = np.reshape(y_rep, (128,))
+        # d in Matlab is a 128x1 double but here it is (128,) array, hence no transposing is required.
+
+        x_rep *= d
+        y_rep *= d
 
         # Re-arrange in sequential order the lines to draw
         nans = np.empty(num_spatial_bins * num_spatial_bins * num_orientation_bins)
