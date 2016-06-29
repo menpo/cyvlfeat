@@ -174,9 +174,11 @@ def plotsiftdescriptor(d, f=None, magnification=3.0, num_spatial_bins=4, num_ori
     y_all = []
 
     for k in range(d_len):
-        x, y = render_descr(d[:, k], num_spatial_bins, num_orientation_bins, max_value)
-        xall = np.hstack((xall, magnification_factor * f[2, k] * x + magnification_factor * f[4, k] * y + f[0, k]))
-        yall = np.hstack((yall, magnification_factor * f[3, k] * x + magnification_factor * f[5, k] * y + f[1, k]))
+        a = render_descr(d[k, :], num_spatial_bins, num_orientation_bins, max_value)
+        x_all = np.hstack(
+            (x_all, magnification * f[k, 2] * a[0] + magnification * f[k, 3] * a[1] + f[k, 0]))
+        y_all = np.hstack(
+            (y_all, magnification * f[k, 3] * a[0] + magnification * f[k, 5] * a[1] + f[k, 1]))
 
     # Plotting
     plot_figure = plt.figure()
