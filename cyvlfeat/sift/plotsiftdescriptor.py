@@ -161,18 +161,17 @@ def plotsiftdescriptor(d, f=None, magnification=3.0, num_spatial_bins=4, num_ori
         y_horizontal = np.hstack((y[:, 0][:, newaxis], y[:, -1][:, newaxis], nans1[:, newaxis]))
 
         # Vertical lines of the grid
-        # check for copy
-        xv = np.row_stack((x[1, :], x[-1, :], nans))
-        yv = np.row_stack((y[1, :], y[-1, :], nans))
+        x_vertical = np.row_stack((x[0, :], x[-1, :], nans1))
+        y_vertical = np.row_stack((y[0, :], y[-1:, :], nans1))
 
-        x = np.hstack((xstars.flatten, xh.flatten, xv.flatten))
-        y = np.hstack((ystars.flatten, yh.flatten, yv.flatten))
+        x_render = np.hstack((x_stars.flatten('F'), x_horizontal.flatten('F'), x_vertical.flatten('F')))
+        y_render = np.hstack((y_stars.flatten('F'), y_horizontal.flatten('F'), y_vertical.flatten('F')))
 
-        return x, y
+        return x_render, y_render
 
     d_len = d.shape[1]
-    xall = []
-    yall = []
+    x_all = []
+    y_all = []
 
     for k in range(d_len):
         x, y = render_descr(d[:, k], num_spatial_bins, num_orientation_bins, max_value)
