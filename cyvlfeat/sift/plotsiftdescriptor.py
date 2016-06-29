@@ -155,9 +155,10 @@ def plotsiftdescriptor(d, f=None, magnification=3.0, num_spatial_bins=4, num_ori
         y_stars = np.row_stack((y1, y2, nans))
 
         # Horizontal lines of the grid
-        nans = np.empty(num_spatial_bins + 1)
-        xh = np.row_stack((x[:, 1][:, newaxis], x[:, -1][:, newaxis], nans[:, newaxis]))
-        yh = np.row_stack((y[:, 1][:, newaxis], y[:, -1][:, newaxis], nans[:, newaxis]))
+        nans1 = np.empty((num_spatial_bins + 1))
+        nans1[:] = np.NAN
+        x_horizontal = np.hstack((x[:, 0][:, newaxis], x[:, -1][:, newaxis], nans1[:, newaxis]))
+        y_horizontal = np.hstack((y[:, 0][:, newaxis], y[:, -1][:, newaxis], nans1[:, newaxis]))
 
         # Vertical lines of the grid
         # check for copy
