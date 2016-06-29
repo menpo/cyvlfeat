@@ -52,9 +52,13 @@ def plotsiftdescriptor(d, f=None, magnification=3.0, num_spatial_bins=4, num_ori
     """
 
     # Check the arguments
-    if d:
-        if not conv.is_numeric(f):
-            # write test for non numeric types in plotsiftdescriptor
+    if d is not None:
+        # Assign f
+        if f is None:
+            f = np.matlib.repmat(np.array([[0], [0], [1], [0], [0], [1]]), 1, d.shape[0])
+            f = f.T
+
+        if not utils.is_numeric(f):
             raise ValueError('F must be a numeric type')
 
         if d.shape[0] != (math.pow(num_spatial_bins, 2) * num_orientation_bins):
