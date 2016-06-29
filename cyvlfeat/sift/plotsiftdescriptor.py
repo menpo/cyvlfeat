@@ -145,14 +145,14 @@ def plotsiftdescriptor(d, f=None, magnification=3.0, num_spatial_bins=4, num_ori
         y_rep *= d
 
         # Re-arrange in sequential order the lines to draw
-        nans = np.empty(num_spatial_bins * num_spatial_bins * num_orientation_bins)
+        nans = np.empty((num_spatial_bins * num_spatial_bins * num_orientation_bins))
         nans[:] = np.NAN
-        x1 = xc.flatten()
-        y1 = yc.flatten()
-        x2 = x1 + xd
-        y2 = y1 + yd
-        xstars = np.row_stack((x1, x2, nans))
-        ystars = np.row_stack((y1, y2, nans))
+        x1 = x_center.flatten('F')
+        y1 = y_center.flatten('F')
+        x2 = x1 + x_rep
+        y2 = y1 + y_rep
+        x_stars = np.row_stack((x1, x2, nans))
+        y_stars = np.row_stack((y1, y2, nans))
 
         # Horizontal lines of the grid
         nans = np.empty(num_spatial_bins + 1)
