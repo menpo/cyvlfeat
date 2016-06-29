@@ -116,23 +116,20 @@ def plotsiftdescriptor(d, f=None, magnification=3.0, num_spatial_bins=4, num_ori
         x_render: ``X coordinates`` `float64` `ndarray`
         y_render: ``Y coordinates`` `float64` `ndarray`
         """
-
-        # Get the coordinates of the lines of the SIFT grid; each bin has side 1
         x, y = np.meshgrid(np.arange(-num_spatial_bins / 2, num_spatial_bins / 2 + 1),
                            np.arange(-num_spatial_bins / 2, num_spatial_bins / 2 + 1))
 
         # Get the corresponding bin centers
+        # No transpose is done.
         # a copy will be made and that'll be assigned to new vars.
-        xc = x[:, :-1] + 0.5
-        yc = y[:, :-1] + 0.5
+        x_center = x[:-1, :-1] + 0.5
+        y_center = y[:-1, :-1] + 0.5
 
         # Rescale the descriptor range so that the biggest peak fits inside the bin diagram
         d = 0.4 * d / max_value
-
         # Each spatial bin contains a star with numOrientationBins tips
-        # flatten() Scramble the the centers automatically in row major order(descriptor convention)
-        xc = np.matlib.repmat(xc.flatten(), num_orientation_bins, 1)
-        yc = np.matlib.repmat(yc.flatten(), num_orientation_bins, 1)
+        x_center = np.matlib.repmat(x_center.flatten(), num_orientation_bins, 1)
+        y_center = np.matlib.repmat(y_center.flatten(), num_orientation_bins, 1)
 
         # Do the stars
         th = np.linspace(0, 2 * math.pi, num_orientation_bins + 2)
