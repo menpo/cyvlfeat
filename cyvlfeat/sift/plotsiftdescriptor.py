@@ -77,20 +77,24 @@ def plotsiftdescriptor(d, f=None, magnification=3.0, num_spatial_bins=4, num_ori
 
         if f.shape[1] == 3:
             # translation and scale
-            m = np.array([1, 0, 0, 1])
-            # check deep copy/no copy
-            f = np.row_stack((f, m * f[2]))
+            col1 = f[:, 0:2].T
+            col2 = 1 * f[:, 2]
+            col3 = 0 * f[:, 2]
+            col4 = 1 * f[:, 2]
+            f = np.row_stack((col1, col2, col3, col4))
+            f = f.T
 
-        if f.shape[0] == 4:
-            c = np.cos(f[3])
-            s = np.sin(f[3])
-            t = np.row_stack((c, s, -s, c))
-            f = np.row_stack((f, f[3] * t))
-    else:
-        f = np.matlib.repmat(np.array([[0], [0], [1], [0], [0], [1]]), 1, d.shape[1])
+        if f.shape[1] == 4:
+            c = np.cos(f[:, 3])
+            s = np.sin(f[:, 3])
+            t = np.vstack((c * f[:, 2], s * f[:, 2], -s * f[:, 2], c * f[:, 2]))
+            col1 = f[:, 0:2]
+            col2 = t.T
+            f = np.concatenate((col1, col2), axis=1)
 
-    # Standardizing Descriptors: Descriptors are often non-double numeric arrays
-    d = d.astype(np.int32)
+    # Standardize max_value
+    if max_value == 0:
+        max_value = max(d[1, :] + np.finfo(float).eps)
 
     def render_descr(d, num_spatial_bins, num_orientation_bins, max_value):
         r"""
