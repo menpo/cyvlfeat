@@ -1,34 +1,54 @@
 import math
 import numpy as np
 from numpy import newaxis
+from numpy import matlib
 from matplotlib import collections as mc
 from matplotlib import pyplot as plt
-from ..utils import conversion as conv
+from cyvlfeat.utils import utils as utils
+from cyvlfeat.sift.sift import sift
 
 
-def plotsiftdescriptor(d, f, magnification_factor=3.0, num_spatial_bins=4, num_orientation_bins=8, max_value=0):
+def plotsiftdescriptor(d, f=None, magnification=3.0, num_spatial_bins=4, num_orientation_bins=8, max_value=0):
     r"""
-    plotsiftdescriptor(d) plots the SIFT descriptor d. If d is a matrix,
-    it plots one descriptor per column. d has the same format used by sift().
-    plotsiftdescriptor(d,f) plots the SIFT descriptors warped to
-    the SIFT frames f, specified as columns of the matrix f. f has the
-    same format used by sift().
+    Plots the SIFT descriptor ``d``. If ``d`` is a
+    matrix, it plots one descriptor per column. ``d`` has the same format
+    used by ``sift()``.
+
+    ``plotsiftdescriptor(d,f)`` plots the SIFT descriptors warped to
+    the SIFT frames ``f``, specified as columns of the matrix ``f``. ``f`` has the same format used by ``sift()``.
 
     The function assumes that the SIFT descriptors use the standard
     configuration of 4x4 spatial bins and 8 orientations bins. The
-    following parameters can be used to change this:
+    parameters ``num_spatial_bins`` and ``num_orientation_bins`` respectively can be used to change this:
 
     Parameters
     ----------
-    num_spatial_bins:: 4
-      Number of spatial bins in both spatial directions X and Y.
+    d : `(F, 128)` `uint8` or `float32` `ndarray`
+        ``descriptors as returned by ``sift()``
+    f : `float32` `ndarray`, optional
+        ``frames`` as returned by ``sift()``
+        By default
+        >>> f = np.matlib.repmat(np.array([[0], [0], [1], [0], [0], [1]]), 1, d.shape[0])
+    magnification :  `int`, optional
+        Set the descriptor magnification factor. The scale of the keypoint is
+        multiplied by this factor to obtain the width (in pixels) of the spatial
+        bins. For instance, if there are there are 4 spatial bins along each
+        spatial direction, the ``side`` of the descriptor is approximately ``4 *
+        magnification``.
+    num_spatial_bins : `int`, optional
+        Number of spatial bins in both spatial directions X and Y.
+    num_orientation_bins : `int`, optional
+        Number of orientation bis.
+    max_value : `int`, optional
 
-    num_orientation_bins:: 8
-      Number of orientation bis.
-
-    magnification_factor:: 3
-       Magnification factor. The width of one bin is equal to the scale
-       of the keypoint F multiplied by this factor.
+    Example Usage
+    -------------
+    >>> result = sift(img, compute_descriptor=True)
+    >>> F = result[0]
+    >>> D = result[1]
+    >>> plotsiftdescriptor(D, F)
+    >>> #or
+    >>> plotsiftdescriptor(D) # Default f will be used in this case.
     """
 
     # Check the arguments
