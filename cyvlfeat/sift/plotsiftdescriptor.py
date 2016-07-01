@@ -186,3 +186,5 @@ def plotsiftdescriptor(d, f=None, magnification=3.0, num_spatial_bins=4, num_ori
     lc = mc.LineCollection(to_plot, linewidths=0.5)
     plt.gca().add_collection(lc)
     plt.autoscale(enable=True, axis='both', tight=None)
+    plt.show()
+    
