@@ -5,7 +5,6 @@ from numpy import matlib
 from matplotlib import collections as mc
 from matplotlib import pyplot as plt
 from cyvlfeat.utils import utils as utils
-from cyvlfeat.sift.sift import sift
 
 
 def plotsiftdescriptor(d, f=None, magnification=3.0, num_spatial_bins=4, num_orientation_bins=8, max_value=0):
@@ -191,4 +190,3 @@ def plotsiftdescriptor(d, f=None, magnification=3.0, num_spatial_bins=4, num_ori
     plt.gca().add_collection(lc)
     plt.autoscale(enable=True, axis='both', tight=None)
     plt.show()
-    
