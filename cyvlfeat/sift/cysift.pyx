@@ -6,7 +6,6 @@
 # under the terms of the BSD license.
 import numpy as np
 cimport numpy as np
-import cython
 cimport cython
 from cython.operator cimport dereference as deref
 from libc.stdio cimport printf
