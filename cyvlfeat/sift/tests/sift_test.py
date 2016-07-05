@@ -26,7 +26,7 @@ grads = np.rollaxis(np.dstack((mod, ang)), 1)
 
 def test_siftdescriptor_non_float_descriptors():
     descriptors = siftdescriptor(np.asfarray(grads, dtype='float'), frame, float_descriptors=False)
-    assert descriptors.dtype == np.unit8
+    assert descriptors.dtype == np.uint8
 
 
 def test_siftdescriptor_float_descriptors():
