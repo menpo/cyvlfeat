@@ -35,7 +35,7 @@ def test_siftdescriptor_float_descriptors():
 
 
 def test_siftdescriptor_descriptors_shape():
-    descriptors = siftdescriptor(np.asfarray(grads, dtype='float'))
+    descriptors = siftdescriptor(np.asfarray(grads, dtype='float'), frame)
     assert descriptors.shape[0] == 730
     assert descriptors.shape[1] == 128
 
