@@ -38,9 +38,9 @@ def vlad(x, means, assignments, unnormalized=False, square_root=False,
 
     Returns
     -------
-    enc : [k, 1] `float32` `ndarray`
+    enc : [k, ] `float32` `ndarray`
         A vector of size equal to the product of
-        ``k = 2 * the n_data_dimensions * n_clusters``.
+        ``k = the n_data_dimensions * n_clusters``.
     """
     # check for None
     if x is None or means is None or assignments is None:
