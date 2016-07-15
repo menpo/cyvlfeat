@@ -1,7 +1,7 @@
 import numpy as np
 cimport numpy as np
 cimport cython
-import cython
+# import cython
 from libc.stdio cimport printf
 
 # Import the header files
