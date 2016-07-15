@@ -1,3 +1,4 @@
+from __future__ import division
 from cyvlfeat.vlad.vlad import vlad
 import numpy as np
 from numpy.testing import assert_allclose
