@@ -9,8 +9,6 @@ def vlad(x, means, assignments, unnormalized=False, square_root=False,
     cluster centers ``means`` and vector-to-cluster soft assignments
     ``assignments``.
 
-    By default, the standard Fisher vector is computed.
-
     Parameters
     ----------
     x : [D, N]  `float32` `ndarray`
