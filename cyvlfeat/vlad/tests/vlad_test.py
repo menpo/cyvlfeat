@@ -1,4 +1,4 @@
-from cyvlfeat.vlad import vlad
+from cyvlfeat.vlad.vlad import vlad
 import numpy as np
 from numpy.testing import assert_allclose
 
@@ -11,7 +11,7 @@ def test_vlad_dimension():
     x = np.random.uniform(size=(D, N)).astype(np.float32)
     means = np.random.uniform(size=(D, K)).astype(np.float32)
     assignments = np.random.uniform(size=(K, N)).astype(np.float32)
-    enc = vlad.vlad(x, means, assignments)
+    enc = vlad(x, means, assignments)
 
     expected = K * D
     observed = len(enc)
@@ -43,7 +43,7 @@ def test_vlad_encoding():
     fraction = K * N
     assign *= (1 / fraction)
 
-    observed_enc = vlad.vlad(x, mu, assign)
+    observed_enc = vlad(x, mu, assign)
 
     # expected result obtained from running vl_vlad_encode from a C program
     expected_enc = np.array([0.27231345, 0.27231345, 0.27231348, 0.27231345, 0.27231342, 0.25836566,
