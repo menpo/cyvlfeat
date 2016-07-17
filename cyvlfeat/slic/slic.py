@@ -1,8 +1,5 @@
 import numpy as np
 from cyvlfeat.slic.cyslic import cy_slic
-from cyvlfeat.test_util import lena
-
-img = lena().astype(np.float32)
 
 
 def slic(image, region_size, regularizer, verbose=False):
