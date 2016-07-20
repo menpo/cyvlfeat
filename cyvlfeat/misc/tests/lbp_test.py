@@ -17,6 +17,7 @@ def test_lbp_histograms_dimensions():
 def test_lbp_histograms():
     i = img.copy()
     result = lbp(i, cell_size=300)
+    # result obtained from running vl_lbp from a C program
     assert_allclose(result[:, :, :],
                     [[[0.12391094, 0.08487658, 0.10579009, 0.15625666, 0.12110113, 0.08651522,
                        0.10110916, 0.10902751, 0.0931019, 0.1432666, 0.14087646, 0.08676995,
