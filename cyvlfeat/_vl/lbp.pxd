@@ -23,5 +23,5 @@ cdef extern from "vl/lbp.h":
                               float * features,
                               float * image, vl_size width, vl_size height,
                               vl_size cellSize)
-    vl_size vl_lbp_get_dimension(VlLbp * self
+    vl_size vl_lbp_get_dimension(VlLbp * self)
 
