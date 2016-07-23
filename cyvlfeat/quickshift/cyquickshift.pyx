@@ -74,8 +74,13 @@ cpdef cy_quickshift(np.ndarray[double, ndim=2, mode='c'] image,
     parents = np.reshape(parents_c, (n1, n2))
 
     memcpy(&dists[0, 0], vl_quickshift_get_dists(q), sizeof(double) * n1 * n2)
-    memcpy(&density[0, 0], vl_quickshift_get_density(q), sizeof(double) * n1 * n2)
+
+    if compute_estimate:
+        memcpy(&density[0, 0], vl_quickshift_get_density(q), sizeof(double) * n1 * n2)
 
     vl_quickshift_delete(q)
 
-    return parents, dists, density
+    if compute_estimate:
+        return parents, dists, density
+    else:
+        return parents, dists
