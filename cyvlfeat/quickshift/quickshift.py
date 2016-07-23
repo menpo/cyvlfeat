@@ -36,8 +36,9 @@ def quickshift(image, kernel_size, max_dist=None,
         ``gaps`` contains the corresponding branch length.
         Pixels which are at the root of their respective
         tree have MAP(x) = x and GAPS(x) = inf.
-    estimate: [H, W] `float64` `ndarray`
-        The estimate of the density.
+    estimate: [H, W] `float64` `ndarray`, optional
+        The estimate of the density. Only returned if
+        ``max_dist`` is not ``None``.
     """
 
     # check for None
