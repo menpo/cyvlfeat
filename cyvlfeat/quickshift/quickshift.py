@@ -56,13 +56,16 @@ def quickshift(image, kernel_size, max_dist=None,
     #     if image.ndim != 3:
     #         raise ValueError('Only 3D arrays are supported')
 
+    compute_estimate = True
+
     if max_dist is None:
+        compute_estimate = False
         # uses a default max_dist of kernel_size * 3
         max_dist = kernel_size * 3
 
     # Ensure types are correct before passing to Cython
     image = np.require(image, dtype=np.float64, requirements='C')
 
-    result = cy_quickshift(image, kernel_size, max_dist, medoid, verbose)
+    result = cy_quickshift(image, kernel_size, max_dist, compute_estimate, medoid, verbose)
 
     return result
