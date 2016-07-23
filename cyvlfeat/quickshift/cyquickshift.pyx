@@ -19,7 +19,7 @@ from cyvlfeat._vl.host cimport *
 
 @cython.boundscheck(False)
 cpdef cy_quickshift(np.ndarray[double, ndim=2, mode='c'] image,
-                    int kernel_size, int max_dist,
+                    int kernel_size, int max_dist, bint compute_estimate,
                     bint medoid, bint verbose):
     cdef:
         int *parentsi
