@@ -1,9 +1,27 @@
 import numpy as np
 from numpy.testing import assert_allclose
 from cyvlfeat.quickshift.quickshift import quickshift
+from cyvlfeat.quickshift.flatmap import flatmap
+
 from cyvlfeat.test_util import lena
 
 img = lena().astype(np.float32)
+result = quickshift(img, 2, 10)
+maps = result[0]
+
+
+def test_flatmap_labels():
+    labels, clusters = flatmap(maps)
+    assert labels.shape == (512, 512)
+    assert_allclose(labels[0, 0:6], [1027., 1027., 1027., 1027., 1027., 12303.],
+                    rtol=1e-3)
+
+
+def test_flatmap_clusters():
+    labels, clusters = flatmap(maps)
+    assert clusters.shape == (262144,)
+    assert_allclose(clusters[0:6], [1., 1., 1., 1., 1., 56.],
+                    rtol=1e-3)
 
 
 def test_quickshift_medoid_maps():
@@ -52,4 +70,3 @@ def test_quickshift_quick_estimate():
     assert estimate.shape == (512, 512)
     assert_allclose(estimate[0:5, 0], [8.699, 11.0754, 12.350, 12.322, 11.190],
                     rtol=1e-3)
-
