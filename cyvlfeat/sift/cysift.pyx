@@ -19,7 +19,7 @@ from cyvlfeat.cy_util cimport py_printf, set_python_vl_printf
 
 
 @cython.boundscheck(False)
-cpdef cy_dsift(np.ndarray[float, ndim=2, mode='c'] data, int[:] step,
+cpdef cy_dsift(float[:, ::1] data, int[:] step,
                int[:] size, int[:] bounds, int window_size, bint norm,
                bint fast, bint float_descriptors, int[:] geometry,
                bint verbose):
@@ -33,8 +33,8 @@ cpdef cy_dsift(np.ndarray[float, ndim=2, mode='c'] data, int[:] step,
         int k = 0, i = 0
         int step_x = 0, step_y = 0, min_x = 0, min_y = 0, max_x = 0, max_y = 0
 
-        np.ndarray[float, ndim=2, mode='c'] out_descriptors
-        np.ndarray[float, ndim=2, mode='c'] out_frames
+        float[:, ::1] out_descriptors
+        float[:, ::1] out_frames
 
         int height = data.shape[0]
         int width = data.shape[1]
@@ -133,9 +133,9 @@ cpdef cy_dsift(np.ndarray[float, ndim=2, mode='c'] data, int[:] step,
     vl_dsift_delete(dsift)
 
     if float_descriptors:
-        return out_frames, out_descriptors
+        return np.asarray(out_frames), np.asarray(out_descriptors)
     else:
-        return out_frames, out_descriptors.astype(np.uint8)
+        return np.asarray(out_frames), np.asarray(out_descriptors).astype(np.uint8)
 
 
 cdef int korder(const void *a, const void *b) nogil:
@@ -146,7 +146,7 @@ cdef int korder(const void *a, const void *b) nogil:
 
 
 @cython.boundscheck(False)
-cpdef cy_sift(np.ndarray[float, ndim=2, mode='c'] data, int n_octaves,
+cpdef cy_sift(float[:, ::1] data, int n_octaves,
               int n_levels, int first_octave, int peak_threshold,
               int edge_threshold, float norm_threshold, int magnification,
               int window_size, float[:, :] frames, bint force_orientations,
@@ -164,10 +164,9 @@ cpdef cy_sift(np.ndarray[float, ndim=2, mode='c'] data, int n_octaves,
                                        first_octave)
 
         # Create empty 2D output arrays
-        np.ndarray[float, ndim=2, mode='c'] out_descriptors = np.empty(
-            (0, 128), dtype=np.float32, order='C')
-        np.ndarray[float, ndim=2, mode='c'] out_frames = np.empty(
-            (0, 4), dtype=np.float32, order='C')
+        float[:, ::1] out_descriptors = np.empty((0, 128), dtype=np.float32,
+                                                 order='C')
+        float[:, ::1] out_frames = np.empty((0, 4), dtype=np.float32, order='C')
 
         float *flat_descriptors = &out_descriptors[0, 0]
         float *flat_out_frames = &out_frames[0, 0]
@@ -349,8 +348,8 @@ cpdef cy_sift(np.ndarray[float, ndim=2, mode='c'] data, int n_octaves,
 
     if compute_descriptor:
         if float_descriptors:
-            return out_frames, out_descriptors
+            return np.asarray(out_frames), np.asarray(out_descriptors)
         else:
-            return out_frames, out_descriptors.astype(np.uint8)
+            return np.asarray(out_frames), np.asarray(out_descriptors).astype(np.uint8)
     else:
-        return out_frames
+        return np.asarray(out_frames)

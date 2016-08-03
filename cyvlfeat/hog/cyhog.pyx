@@ -30,7 +30,7 @@ cpdef cy_hog(float[:, :, ::1] data, int cell_size, int variant,
         int width = data.shape[1]
         int n_channels = data.shape[2]
         int out_height = 0, out_width = 0, out_n_channels = 0
-        np.ndarray[float, ndim=3, mode='c'] out_array
+        float[:, :, :] out_array
 
     vl_hog_set_use_bilinear_orientation_assignments(hog,
                                                     bilinear_interpolation)
@@ -77,4 +77,4 @@ cpdef cy_hog(float[:, :, ::1] data, int cell_size, int variant,
     if return_channels_last_axis:
         out_array = np.transpose(out_array, [1, 2, 0]).copy()
 
-    return out_array
+    return np.asarray(out_array)
