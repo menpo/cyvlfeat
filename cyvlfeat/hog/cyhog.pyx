@@ -7,11 +7,11 @@
 import numpy as np
 cimport numpy as np
 cimport cython
-from libc.stdio cimport printf
 
 # Import the header files
 from cyvlfeat._vl.hog cimport *
 from cyvlfeat._vl.host cimport VL_FALSE
+from cyvlfeat.cy_util cimport py_printf
 
 
 @cython.boundscheck(False)
@@ -48,19 +48,19 @@ cpdef cy_hog(float[:, :, ::1] data, int cell_size, int variant,
     out_n_channels = vl_hog_get_dimension(hog)
 
     if verbose:
-        printf('vl_hog: image: [%d x %d x %d]\n', height, width, n_channels)
-        printf('vl_hog: descriptor: [%d x %d x %d]\n', out_height, out_width,
+        py_printf('vl_hog: image: [%d x %d x %d]\n', height, width, n_channels)
+        py_printf('vl_hog: descriptor: [%d x %d x %d]\n', out_height, out_width,
                                                        out_n_channels)
-        printf('vl_hog: number of orientations: %d\n', n_orientations)
-        printf('vl_hog: bilinear orientation assignments: %s\n',
-               'yes' if bilinear_interpolation else 'no')
-        printf('vl_hog: variant: %s\n',
-               'DalalTriggs' if variant == VlHogVariantDalalTriggs
-               else 'UOCTTI')
-        printf('vl_hog: input type: %s\n',
-               'DirectedPolarField' if directed_polar_field
-               else ('UndirectedPolarField' if undirected_polar_field else
-                     'Image'))
+        py_printf('vl_hog: number of orientations: %d\n', n_orientations)
+        py_printf('vl_hog: bilinear orientation assignments: %s\n',
+                  'yes' if bilinear_interpolation else 'no')
+        py_printf('vl_hog: variant: %s\n',
+                  'DalalTriggs' if variant == VlHogVariantDalalTriggs
+                  else 'UOCTTI')
+        py_printf('vl_hog: input type: %s\n',
+                  'DirectedPolarField' if directed_polar_field
+                  else ('UndirectedPolarField' if undirected_polar_field else
+                        'Image'))
 
     # Unfortunately, writing in C-contiguous ordering implies the channels
     # should be at the front.
