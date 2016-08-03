@@ -2,31 +2,34 @@ import numpy as np
 from cyvlfeat.sift.cysift import cy_siftdescriptor
 
 
-def siftdescriptor(grad, f, magnification=3, float_descriptors=False, norm_thresh=None, verbose=False):
+def siftdescriptor(gradient_image, frames, magnification=3,
+                   float_descriptors=False, norm_thresh=None, verbose=False):
     r"""
-    Calculates the SIFT descriptors of
-    the keypoints F on the pre-processed image GRAD.
+    Calculates the SIFT descriptors of the keypoints ``frames`` on the
+     pre-processed image ``gradient_image``.
 
-    In order to match the standard SIFT descriptor, the gradient GRAD
-    should be calculated after mapping the image to the keypoint
-    scale. This is obtained by smoothing the image by a a Gaussian
-    kernel of variance equal to the scale of the keypoint.
-    Additionally, SIFT assumes that the input image is pre-smoothed at
-    scale 0.5 (this roughly compensates for the effect of the CCD
-    integrators), so the amount of smoothing that needs to be applied
-    is slightly less. The following code computes a standard SIFT
-    descriptor by using SIFTDESCRIPTOR():
+    In order to match the standard SIFT descriptor, the gradient should be
+    calculated after mapping the image to the keypoint scale. This is obtained
+    by smoothing the image by a a Gaussian kernel of variance equal to the scale
+    of the keypoint. Additionally, SIFT assumes that the input image is
+    pre-smoothed at scale 0.5 (this roughly compensates for the effect of the
+    CCD integrators), so the amount of smoothing that needs to be applied is
+    slightly less.
 
     Parameters
     ----------
-    grad : `float32` `ndarray`
-        grad is a 2xMxN array. The first layer GRAD[0,:,:] contains the
-        modulus of gradient of the original image modulus. The second layer
-        GRAD[1,:,:] contains the gradient angle (measured in radians,
-        clockwise, starting from the X axis -- this assumes that the Y
+    grad : [2, H, W] `float32` `ndarray`
+        gradient_image is a 2xMxN array. The first channel
+        ``gradient_image[0, :, :]`` contains the
+        modulus of gradient of the original image modulus. The second channel
+        `gradient_image[1, :, :]`` contains the gradient angle (measured in
+        radians, clockwise, starting from the X axis -- this assumes that the Y
         axis points down).
-    f : `float32` `ndarray`
-        `f` contains one row per keypoint with the `x`,`y`, `SIGMA` and `ANGLE` parameters.
+    frames : `[F, 4]` `float32` `ndarray`, optional
+        If specified, set the frames to use (bypass the detector). If frames are
+        not passed in order of increasing scale, they are re-orderded. A frame
+        is a vector of length 4 ``[Y, X, S, TH]``, representing a disk of center
+        frames[:2], scale frames[2] and orientation frames[3].
     magnification : `int`, optional
         Set the descriptor magnification factor. The scale of the keypoint is
         multiplied by this factor to obtain the width (in pixels) of the spatial
@@ -36,12 +39,12 @@ def siftdescriptor(grad, f, magnification=3, float_descriptors=False, norm_thres
     float_descriptors : `bool`, optional
         If ``True``, the descriptor are returned in floating point rather than
         integer format.
-    verbose : `bool`, optional
-        If ``True``, be verbose.
     norm_thresh : `float`, optional
         Set the minimum l2-norm of the descriptors before normalization.
         Descriptors below the threshold are set to zero. If ``None``,
         norm_thresh is ``-inf``.
+    verbose : `bool`, optional
+        If ``True``, be verbose.
 
     Returns
     -------
@@ -49,15 +52,12 @@ def siftdescriptor(grad, f, magnification=3, float_descriptors=False, norm_thres
         ``F`` is the number of keypoints (frames) used. The 128 length vectors
         per keypoint extracted. ``uint8`` by default.
 
-    The following code computes a standard SIFT
-    descriptor by using `siftdescriptor()`:
-
 
     Examples
     --------
     >>> import scipy.ndimage
     >>> import numpy as np
-    >>> from cyvlfeat.sift import siftdescriptor, dsift
+    >>> from cyvlfeat.sift import siftdescriptor
     >>> from cyvlfeat.test_util import lena
     >>> img = lena().astype(np.float32)
     >>> # Create a single frame in the center of the image
@@ -74,15 +74,15 @@ def siftdescriptor(grad, f, magnification=3, float_descriptors=False, norm_thres
     Notes
     -----
     1. The above fragment generates results which are very close
-    but not identical to the output of VL_SIFT() as the latter
-    samples the scale space at finite steps.
+       but not identical to the output of ``sift`` as the latter
+       samples the scale space at finite steps.
 
     2. For object categorization is sometimes useful to compute
-    SIFT descriptors without smoothing the image.
+       SIFT descriptors without smoothing the image.
     """
 
     # Validate Gradient array size
-    if grad.ndim != 3:
+    if gradient_image.ndim != 3:
         raise ValueError('Only 3D arrays are supported')
 
     # Validate magnification
@@ -96,9 +96,9 @@ def siftdescriptor(grad, f, magnification=3, float_descriptors=False, norm_thres
         norm_thresh = -1
 
     # Ensure types are correct before passing to Cython
-    grad = np.require(grad, dtype=np.float32, requirements='C')
-    f = np.require(f, dtype=np.float32, requirements='C')
+    gradient_image = np.require(gradient_image, dtype=np.float32,
+                                requirements='C')
+    frames = np.require(frames, dtype=np.float32, requirements='C')
 
-    descriptors = cy_siftdescriptor(grad, f, magnification, float_descriptors, norm_thresh, verbose)
-
-    return descriptors
+    return cy_siftdescriptor(gradient_image, frames, magnification,
+                             float_descriptors, norm_thresh, verbose)
