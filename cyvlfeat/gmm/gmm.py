@@ -81,7 +81,7 @@ def gmm(X, n_clusters=10, max_num_iterations=100, covariance_bound=None,
         raise ValueError("init_mode must be one of {'rand', 'custom', 'kmeans'")
 
     # Make sure we have the correct types
-    X = np.ascontiguousarray(X)
+    X = np.ascontiguousarray(X)g
     if X.dtype not in [np.float32, np.float64]:
         raise ValueError('Input data matrix must be of type float32 or float64')
 
@@ -89,15 +89,15 @@ def gmm(X, n_clusters=10, max_num_iterations=100, covariance_bound=None,
         covariance_bound = np.asarray(covariance_bound, dtype=np.float)
 
     if init_priors is not None:
-        init_priors = np.require(init_priors, flags=['C'], dtype=X.dtype)
+        init_priors = np.require(init_priors, requirements='C', dtype=X.dtype)
         if init_priors.shape != (n_clusters,):
             raise ValueError('init_priors does not have the correct size')
     if init_means is not None:
-        init_means = np.require(init_means, flags=['C'], dtype=X.dtype)
+        init_means = np.require(init_means, requirements='C', dtype=X.dtype)
         if init_means.shape != (n_clusters, n_features):
             raise ValueError('init_means does not have the correct size')
     if init_covars is not None:
-        init_covars = np.require(init_covars, flags=['C'], dtype=X.dtype)
+        init_covars = np.require(init_covars, requirements='C', dtype=X.dtype)
         if init_covars.shape != (n_clusters, n_features):
             raise ValueError('init_covars does not have the correct size')
 
