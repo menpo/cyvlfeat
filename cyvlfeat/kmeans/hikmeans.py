@@ -11,20 +11,21 @@ def hikmeans(data, num_centers, num_leaves, algorithm='LLOYD', verbose=False):
 
     Parameters
     ----------
-    data : [N,D] np.ndarray of type np.uint8
+    data : [N, D] `uint8` `ndarray`
         Data to be clustered
-    num_centers : int
+    num_centers : `int`
         Number of clusters (leaves) per level
-    num_leaves : int
+    num_leaves : `int`
         Minimum number of final leaves in the tree. The depth of the tree
         is computed from this parameter and ``num_centers`
-    algorithm : str, optional
-        Algorithm to be used for clustering ('LLOYD', 'ELKAN')
-    verbose : bool, optional
+    algorithm : {'LLOYD', 'ELKAN'}, optional
+        Algorithm to be used for clustering.
+    verbose : `bool`, optional
+        If ``True``, be verbose.
 
     Returns
     -------
-    (tree_structure, assignments) : (<PyObject>, [N,depth] np.ndarray of type np.uint32)
+    (tree_structure, assignments) : (object, [N, depth] `uint32` `ndarray`)
         Computed organisation and per-level assignments for ``data``
     """
     assert isinstance(data, np.ndarray)
@@ -38,7 +39,8 @@ def hikmeans(data, num_centers, num_leaves, algorithm='LLOYD', verbose=False):
         raise ValueError('Data should be uint8')
 
     if num_centers > data.shape[0]:
-        raise ValueError('num_centers should be a positive integer smaller than the number of data points')
+        raise ValueError('num_centers should be a positive integer smaller '
+                         'than the number of data points')
 
     algorithm_b = algorithm.encode()
     if algorithm_b not in algorithm_type_ikmeans.keys():
@@ -46,7 +48,8 @@ def hikmeans(data, num_centers, num_leaves, algorithm='LLOYD', verbose=False):
 
     depth = max(1, math.ceil(math.log(num_leaves) / math.log(num_centers)))
 
-    return cy_hikmeans(data, num_centers, num_leaves, depth, algorithm_b, verbose)
+    return cy_hikmeans(data, num_centers, num_leaves, depth, algorithm_b,
+                       verbose)
 
 
 def hikmeans_push(data, py_tree, verbose=False):
@@ -55,15 +58,16 @@ def hikmeans_push(data, py_tree, verbose=False):
 
     Parameters
     ----------
-    data : [N,D] np.ndarray of type np.uint8
+    data : [N, D] `uint8` `ndarray`
         Data to be projected
-    py_tree :
+    py_tree : `PyHIKMNode`
         Tree structure created by ``hikmeans``
     verbose : bool, optional
+        If ``True``, be verbose.
 
     Returns
     -------
-    assignments : [N,depth] np.ndarray of type np.uint32
+    assignments : [N, depth] `uint32` `ndarray`
         Computed per-level assignments for ``data``
     """
 

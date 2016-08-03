@@ -128,7 +128,7 @@ def kmeans_quantize(data, centers, distance="l2", algorithm="LLOYD",
 
     Returns
     -------
-    assignments :  [N,] `uint32` `ndarray`
+    assignments : [N,] `uint32` `ndarray`
         Assignments to the clusters centers.
     """
     assert isinstance(data, np.ndarray)
