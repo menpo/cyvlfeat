@@ -1,22 +1,35 @@
-# -*- coding: utf-8 -*-
 # Author: Alexis Mignon <alexis.mignon@probayes.com>
-# Date: Thu Jun  2 14:28:08 2016
-# Copyright (c) 2016 ProbaYes SAS
-"""
-"""
 import numpy as np
+from numpy.testing import assert_allclose
+from nose.tools import raises
 from cyvlfeat.gmm import gmm
 
+np.random.seed(1)
+X = np.random.randn(1000, 2)
+X[500:] *= (2, 3)
+X[500:] += (4, 4)
 
-def test_gmm():
-    np.random.seed(1)
-    X = np.random.randn(1000, 2)
-    X[500:] *= (2, 3)
-    X[500:] += (4, 4)
-    means, covars, priors = gmm(X, num_clusters=2)
-    np.testing.assert_allclose(priors, [0.5, 0.5], atol=0.1)
 
-    try:
-        np.testing.assert_allclose(means, [[0, 0], [4, 4]], atol=0.2)
-    except AssertionError:
-        np.testing.assert_allclose(means, [[4, 4], [0, 0]], atol=0.2)
+def test_gmm_2_clusters_rand_init():
+    means, covars, priors, LL, posteriors = gmm(X, n_clusters=2)
+
+    assert_allclose(LL, -4341.0, atol=0.1)
+    assert_allclose(priors, [0.5, 0.5], atol=0.1)
+    assert_allclose(posteriors[0], [0.0, 1.0], atol=0.1)
+    assert_allclose(means, [[4, 4], [0, 0]], atol=0.2)
+
+
+def test_gmm_2_clusters_kmeans_init():
+    means, covars, priors, LL, posteriors = gmm(X, n_clusters=2,
+                                                init_mode='kmeans')
+
+    assert_allclose(LL, -4341.0, atol=0.1)
+    assert_allclose(priors, [0.5, 0.5], atol=0.1)
+    assert_allclose(posteriors[0], [0.0, 1.0], atol=0.1)
+    assert_allclose(means, [[4, 4], [0, 0]], atol=0.2)
+
+
+@raises(ValueError)
+def test_gmm_2_clusters_custom_init_fail():
+    _ = gmm(X, n_clusters=2, init_mode='custom')
+
