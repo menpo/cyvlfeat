@@ -52,8 +52,8 @@ cdef extern from "vl/sift.h":
         vl_sift_pix *grad    # < GSS gradient data. 
         int grad_o           # < GSS gradient data octave.
 
-    VlSiftFilt*  vl_sift_new(int width, int height, int noctaves, int nlevels,
-                             int o_min)
+    VlSiftFilt* vl_sift_new(int width, int height, int noctaves, int nlevels,
+                            int o_min)
     void vl_sift_delete(VlSiftFilt *f) 
     int vl_sift_process_first_octave(VlSiftFilt *f, vl_sift_pix *im)
     int vl_sift_process_next_octave(VlSiftFilt *f) 

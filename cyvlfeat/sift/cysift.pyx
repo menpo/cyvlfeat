@@ -8,7 +8,6 @@ import numpy as np
 cimport numpy as np
 cimport cython
 from cython.operator cimport dereference as deref
-from libc.stdio cimport printf
 from libc.stdlib cimport qsort
 
 # Import the header files
@@ -16,6 +15,7 @@ from cyvlfeat._vl.dsift cimport *
 from cyvlfeat._vl.host cimport *
 from cyvlfeat._vl.sift cimport *
 from cyvlfeat._vl.mathop cimport VL_PI
+from cyvlfeat.cy_util cimport py_printf
 
 
 @cython.boundscheck(False)
@@ -26,8 +26,8 @@ cpdef cy_dsift(np.ndarray[float, ndim=2, mode='c'] data, int[:] step,
 
     cdef:
         int num_frames = 0
-        VlDsiftKeypoint *frames_array
-        float *descriptors_array
+        const VlDsiftKeypoint *frames_array
+        const float *descriptors_array
         int k = 0, i = 0
         int step_x = 0, step_y = 0, min_x = 0, min_y = 0, max_x = 0, max_y = 0
 
@@ -70,25 +70,25 @@ cpdef cy_dsift(np.ndarray[float, ndim=2, mode='c'] data, int[:] step,
       vl_dsift_get_steps(dsift, &step_x, &step_y)
       vl_dsift_get_bounds(dsift, &min_x, &min_y, &max_x, &max_y)
 
-      printf("vl_dsift: image size         [W, H] = [%d, %d]\n", width, height)
-      printf("vl_dsift: bounds:            "
-             "[minX, minY, maxX, maxY] = [%d, %d, %d, %d]\n",
-             min_x, min_y, max_x, max_y)
-      printf("vl_dsift: subsampling steps: stepX=%d, stepY=%d\n",
-             step_x, step_y)
-      printf("vl_dsift: num bins:          "
-             "[numBinT, numBinX, numBinY] = [%d, %d, %d]\n",
-             geom.numBinT,
-             geom.numBinX,
-             geom.numBinY)
-      printf("vl_dsift: descriptor size:   %d\n", descriptor_length)
-      printf("vl_dsift: bin sizes:         [binSizeX, binSizeY] = [%d, %d]\n",
+      py_printf("vl_dsift: image size         [W, H] = [%d, %d]\n", width, height)
+      py_printf("vl_dsift: bounds:            "
+                "[minX, minY, maxX, maxY] = [%d, %d, %d, %d]\n",
+                min_x, min_y, max_x, max_y)
+      py_printf("vl_dsift: subsampling steps: stepX=%d, stepY=%d\n",
+                step_x, step_y)
+      py_printf("vl_dsift: num bins:          "
+                "[numBinT, numBinX, numBinY] = [%d, %d, %d]\n",
+                geom.numBinT,
+                geom.numBinX,
+                geom.numBinY)
+      py_printf("vl_dsift: descriptor size:   %d\n", descriptor_length)
+      py_printf("vl_dsift: bin sizes:         [binSizeX, binSizeY] = [%d, %d]\n",
                 geom.binSizeX,
                 geom.binSizeY)
-      printf("vl_dsift: flat window:       %d\n", fast)
-      printf("vl_dsift: window size:       "
-             "%g\n", vl_dsift_get_window_size(dsift))
-      printf("vl_dsift: num of features:   %d\n", num_frames)
+      py_printf("vl_dsift: flat window:       %d\n", fast)
+      py_printf("vl_dsift: window size:       "
+                "%g\n", vl_dsift_get_window_size(dsift))
+      py_printf("vl_dsift: num of features:   %d\n", num_frames)
 
     # Actually compute the SIFT features
     vl_dsift_process(dsift, &data[0, 0])
@@ -169,12 +169,12 @@ cpdef cy_sift(np.ndarray[float, ndim=2, mode='c'] data, int n_octaves,
         float *flat_out_frames = &out_frames[0, 0]
 
         int is_octaves_complete = 0
-        VlSiftKeypoint *keypoints
+        const VlSiftKeypoint *keypoints
         int n_keypoints = 0
 
         double[4] angles
         int n_angles = 0
-        VlSiftKeypoint *curr_keypoint
+        const VlSiftKeypoint *curr_keypoint
         VlSiftKeypoint ik
 
         vl_sift_pix[128] single_descriptor_arr
@@ -196,20 +196,20 @@ cpdef cy_sift(np.ndarray[float, ndim=2, mode='c'] data, int n_octaves,
     if window_size     >= 0: vl_sift_set_window_size(filt, window_size)
 
     if verbose:
-        printf("vl_sift: filter settings:\n")
-        printf("vl_sift:   octaves      (O)      = %d\n", vl_sift_get_noctaves(filt))
-        printf("vl_sift:   levels       (S)      = %d\n", vl_sift_get_nlevels(filt))
-        printf("vl_sift:   first octave (o_min)  = %d\n", vl_sift_get_octave_first(filt))
-        printf("vl_sift:   edge thresh           = %g\n", vl_sift_get_edge_thresh(filt))
-        printf("vl_sift:   peak thresh           = %g\n", vl_sift_get_peak_thresh(filt))
-        printf("vl_sift:   norm thresh           = %g\n", vl_sift_get_norm_thresh(filt))
-        printf("vl_sift:   window size           = %g\n", vl_sift_get_window_size(filt))
-        printf("vl_sift:   float descriptor      = %d\n", float_descriptors)
+        py_printf("vl_sift: filter settings:\n")
+        py_printf("vl_sift:   octaves      (O)      = %d\n", vl_sift_get_noctaves(filt))
+        py_printf("vl_sift:   levels       (S)      = %d\n", vl_sift_get_nlevels(filt))
+        py_printf("vl_sift:   first octave (o_min)  = %d\n", vl_sift_get_octave_first(filt))
+        py_printf("vl_sift:   edge thresh           = %g\n", vl_sift_get_edge_thresh(filt))
+        py_printf("vl_sift:   peak thresh           = %g\n", vl_sift_get_peak_thresh(filt))
+        py_printf("vl_sift:   norm thresh           = %g\n", vl_sift_get_norm_thresh(filt))
+        py_printf("vl_sift:   window size           = %g\n", vl_sift_get_window_size(filt))
+        py_printf("vl_sift:   float descriptor      = %d\n", float_descriptors)
 
-        printf("vl_sift: will source frames? yes (%d read)\n"
-               if user_specified_frames
-               else "vl_sift: will source frames? no\n", n_user_keypoints)
-        printf("vl_sift: will force orientations? %d\n", force_orientations)
+        py_printf("vl_sift: will source frames? yes (%d read)\n"
+                  if user_specified_frames
+                  else "vl_sift: will source frames? no\n", n_user_keypoints)
+        py_printf("vl_sift: will force orientations? %d\n", force_orientations)
 
 
     if user_specified_frames:
@@ -227,8 +227,8 @@ cpdef cy_sift(np.ndarray[float, ndim=2, mode='c'] data, int n_octaves,
     # Process each octave
     while True:
         if verbose:
-            printf("vl_sift: processing octave %d\n",
-                   vl_sift_get_octave_index(filt))
+            py_printf("vl_sift: processing octave %d\n",
+                      vl_sift_get_octave_index(filt))
 
         # Calculate the GSS for the next octave ....................
         if is_first_octave:
@@ -242,8 +242,8 @@ cpdef cy_sift(np.ndarray[float, ndim=2, mode='c'] data, int n_octaves,
             break
 
         if verbose:
-            printf("vl_sift: GSS octave %d computed\n",
-                   vl_sift_get_octave_index(filt))
+            py_printf("vl_sift: GSS octave %d computed\n",
+                      vl_sift_get_octave_index(filt))
 
         # Run detector .............................................
         if not user_specified_frames:
@@ -254,8 +254,8 @@ cpdef cy_sift(np.ndarray[float, ndim=2, mode='c'] data, int n_octaves,
             n_keypoints = vl_sift_get_nkeypoints(filt)
 
             if verbose:
-                printf("vl_sift: detected %d (unoriented) keypoints\n",
-                       n_keypoints)
+                py_printf("vl_sift: detected %d (unoriented) keypoints\n",
+                          n_keypoints)
         else:
             n_keypoints = n_user_keypoints
 
@@ -331,7 +331,7 @@ cpdef cy_sift(np.ndarray[float, ndim=2, mode='c'] data, int n_octaves,
             i += 1
 
     if verbose:
-        printf("vl_sift: found %d keypoints\n", total_keypoints)
+        py_printf("vl_sift: found %d keypoints\n", total_keypoints)
 
     # cleanup
     vl_sift_delete(filt)
