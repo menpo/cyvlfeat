@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages, Extension
+import pkg_resources
 from Cython.Build import cythonize
-import numpy as np
 import os.path as op
 import os
 import platform
@@ -8,8 +8,16 @@ import fnmatch
 import versioneer
 
 
-INCLUDE_DIRS = []
+INCLUDE_DIRS = [pkg_resources.resource_filename('numpy', 'core/include')]
 LIBRARY_DIRS = []
+
+
+SYS_PLATFORM = platform.system().lower()
+IS_WIN = platform.system() == 'Windows'
+IS_LINUX = 'linux' in SYS_PLATFORM
+IS_OSX = 'darwin' == SYS_PLATFORM
+IS_UNIX = IS_LINUX or IS_OSX
+IS_CONDA = os.environ.get('CONDA_BUILD', False)
 
 
 def walk_for_package_data(ext_pattern):
@@ -23,19 +31,17 @@ def walk_for_package_data(ext_pattern):
 
 
 def gen_extension(path_name, sources):
-    global INCLUDE_DIRS, LIBRARY_DIRS
-    return Extension(
-        path_name,
-        sources=sources,
-        include_dirs=INCLUDE_DIRS,
-        library_dirs=LIBRARY_DIRS,
-        libraries=['vl'],
-        language='c'
-    )
+    kwargs = {
+        'sources': sources,
+        'include_dirs': INCLUDE_DIRS,
+        'library_dirs': LIBRARY_DIRS,
+        'libraries': ['vl'],
+        'language': 'c'
+    }
+    if IS_UNIX:
+        kwargs['extra_compile_args'] = ['-Wno-unused-function']
+    return Extension(path_name, **kwargs)
 
-
-IS_WIN = platform.system() == 'Windows'
-IS_CONDA = os.environ.get('CONDA_BUILD', False)
 
 # If we are building from the conda folder,
 # then we know we can manually copy some files around
@@ -76,7 +82,6 @@ setup(
     url='https://github.com/menpo/cyvlfeat',
     author='Patrick Snape',
     author_email='p.snape@imperial.ac.uk',
-    include_dirs=[np.get_include()],
     ext_modules=cythonize(vl_extensions),
     packages=find_packages(),
     package_data={'cyvlfeat': cython_files}
