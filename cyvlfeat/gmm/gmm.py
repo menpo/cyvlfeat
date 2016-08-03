@@ -81,7 +81,7 @@ def gmm(X, n_clusters=10, max_num_iterations=100, covariance_bound=None,
         raise ValueError("init_mode must be one of {'rand', 'custom', 'kmeans'")
 
     # Make sure we have the correct types
-    X = np.ascontiguousarray(X)g
+    X = np.ascontiguousarray(X)
     if X.dtype not in [np.float32, np.float64]:
         raise ValueError('Input data matrix must be of type float32 or float64')
 
