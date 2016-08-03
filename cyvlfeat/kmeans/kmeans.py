@@ -3,15 +3,18 @@ from .cykmeans import cy_kmeans, cy_kmeans_quantize, algorithm_type, initializat
 
 
 def kmeans(data, num_centers, distance="l2", initialization="RANDSEL",
-           algorithm="LLOYD", num_repetitions=1, num_trees=3, max_num_comparisons=100,
-           max_num_iterations=100, min_energy_variation=0., verbose=False):
+           algorithm="LLOYD", num_repetitions=1, num_trees=3,
+           max_num_comparisons=100, max_num_iterations=100,
+           min_energy_variation=0., verbose=False):
     """
-    Clusters ``data`` using the K-means algorithm. ``data`` can be either np.float32 or np.foat64. Returns the centers
-    of the clusters as an np.ndarray of the same dtype as ``data``. Also returns the cluster assignments.
+    Clusters ``data`` using the K-means algorithm where ``data`` can be either
+    `float32` or `float64`.
+    Returns the centers of the clusters as an `ndarray` of the same dtype
+    as ``data``. Also returns the cluster assignments.
 
     Parameters
     ----------
-    data : [N,D] np.ndarray of dtype in [np.float32, np.float64]
+    data : [N, D] `float32/float64` `ndarray`
         Input data to be clustered.
     num_centers : `int`
         Number of clusters to compute
@@ -33,26 +36,25 @@ def kmeans(data, num_centers, distance="l2", initialization="RANDSEL",
         Number of time to restart k-means. The solution with minimal
         energy is returned. Default : 1
     num_trees : `int`, optional
-        The number of trees int the randomized KD-Tree forest (for "ANN"). Default : 3
+        The number of trees int the randomized KD-Tree forest (for "ANN").
     max_num_comparisons : `int`, optional
         Maximum number of sample-to-center comparisons when searching
-        for the closest center (for "ANN"). Default : 100
+        for the closest center (for "ANN").
     max_num_iterations : `int`, optional
         Maximum number of iterations allowed for the kmeans algorithm
-        to converge (for "ANN"). Default : 100
+        to converge (for "ANN").
     min_energy_variation : `float`, optional
-        The minimum relative energy variation before the algorithm choose to stop.
-        Default : 0, will use a default value from VLFEAT.
+        The minimum relative energy variation before the algorithm choose to
+        stop.
     verbose : `bool`, optional
         Outputs information of the converging process
 
     Returns
     -------
-    centers : [num_centers,D] np.ndarray of same dtype as ``data``
+    centers : [num_centers, D] `float32/float64` `ndarray`
         Computed clusters centers from the data points.
     """
 
-    assert isinstance(data, np.ndarray)
     assert isinstance(num_centers, int)
     assert isinstance(verbose, bool)
     if data.ndim != 2:
@@ -62,7 +64,8 @@ def kmeans(data, num_centers, distance="l2", initialization="RANDSEL",
         raise ValueError('Data should be float32 or float64')
 
     if num_centers > data.shape[0]:
-        raise ValueError('num_centers should be a positive integer smaller than the number of data points')
+        raise ValueError('num_centers should be a positive integer smaller '
+                         'than the number of data points')
 
     distance_b = distance.encode()
     if distance_b not in distance_type.keys():
@@ -88,21 +91,22 @@ def kmeans(data, num_centers, distance="l2", initialization="RANDSEL",
         raise ValueError('min_energy_variation should be a positive float')
 
     return cy_kmeans(data, num_centers, distance_b, initialization_b,
-                     algorithm_b, num_repetitions, num_trees, max_num_comparisons,
-                     max_num_iterations, min_energy_variation, verbose)
+                     algorithm_b, num_repetitions, num_trees,
+                     max_num_comparisons, max_num_iterations,
+                     min_energy_variation, verbose)
 
 
-def kmeans_quantize(data, centers, distance="l2", algorithm="LLOYD", num_trees=3,
-                    max_num_comparisons=100, verbose=False):
+def kmeans_quantize(data, centers, distance="l2", algorithm="LLOYD",
+                    num_trees=3, max_num_comparisons=100, verbose=False):
     """
     Project the given data to the corresponding cluster indices.
 
     Parameters
     ----------
-    data : [N,D] np.ndarray of dtype in [np.float32, np.float64]
+    data : [N, D] `float32/float64` `ndarray`
         Input data to be projected.
-    centers : [K,D] np.ndarray of same dtype as ``data``
-        Clusters centers
+    centers : [K, D] `float32/float64` `ndarray`
+        Clusters centers (must be same data type as data)
     distance : `str`, optional
         Distance to be used ["l1", "l2"]. Default : "l2"
     algorithm : `str`, optional
@@ -113,18 +117,18 @@ def kmeans_quantize(data, centers, distance="l2", algorithm="LLOYD", num_trees=3
         comparisons. ANN is the same as Lloyd, but uses an approximated
         nearest neighbours (ANN) algorithm to accelerate the
         sample-to-center comparisons. The latter is particularly
-        suitable for very large problems. Default : "LLOYD"
+        suitable for very large problems.
     num_trees : `int`, optional
-        The number of trees int the randomized KD-Tree forest (for "ANN"). Default : 3
+        The number of trees int the randomized KD-Tree forest (for "ANN").
     max_num_comparisons : `int`, optional
         Maximum number of sample-to-center comparisons when searching
-        for the closest center (for "ANN"). Default : 100
+        for the closest center (for "ANN").
     verbose : `bool`, optional
         Outputs information of the converging process
 
     Returns
     -------
-    assignments :  [N] `np.uint32` np.ndarray
+    assignments :  [N,] `uint32` `ndarray`
         Assignments to the clusters centers.
     """
     assert isinstance(data, np.ndarray)
@@ -137,7 +141,8 @@ def kmeans_quantize(data, centers, distance="l2", algorithm="LLOYD", num_trees=3
         raise ValueError('Data should be float32 or float64')
 
     if centers.dtype != data.dtype or centers.shape[1] != data.shape[1]:
-        raise ValueError('Data and centers should be of the same dtype and with the same number of columns')
+        raise ValueError('Data and centers should be of the same dtype and '
+                         'with the same number of columns')
 
     assert centers.shape[0] > 0
     assert data.shape[0] > 0
@@ -155,4 +160,5 @@ def kmeans_quantize(data, centers, distance="l2", algorithm="LLOYD", num_trees=3
     if (not isinstance(max_num_comparisons, int)) or max_num_comparisons <= 0:
         raise ValueError('max_num_comparisons should be a positive integer')
 
-    return cy_kmeans_quantize(data, centers, distance_b, algorithm_b, num_trees, max_num_comparisons, verbose)
+    return cy_kmeans_quantize(data, centers, distance_b, algorithm_b, num_trees,
+                              max_num_comparisons, verbose)
