@@ -15,7 +15,7 @@ from cyvlfeat._vl.dsift cimport *
 from cyvlfeat._vl.host cimport *
 from cyvlfeat._vl.sift cimport *
 from cyvlfeat._vl.mathop cimport VL_PI
-from cyvlfeat.cy_util cimport py_printf
+from cyvlfeat.cy_util cimport py_printf, set_python_vl_printf
 
 
 @cython.boundscheck(False)
@@ -23,6 +23,8 @@ cpdef cy_dsift(np.ndarray[float, ndim=2, mode='c'] data, int[:] step,
                int[:] size, int[:] bounds, int window_size, bint norm,
                bint fast, bint float_descriptors, int[:] geometry,
                bint verbose):
+    # Set the vlfeat printing function to the Python stdout
+    set_python_vl_printf()
 
     cdef:
         int num_frames = 0
@@ -149,6 +151,8 @@ cpdef cy_sift(np.ndarray[float, ndim=2, mode='c'] data, int n_octaves,
               int edge_threshold, float norm_threshold, int magnification,
               int window_size, float[:, :] frames, bint force_orientations,
               bint float_descriptors, bint compute_descriptor, bint verbose):
+    # Set the vlfeat printing function to the Python stdout
+    set_python_vl_printf()
 
     cdef:
         bint is_first_octave = True

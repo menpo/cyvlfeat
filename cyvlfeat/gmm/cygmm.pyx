@@ -1,7 +1,8 @@
 # Author: Alexis Mignon <alexis.mignon@probayes.com>
 from cyvlfeat._vl.host cimport *
 from cyvlfeat._vl.gmm cimport *
-from cyvlfeat.cy_util cimport dtype_from_memoryview, py_printf
+from cyvlfeat.cy_util cimport (dtype_from_memoryview, py_printf,
+                               set_python_vl_printf)
 from libc.string cimport memcpy
 import numpy as np
 cimport numpy as np
@@ -29,6 +30,9 @@ def cy_gmm(floats[:, :] data, int n_clusters, int max_num_iterations,
            bytes init_mode, int num_repetitions, int verbose,
            floats[:] covariance_bound=None, floats[:] init_priors=None,
            floats[:, :] init_means=None, floats[:, :] init_covars=None,):
+    # Set the vlfeat printing function to the Python stdout
+    set_python_vl_printf()
+
     cdef:
         vl_size i
         vl_size n_samples = data.shape[0]

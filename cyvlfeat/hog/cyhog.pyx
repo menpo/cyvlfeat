@@ -11,7 +11,7 @@ cimport cython
 # Import the header files
 from cyvlfeat._vl.hog cimport *
 from cyvlfeat._vl.host cimport VL_FALSE
-from cyvlfeat.cy_util cimport py_printf
+from cyvlfeat.cy_util cimport py_printf, set_python_vl_printf
 
 
 @cython.boundscheck(False)
@@ -19,6 +19,8 @@ cpdef cy_hog(float[:, :, ::1] data, int cell_size, int variant,
              int n_orientations, bint directed_polar_field,
              bint undirected_polar_field, bint bilinear_interpolation,
              bint return_channels_last_axis, bint verbose):
+    # Set the vlfeat printing function to the Python stdout
+    set_python_vl_printf()
 
     cdef:
         # Python images are not transposed

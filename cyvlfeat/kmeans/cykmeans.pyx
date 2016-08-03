@@ -6,13 +6,13 @@
 # under the terms of the BSD license.
 import numpy as np
 cimport numpy as np
-cimport cython
 from cyvlfeat._vl.host cimport *
 from cyvlfeat._vl.mathop cimport *
 from cyvlfeat._vl.kmeans cimport *
 from cyvlfeat._vl.ikmeans cimport *
 from cyvlfeat._vl.hikmeans cimport *
-from cyvlfeat.cy_util cimport py_printf, dtype_from_memoryview
+from cyvlfeat.cy_util cimport (py_printf, dtype_from_memoryview,
+                               set_python_vl_printf)
 from libc.string cimport memcpy
 from libc.stdlib cimport malloc
 
@@ -48,6 +48,9 @@ cpdef cy_kmeans(floats[:, ::1] data, int num_centers, bytes distance,
                 bytes initialization, bytes algorithm, int num_repetitions,
                 int num_trees, int max_num_comparisons, int max_num_iterations,
                 float min_energy_variation, bint verbose):
+    # Set the vlfeat printing function to the Python stdout
+    set_python_vl_printf()
+
     cdef:
         VlKMeans* kmeans
         double energy
@@ -103,6 +106,9 @@ cpdef cy_kmeans(floats[:, ::1] data, int num_centers, bytes distance,
 cpdef cy_kmeans_quantize(floats[:, ::1] data, floats[:, ::1] centers,
                          bytes distance, bytes algorithm, int num_trees,
                          int max_num_comparisons, bint verbose):
+    # Set the vlfeat printing function to the Python stdout
+    set_python_vl_printf()
+
     cdef:
         VlKMeans *kmeans
         vl_size dimension = data.shape[1]
@@ -135,6 +141,8 @@ cpdef cy_kmeans_quantize(floats[:, ::1] data, floats[:, ::1] centers,
 
 cpdef cy_ikmeans(np.uint8_t[:, ::1] data, int num_centers, bytes algorithm,
                  int max_num_iterations, bint verbose):
+    # Set the vlfeat printing function to the Python stdout
+    set_python_vl_printf()
 
     cdef:
         VlIKMFilt *ikmf
@@ -170,6 +178,9 @@ cpdef cy_ikmeans(np.uint8_t[:, ::1] data, int num_centers, bytes algorithm,
 
 
 cpdef cy_ikmeans_push(np.uint8_t[:, ::1] data, np.int32_t[:, ::1] centers):
+    # Set the vlfeat printing function to the Python stdout
+    set_python_vl_printf()
+
     cdef:
         VlIKMFilt *ikmf = vl_ikm_new(VL_IKM_LLOYD)
         int M = data.shape[1]

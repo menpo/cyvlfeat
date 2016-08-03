@@ -4,7 +4,6 @@
 
 # This file is modified from part of the VLFeat library and is made available
 # under the terms of the BSD license.
-cimport cython
 from cyvlfeat._vl.generic cimport *
 
 
@@ -76,5 +75,3 @@ cpdef int get_thread_limit():
         Thread limit.
     """
     return vl_get_thread_limit()
-
-
