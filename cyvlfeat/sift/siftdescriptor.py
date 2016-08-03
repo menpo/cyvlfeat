@@ -56,19 +56,20 @@ def siftdescriptor(grad, f, magnification=3, float_descriptors=False, norm_thres
     Examples
     --------
     >>> import scipy.ndimage
-    >>> import math
     >>> import numpy as np
+    >>> from cyvlfeat.sift import siftdescriptor, dsift
     >>> from cyvlfeat.test_util import lena
     >>> img = lena().astype(np.float32)
-    >>> result = sift(img,compute_descriptor=True)
-    >>> f = result[0]
-    >>> sigma = math.sqrt(math.pow(f[3][2], 2) - math.pow(0.5, 2))
-    >>> img_smooth = scipy.ndimage.filters.gaussian_filter(img, sigma)  # smoothing
-    >>> x, y = np.gradient(img_smooth)
-    >>> mod = math.sqrt(math.pow(x, 2)+ math.pow(y, 2))
-    >>> ang = np.arctan2(y, x) * 180 / np.pi
-    >>> grad = np.rollaxis(np.dstack((mod, ang)), 1) # Stack arrays in sequence depth wise (along third axis).
-    >>> d = siftdescriptor(grad, f)
+    >>> # Create a single frame in the center of the image
+    >>> frames = np.array([[256, 256, 1.0, np.pi / 2]])
+    >>> sigma = np.sqrt(frames[0, 2] ** 2 - 0.25)  # 0.25 = 0.5^2
+    >>> img_smooth = scipy.ndimage.filters.gaussian_filter(img, sigma)
+    >>> y, x = np.gradient(img_smooth)
+    >>> mod = np.sqrt(x * x + y * y)
+    >>> ang = np.arctan2(y, x)
+    >>> gradient_image = np.stack((mod, ang), axis=0)
+    >>>
+    >>> d = siftdescriptor(gradient_image, frames, verbose=True)
 
     Notes
     -----
