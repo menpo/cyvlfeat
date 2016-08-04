@@ -8,6 +8,7 @@ cyvlfeat.egg-info/*
 
 # Let's just ignore all cython built files
 cyvlfeat/hog/cyhog.c
+cyvlfeat/gmm/cygmm.c
 cyvlfeat/generic/generic.c
 cyvlfeat/kmeans/cykmeans.c
 cyvlfeat/sift/cysift.c
