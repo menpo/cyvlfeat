@@ -18,7 +18,16 @@ def flatmap(maps):
     labels : contains the linear index of the root node in `map`.
 
     clusters : contains a label between 1 and the number of clusters.
-
+    
+    Example
+    -------
+    >>> import numpy as np
+    >>> from cyvlfeat.quickshift.quickshift import quickshift
+    >>> from cyvlfeat.quickshift.flatmap import flatmap
+    >>> from cyvlfeat.test_util import lena
+    >>> img = lena().astype(np.float32)
+    >>> maps, gaps, estimate = quickshift(img,kernel_size=2,max_dist=10)
+    >>> labels, clusters = flatmap(maps)
     """
     maps_shape = maps.shape[0] * maps.shape[1]
     root = np.ones(maps_shape, dtype=np.float64)
