@@ -39,6 +39,18 @@ def vlad(x, means, assignments, unnormalized=False, square_root=False,
     enc : [k, ] `float32` `ndarray`
         A vector of size equal to the product of
         ``k = the n_data_dimensions * n_clusters``.
+        
+    Examples:
+    --------
+    >>> from cyvlfeat.vlad.vlad import vlad
+    >>> import numpy as np
+    >>> N = 1000
+    >>> K = 512
+    >>> D = 128
+    >>> x = np.random.uniform(size=(D, N)).astype(np.float32)
+    >>> means = np.random.uniform(size=(D, K)).astype(np.float32)
+    >>> assignments = np.random.uniform(size=(K, N)).astype(np.float32)
+    >>> enc = vlad(x, means, assignments)
     """
     # check for None
     if x is None or means is None or assignments is None:
