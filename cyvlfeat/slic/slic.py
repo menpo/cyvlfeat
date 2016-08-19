@@ -24,6 +24,14 @@ def slic(image, region_size, regularizer, verbose=False):
     -------
     segments: `float32` `ndarray`
         contains the superpixel identifier for each image pixel.
+        
+    Examples
+    --------
+    >>> from cyvlfeat.slic.slic import slic
+    >>> import numpy as np
+    >>> from cyvlfeat.test_util import lena
+    >>> img = lena().astype(np.float32)
+    >>> segment = slic(img, region_size=10, regularizer=10)
     """
 
     # Check for none
