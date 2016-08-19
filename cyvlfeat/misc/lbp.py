@@ -22,6 +22,14 @@ def lbp(image, cell_size):
         LBP features per cell. The width of ``histograms`` is ``FLOOR(width/cell_size)``,
         where ``width`` is the width of the image. The same for the ``height``.
         The third dimension is 58.
+        
+    Examples
+    --------
+    >>> from cyvlfeat.misc.lbp import lbp
+    >>> import numpy as np
+    >>> from cyvlfeat.test_util import lena
+    >>> img = lena().astype(np.float32)
+    >>> result = lbp(img, cell_size=200)
     """
 
     # check for none
