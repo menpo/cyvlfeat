@@ -39,6 +39,16 @@ def quickshift(image, kernel_size, max_dist=None,
     estimate: [H, W] `float64` `ndarray`, optional
         The estimate of the density. Only returned if
         ``max_dist`` is not ``None``.
+        
+    Example
+    -------
+    >>> import numpy as np
+    >>> from cyvlfeat.quickshift.quickshift import quickshift
+    >>> from cyvlfeat.test_util import lena
+    >>> img = lena().astype(np.float32)
+    >>> maps, gaps, estimate = quickshift(img,kernel_size=2,max_dist=10)
+    >>> # medoid segmentation
+    >>> maps, gaps, estimate = quickshift(img,kernel_size=2,max_dist=10,medoid=True)
     """
 
     # check for None
