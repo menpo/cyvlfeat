@@ -71,6 +71,16 @@ def phow(image, verbose=False, fast=True, sizes=(4, 6, 8, 10), step=2, color='gr
         ``F`` is the number of keypoints (frames) used. The 128 length vectors
         per keypoint extracted. ``uint8`` by default.
 
+    Examples
+    --------
+      >>> import scipy.ndimage
+      >>> import matplotlib.colors
+      >>> import numpy as np
+      >>> from cyvlfeat.sift import phow
+      >>> from cyvlfeat.test_util import lena
+      >>> img = lena().astype(np.float32)
+      >>> frames, descriptors = phow(img, verbose=True)
+
 
     """
 
