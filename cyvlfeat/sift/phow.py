@@ -12,7 +12,7 @@ def phow(image, verbose=False, fast=True, sizes=(4, 6, 8, 10), step=2, color='gr
     Extracts PHOW features from the ``image``. PHOW is simply dense
     SIFT applied at several resolutions.
 
-    DESCRS has the same format of `sift()` and `dsift()`. `frames[:,1:2]`
+    `descriptors` has the same format of `sift()` and `dsift()`. `frames[:,1:2]`
     are the x,y coordinates of the center of each descriptor, `frames[:,3]`
     is the contrast of the descriptor, as returned by `dsift()` (for
     colour variant, contrast is computed on the intensity channel).
@@ -21,7 +21,7 @@ def phow(image, verbose=False, fast=True, sizes=(4, 6, 8, 10), step=2, color='gr
     By default, `phow()` computes the gray-scale variant of the descriptor. The
     `color` option can be used to compute the color variant instead.
 
-    Unlike Matlab the Matlab wrapper of vlfeat, the image
+    Unlike the  Matlab wrapper of vlfeat, the image
     is pre-smoothed at the desired scale level by gaussian filter provided
     by Scipy: ``scipy.ndimage.filters.gaussian_filter``.
 
@@ -30,8 +30,6 @@ def phow(image, verbose=False, fast=True, sizes=(4, 6, 8, 10), step=2, color='gr
     image : [H, W] or [H, W, 1] `float32` `ndarray`
         A single channel, greyscale, `float32` numpy array (ndarray)
         representing the image to calculate descriptors for.
-    verbose : bool`, optional
-        If ``True``, be verbose.
     fast : `bool`, optional
         If ``True``, use a piecewise-flat, rather than Gaussian,
         windowing function. While this breaks exact SIFT equivalence,
@@ -61,6 +59,8 @@ def phow(image, verbose=False, fast=True, sizes=(4, 6, 8, 10), step=2, color='gr
         zero. The input image is scaled to have intensity range in [0,1]
         (rather than [0,255]) and this value is compared to the
         descriptor norm as returned by dsift().
+    verbose : bool`, optional
+        If ``True``, be verbose.
 
     Returns
     -------
