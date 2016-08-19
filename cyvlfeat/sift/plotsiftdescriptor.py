@@ -42,6 +42,10 @@ def plotsiftdescriptor(d, f=None, magnification=3.0, num_spatial_bins=4, num_ori
 
     Example Usage
     -------------
+    >>> import numpy as np
+    >>> from cyvlfeat.sift import plotsiftdescriptor
+    >>> from cyvlfeat.test_util import lena
+    >>> img = lena().astype(np.float32)
     >>> result = sift(img, compute_descriptor=True)
     >>> F = result[0]
     >>> D = result[1]
