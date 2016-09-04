@@ -66,6 +66,10 @@ def hog(image, cell_size, variant='UoCTTI', n_orientations=9,
     # Add a channels axis
     if image.ndim == 2:
         image = image[..., None]
+    elif image.ndim == 3:
+        channels = [x.squeeze() for x in np.split(image, 3, axis=2)]
+        image_shape = image.shape
+        image = np.hstack([c.ravel() for c in channels]).reshape(image_shape)
 
     # Validate image size
     if image.ndim != 3:
