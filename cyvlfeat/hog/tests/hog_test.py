@@ -15,8 +15,8 @@ def test_hog_cell_size_32_uoctti():
     assert output.dtype == np.float32
     assert output.shape == (16, 16, 31)
     assert_allclose(output[:2, :2, 0],
-                    np.array([[0.16276041, 0.13416694],
-                              [0.22367628, 0.17556792]]), rtol=1e-5)
+                    np.array([[0.104189, 0.056746],
+                              [0.051333, 0.03721]]), rtol=1e-4)
 
 
 def test_hog_cell_size_32_uoctti_4_orientations():
@@ -25,8 +25,8 @@ def test_hog_cell_size_32_uoctti_4_orientations():
     assert output.dtype == np.float32
     assert output.shape == (16, 16, 16)
     assert_allclose(output[:2, :2, 0],
-                    np.array([[0.23047766, 0.17703892],
-                              [0.30189356, 0.25290328]]), rtol=1e-5)
+                    np.array([[0.158388,  0.085595],
+                              [0.078716,  0.062816]]), rtol=1e-5)
 
 
 def test_hog_cell_size_32_uoctti_non_square():
@@ -35,8 +35,8 @@ def test_hog_cell_size_32_uoctti_non_square():
     assert output.dtype == np.float32
     assert output.shape == (16, 8, 31)
     assert_allclose(output[:2, :2, 0],
-                    np.array([[0.16276041, 0.13416694],
-                              [0.22367628, 0.17556792]]), rtol=1e-5)
+                    np.array([[0.163912, 0.167787],
+                              [0.086294, 0.079365]]), rtol=1e-5)
 
 
 def test_hog_cell_size_32_dalaltriggs():
@@ -45,8 +45,8 @@ def test_hog_cell_size_32_dalaltriggs():
     assert output.dtype == np.float32
     assert output.shape == (16, 16, 36)
     assert_allclose(output[:2, :2, 0],
-                    np.array([[0.2, 0.2],
-                              [0.2, 0.2]]))
+                    np.array([[0.139408, 0.093407],
+                              [0.070996, 0.065033]]), rtol=1e-5)
 
 
 def test_hog_cell_size_32_dalaltriggs_4_orientations():
@@ -55,8 +55,8 @@ def test_hog_cell_size_32_dalaltriggs_4_orientations():
     assert output.dtype == np.float32
     assert output.shape == (16, 16, 16)
     assert_allclose(output[:2, :2, 0],
-                    np.array([[0.2, 0.2],
-                              [0.2, 0.2]]))
+                    np.array([[0.2,      0.154738],
+                              [0.109898, 0.108115]]), rtol=1e-5)
 
 
 def test_hog_cell_size_32_dalaltriggs_non_square():
@@ -65,8 +65,8 @@ def test_hog_cell_size_32_dalaltriggs_non_square():
     assert output.dtype == np.float32
     assert output.shape == (16, 8, 36)
     assert_allclose(output[:2, :2, 0],
-                    np.array([[0.2, 0.2],
-                              [0.2, 0.2]]), rtol=1e-5)
+                    np.array([[0.2,       0.2],
+                              [0.144946,  0.192144]]), rtol=1e-5)
 
 
 def test_hog_cell_size_32_dalaltriggs_bilinear_interpolation():
@@ -75,5 +75,5 @@ def test_hog_cell_size_32_dalaltriggs_bilinear_interpolation():
     assert output.dtype == np.float32
     assert output.shape == (16, 16, 36)
     assert_allclose(output[:2, -2:, 0],
-                    np.array([[0.082442075, 0.13325043],
-                              [0.094600961, 0.090005033]]), rtol=1e-5)
+                    np.array([[0.01523,  0.017774],
+                              [0.012941, 0.012733]]), rtol=1e-4)

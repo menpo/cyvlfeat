@@ -15,7 +15,7 @@ from cyvlfeat.cy_util cimport py_printf, set_python_vl_printf
 
 
 @cython.boundscheck(False)
-cpdef cy_hog(float[:, :, ::1] data, int cell_size, int variant,
+cpdef cy_hog(float[:, :, :] data, int cell_size, int variant,
              int n_orientations, bint directed_polar_field,
              bint undirected_polar_field, bint bilinear_interpolation,
              bint return_channels_last_axis, bint verbose):

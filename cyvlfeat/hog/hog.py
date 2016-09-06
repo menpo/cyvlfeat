@@ -89,7 +89,7 @@ def hog(image, cell_size, variant='UoCTTI', n_orientations=9,
         raise ValueError('Expected a polar field image of n_channels == 2')
 
     # Ensure types are correct before passing to Cython
-    image = np.require(image, dtype=np.float32, requirements='C')
+    image = np.require(image, dtype=np.float32, requirements='F')
 
     # Shortcut for getting the correct enum value, since is_UoCTTI has
     # an enum value of 1 (True is 1 in Python)
