@@ -66,13 +66,6 @@ def hog(image, cell_size, variant='UoCTTI', n_orientations=9,
     # Add a channels axis
     if image.ndim == 2:
         image = image[..., None]
-    elif image.ndim == 3 and image.shape[0] <= 3:
-        pass  # manpo standard / channels are the first axis
-    elif image.ndim == 3 and image.shape[2] <= 3:
-        # rearranging the data to the same way matlab stores images
-        channels = [x.squeeze() for x in np.split(image, 3, axis=2)]
-        image_shape = image.shape
-        image = np.hstack([c.ravel() for c in channels]).reshape(image_shape)
 
     # Validate image size
     if image.ndim != 3:
@@ -89,7 +82,7 @@ def hog(image, cell_size, variant='UoCTTI', n_orientations=9,
         raise ValueError('Expected a polar field image of n_channels == 2')
 
     # Ensure types are correct before passing to Cython
-    image = np.require(image, dtype=np.float32, requirements='C')
+    image = np.require(image, dtype=np.float32, requirements='F')
 
     # Shortcut for getting the correct enum value, since is_UoCTTI has
     # an enum value of 1 (True is 1 in Python)
