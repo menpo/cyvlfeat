@@ -1,5 +1,7 @@
 cyvlfeat
 ========
+
+[![Join the chat at https://gitter.im/menpo/cyvlfeat](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/menpo/cyvlfeat?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 A Python (cython) wrapper of the VLFeat library
 
 We intend for this to be a light wrapper around the [VLFeat](http://www.vlfeat.org/) toolbox. cyvlfeat will provide a mixture of pure Python and Cython code that looks to replicate the existing Matlab toolbox. Cython is intended to fulfill the role of ``mex`` files.
