@@ -20,5 +20,5 @@ init:
 
 install:
   - ps: $env:MINICONDA_DIR = python C:\\condaci.py miniconda_dir
-  - ps: $BUILD_CMD = "${env:MINICONDA_DIR}" + "\\python C:\\condaci.py build conda"; Invoke-Expression $BUILD_CMD
-
+  - ps: >
+      & "${env:MINICONDA_DIR}\\python" C:\\condaci.py build conda
