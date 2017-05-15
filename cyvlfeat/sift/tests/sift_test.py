@@ -1,6 +1,8 @@
 from __future__ import division
 from cyvlfeat.sift.dsift import dsift
 from cyvlfeat.sift.sift import sift
+from cyvlfeat.sift.siftdescriptor import siftdescriptor
+import scipy.ndimage as image
 import numpy as np
 from numpy.testing import assert_allclose
 from cyvlfeat.test_util import lena
@@ -8,6 +10,34 @@ from cyvlfeat.test_util import lena
 
 img = lena().astype(np.float32)
 half_img = img[:, :256]
+
+# Siftdescriptor test.
+result = sift(img, compute_descriptor=True)
+frame = result[0]
+sigma = np.sqrt(np.power(frame[3][2], 2) - np.power(0.5, 2))
+# smoothing
+img_smooth = image.filters.gaussian_filter(img, sigma)
+x, y = np.gradient(img_smooth)
+mod = np.sqrt(np.power(x, 2) + np.power(y, 2))
+ang = np.arctan2(y, x) * 180 / np.pi
+# Stack arrays in sequence depth wise (along third axis).
+grads = np.rollaxis(np.dstack((mod, ang)), 1)
+
+
+def test_siftdescriptor_non_float_descriptors():
+    descriptors = siftdescriptor(np.asfarray(grads, dtype='float'), frame, float_descriptors=False)
+    assert descriptors.dtype == np.uint8
+
+
+def test_siftdescriptor_float_descriptors():
+    descriptors = siftdescriptor(np.asfarray(grads, dtype='float'), frame, float_descriptors=True)
+    assert descriptors.dtype == np.float32
+
+
+def test_siftdescriptor_descriptors_shape():
+    descriptors = siftdescriptor(np.asfarray(grads, dtype='float'), frame)
+    assert descriptors.shape[0] == 730
+    assert descriptors.shape[1] == 128
 
 
 def test_dsift_non_float_descriptors():

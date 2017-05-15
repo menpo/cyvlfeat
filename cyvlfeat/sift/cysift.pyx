@@ -144,6 +144,72 @@ cdef int korder(const void *a, const void *b) nogil:
     if x > 0: return +1
     return 0
 
+@cython.boundscheck(False)
+cpdef cy_siftdescriptor(np.ndarray[float, ndim=3, mode='c'] in_grad,
+                    np.ndarray[float, ndim=2, mode='c'] in_frames,
+                    int magnification, bint float_descriptors, float norm_threshold, bint verbose):
+
+
+    cdef:
+        int i = 0, j = 0
+        int m = in_grad.shape[0]
+        int n = in_grad.shape[1]
+        int o = in_grad.shape[2]
+        int num_frames = in_frames.shape[0]
+        double y, x, s, th
+
+        #create a filter to process the image
+        VlSiftFilt *filt = vl_sift_new(m, n, -1, -1, 0)
+
+
+        # Create empty 2D output array
+        np.ndarray[float, ndim=2, mode='c'] out_descriptors = np.empty(
+            (num_frames, 128), dtype=np.float32, order='C')
+        float *flat_descriptors = &out_descriptors[0, 0]
+
+        vl_sift_pix[128] single_descriptor_arr
+
+    out_descriptors = np.resize(out_descriptors,
+                                    (num_frames, 128))
+    flat_descriptors = &out_descriptors[0, 0]
+
+    if magnification >= 0:
+        vl_sift_set_magnif(filt, magnification)
+
+    if norm_threshold >= 0:
+        vl_sift_set_norm_thresh(filt, norm_threshold)
+
+    if verbose:
+        printf("vl_sift: filter settings:\n")
+        printf("vl_sift:   magnif                = %g\n", vl_sift_get_magnif(filt))
+        printf("vl_sift:   num of frames         = %d\n", num_frames)
+        printf("vl_sift:   float descriptor      = %d\n", float_descriptors)
+        printf("vl_sift:   norm thresh           = %g\n", vl_sift_get_norm_thresh(filt))
+
+       # MATLAB stores a two-dimensional matrix in memory as a one-
+       # dimensional array.  If the matrix is size MxN, then the
+       # first M elements of the one-dimensional array correspond to
+       # the first column of the matrix, and the next M elements
+       # correspond to the second column, etc.
+
+    for i in range(in_frames.shape[0]):
+        y = in_frames[i][0]-1
+        x = in_frames[i][1]-1
+        s = in_frames[i][2]-1
+        th = VL_PI/2 - in_frames [i][3]
+
+        vl_sift_calc_raw_descriptor(filt, &in_grad[0,0,0], single_descriptor_arr, m, n, x, y, s, th)
+
+        for j in range(128):
+            flat_descriptors[j] = min(512.0 * single_descriptor_arr[j], 255.0)
+
+    vl_sift_delete(filt)
+
+    if float_descriptors:
+        return out_descriptors
+    else:
+        return out_descriptors.astype(np.uint8)
+
 
 @cython.boundscheck(False)
 cpdef cy_sift(float[:, ::1] data, int n_octaves,
