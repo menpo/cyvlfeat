@@ -57,6 +57,8 @@ if IS_WIN and IS_CONDA:
     LIBRARY_DIRS.append(conda_bin_dir)
 
 vl_extensions = [
+    gen_extension('cyvlfeat.misc.cylbp',
+                  [op.join('cyvlfeat', 'misc', 'cylbp.pyx')]),
     gen_extension('cyvlfeat.sift.cysift',
                   [op.join('cyvlfeat', 'sift', 'cysift.pyx')]),
     gen_extension('cyvlfeat.fisher.cyfisher',

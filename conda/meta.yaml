@@ -22,6 +22,7 @@ test:
     - coverage
 
   imports:
+    - cyvlfeat.misc.lbp
     - cyvlfeat.sift.sift
     - cyvlfeat.sift.dsift
     - cyvlfeat.fisher.fisher
