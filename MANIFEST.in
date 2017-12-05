@@ -1,2 +1,6 @@
 include versioneer.py
 include cyvlfeat/_version.py
+recursive-include cyvlfeat *.h
+recursive-include cyvlfeat *.cpp
+recursive-include cyvlfeat *.pyx
+recursive-include cyvlfeat *.pxd
