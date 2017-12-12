@@ -29,10 +29,10 @@ def sift(image, n_octaves=None, n_levels=3,  first_octave=0,  peak_thresh=0,
         The number of levels per octave of the DoG scale space.
     first_octave : `int`, optional
         The index of the first octave of the DoG scale space.
-    peak_thresh : `int`, optional
+    peak_thresh : `float`, optional
         The peak selection threshold. The peak threshold filters peaks of the
         DoG scale space that are too small (in absolute value).
-    edge_thresh : `int`, optional
+    edge_thresh : `float`, optional
         The edge selection threshold. The edge threshold eliminates peaks of the
         DoG scale space whose curvature is too small (such peaks yield badly
         localized frames).
@@ -101,7 +101,7 @@ def sift(image, n_octaves=None, n_levels=3,  first_octave=0,  peak_thresh=0,
         raise ValueError('n_levels must be > 0')
     if first_octave < 0:
         raise ValueError('first_octave must be >= 0')
-    if edge_thresh < 1:
+    if edge_thresh <= 0:
         raise ValueError('edge_thresh must be > 0')
     if peak_thresh < 0:
         raise ValueError('peak_thresh must be >= 0')

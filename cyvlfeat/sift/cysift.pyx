@@ -147,8 +147,8 @@ cdef int korder(const void *a, const void *b) nogil:
 
 @cython.boundscheck(False)
 cpdef cy_sift(float[:, ::1] data, int n_octaves,
-              int n_levels, int first_octave, int peak_threshold,
-              int edge_threshold, float norm_threshold, int magnification,
+              int n_levels, int first_octave, float peak_threshold,
+              float edge_threshold, float norm_threshold, int magnification,
               int window_size, float[:, :] frames, bint force_orientations,
               bint float_descriptors, bint compute_descriptor, bint verbose):
     # Set the vlfeat printing function to the Python stdout
