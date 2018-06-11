@@ -14,14 +14,14 @@ def fisher(x, means, covariances, priors, normalized=False, square_root=False,
     Parameters
     ----------
     x : [D, N]  `float32` `ndarray`
-        One column per data vector (e.g. a SIFT descriptor)
+        One column per data vector (e.g. a SIFT descriptor) descriptor_dim x number_of_features
     means :  [F, N]  `float32` `ndarray`
-        One column per GMM component.
+        One column per GMM component. i.e. descriptor_dim x num_cluster
     covariances :  [F, N]  `float32` `ndarray`
         One column per GMM component (covariance matrices are assumed diagonal,
-        hence these are simply the variance of each data dimension).
+        hence these are simply the variance of each data dimension). descriptor_dim x num_cluster
     priors :  [F, N]  `float32` `ndarray`
-        Equal to the number of GMM components.
+        Equal to the number of GMM components. i.e. a column vector of length num_cluster
     normalized : `bool`, optional
         If ``True``, L2 normalize the Fisher vector.
     square_root : `bool`, optional
