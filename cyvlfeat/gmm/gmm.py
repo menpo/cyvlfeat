@@ -48,12 +48,12 @@ def gmm(X, n_clusters=10, max_num_iterations=100, covariance_bound=None,
 
     Returns
     -------
-    priors : [n_clusters] `ndarray`
-        The prior probability of each component
     means : [n_clusters, n_features] `ndarray`
         The means of the components
     covars : [n_clusters, n_features] `ndarray`
         The diagonal elements of the covariance matrix for each component.
+    priors : [n_clusters] `ndarray`
+        The prior probability of each component
     ll : `float`
         The found log-likelihood of the input data w.r.t the fitted model
     posteriors : [n_samples, n_clusters] `ndarray`
