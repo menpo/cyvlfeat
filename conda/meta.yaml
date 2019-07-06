@@ -3,18 +3,17 @@ package:
   version: {{ CONDACI_VERSION }}
 
 requirements:
-  build:
+  host:
     - python
     - setuptools
-    - numpy >=1.10
-    - cython >0.23
-    - vlfeat 0.9.*
-    - msinttypes r26  # [win]
+    - numpy
+    - cython
+    - vlfeat 0.9.20
 
   run:
     - python
-    - vlfeat 0.9.*
-    - numpy >=1.10
+    - vlfeat 0.9.20
+    - {{ pin_compatible('numpy') }}
 
 test:
   requires:
