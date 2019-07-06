@@ -8,11 +8,11 @@ requirements:
     - setuptools
     - numpy
     - cython
-    - vlfeat 0.9.20
+    - vlfeat
 
   run:
     - python
-    - vlfeat 0.9.20
+    - {{ pin_compatible('vlfeat', min_pin='x.x.x', max_pin='x.x.x') }}
     - {{ pin_compatible('numpy') }}
 
 test:
