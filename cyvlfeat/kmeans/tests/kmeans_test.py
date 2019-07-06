@@ -31,7 +31,7 @@ def test_kmeans_float():
     dimension = 8
     noise_level = 0.1
 
-    centers = np.random.random_integers(-40, 40, (num_centers, dimension)).astype(np.float32)
+    centers = np.random.randint(-40, 40, (num_centers, dimension)).astype(np.float32)
     data = np.empty((num_data, dimension), dtype=np.float32)
     for i in range(num_data):
         data[i] = centers[i % num_centers] + np.random.random_sample(dimension)*noise_level
@@ -62,7 +62,7 @@ def test_kmeans_double():
     dimension = 8
     noise_level = 0.1
 
-    centers = np.random.random_integers(-40, 40, (num_centers, dimension)).astype(np.float64)
+    centers = np.random.randint(-40, 40, (num_centers, dimension)).astype(np.float64)
     data = np.empty((num_data, dimension), dtype=np.float64)
     for i in range(num_data):
         data[i] = centers[i % num_centers] + np.random.random_sample(dimension)*noise_level
@@ -93,7 +93,7 @@ def test_kmeans_ANN():
     dimension = 8
     noise_level = 0.1
 
-    centers = np.random.random_integers(-40, 40, (num_centers, dimension)).astype(np.float32)
+    centers = np.random.randint(-40, 40, (num_centers, dimension)).astype(np.float32)
     data = np.empty((num_data, dimension), dtype=np.float32)
     for i in range(num_data):
         data[i] = centers[i % num_centers] + np.random.random_sample(dimension)*noise_level
@@ -121,11 +121,11 @@ def test_ikmeans():
     dimension = 128
     noise_level = 3
 
-    centers = np.random.random_integers(0, 200, (num_centers, dimension)).astype(np.uint8)
+    centers = np.random.randint(0, 200, (num_centers, dimension)).astype(np.uint8)
     data = np.empty((num_data, dimension), dtype=np.uint8)
     for i in range(num_data):
         data[i] = centers[i % num_centers]
-    data = data + np.random.random_integers(0, noise_level, (num_data, dimension)).astype(np.uint8)
+    data = data + np.random.randint(0, noise_level, (num_data, dimension)).astype(np.uint8)
 
     found_centers, found_assignments = ikmeans(data, num_centers)
 
@@ -161,7 +161,7 @@ def test_ikmeans_2():
     data = np.empty((num_data, dimension), dtype=np.uint8)
     for i in range(num_data):
         data[i] = centers[i % num_centers]
-    data = data + np.random.random_integers(0, noise_level, (num_data, dimension)).astype(np.uint8)
+    data = data + np.random.randint(0, noise_level, (num_data, dimension)).astype(np.uint8)
 
     found_centers, found_assignments = ikmeans(data, num_centers)
 
@@ -192,11 +192,11 @@ def test_hikmeans():
     dimension = 128
     noise_level = 3
 
-    centers = np.random.random_integers(0, 200, (num_centers, dimension)).astype(np.uint8)
+    centers = np.random.randint(0, 200, (num_centers, dimension)).astype(np.uint8)
     data = np.empty((num_data, dimension), dtype=np.uint8)
     for i in range(num_data):
         data[i] = centers[i % num_centers]
-    data = data + np.random.random_integers(0, noise_level, (num_data, dimension)).astype(np.uint8)
+    data = data + np.random.randint(0, noise_level, (num_data, dimension)).astype(np.uint8)
 
     tree_structure, found_assignments = hikmeans(data, 4, 64)
 
