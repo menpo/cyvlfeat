@@ -17,8 +17,8 @@ requirements:
 
 test:
   requires:
-    - nose
-    - coverage
+    - pytest
+    - pytest-cov
 
   imports:
     - cyvlfeat.sift.sift
@@ -29,7 +29,7 @@ test:
     - cyvlfeat.generic.generic
 
   commands:
-    - nosetests cyvlfeat -v --cover-package=cyvlfeat
+    - pytest $SP_DIR/cyvlfeat -v --cov=cyvlfeat --cov-config .coveragerc
 
 about:
   home: https://github.com/menpo/cyvlfeat/

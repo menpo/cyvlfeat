@@ -1,7 +1,7 @@
 # Author: Alexis Mignon <alexis.mignon@probayes.com>
 import numpy as np
+import pytest
 from numpy.testing import assert_allclose
-from nose.tools import raises
 from cyvlfeat.gmm import gmm
 
 np.random.seed(1)
@@ -29,7 +29,7 @@ def test_gmm_2_clusters_kmeans_init():
     assert_allclose(means, [[4, 4], [0, 0]], atol=0.2)
 
 
-@raises(ValueError)
 def test_gmm_2_clusters_custom_init_fail():
-    _ = gmm(X, n_clusters=2, init_mode='custom')
+    with pytest.raises(ValueError):
+        _ = gmm(X, n_clusters=2, init_mode='custom')
 
