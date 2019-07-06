@@ -21,3 +21,6 @@ if [ "$(uname -s)" == "Darwin" ]; then
     install_name_tool -change @loader_path/libvl.dylib @rpath/libvl.dylib $file
   done
 fi
+
+# Build the pypi package
+"$PYTHON" setup.py sdist
