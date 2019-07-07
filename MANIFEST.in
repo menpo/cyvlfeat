@@ -1,4 +1,5 @@
 include versioneer.py
+include LICENSE.txt
 include cyvlfeat/_version.py
 recursive-include cyvlfeat *.h
 recursive-include cyvlfeat *.c
