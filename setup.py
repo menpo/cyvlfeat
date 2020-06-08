@@ -97,12 +97,14 @@ except ImportError:
 
 
 cython_modules = [
-    build_extension_from_pyx('cyvlfeat/generic/generic.pyx'),
     build_extension_from_pyx('cyvlfeat/fisher/cyfisher.pyx'),
+    build_extension_from_pyx('cyvlfeat/generic/generic.pyx'),
     build_extension_from_pyx('cyvlfeat/gmm/cygmm.pyx'),
     build_extension_from_pyx('cyvlfeat/hog/cyhog.pyx'),
     build_extension_from_pyx('cyvlfeat/kmeans/cykmeans.pyx'),
-    build_extension_from_pyx('cyvlfeat/sift/cysift.pyx')
+    build_extension_from_pyx('cyvlfeat/quickshift/cyquickshift.pyx'),
+    build_extension_from_pyx('cyvlfeat/sift/cysift.pyx'),
+    build_extension_from_pyx('cyvlfeat/vlad/cyvlad.pyx'),
 ]
 cython_exts = cythonize(cython_modules, quiet=True)
 

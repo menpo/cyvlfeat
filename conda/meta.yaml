@@ -6,6 +6,8 @@ requirements:
   host:
     - python
     - setuptools
+    - scipy
+    - matplotlib
     - numpy
     - cython
     - vlfeat
@@ -21,8 +23,11 @@ test:
     - pytest-cov
 
   imports:
+    - cyvlfeat.quickshift.quickshift
+    - cyvlfeat.vlad.vlad
     - cyvlfeat.sift.sift
     - cyvlfeat.sift.dsift
+    - cyvlfeat.sift.phow
     - cyvlfeat.fisher.fisher
     - cyvlfeat.hog.hog
     - cyvlfeat.kmeans.kmeans

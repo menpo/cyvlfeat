@@ -1,1 +1,1 @@
-__author__ = 'pts08'
+from .vlad import vlad

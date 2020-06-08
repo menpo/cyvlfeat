@@ -1,1 +1,2 @@
-__author__ = 'pts08'
+from .flatmap import flatmap
+from .quickshift import quickshift
