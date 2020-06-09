@@ -4,7 +4,6 @@ import site
 
 from setuptools import setup, find_packages, Extension
 
-import versioneer
 
 SYS_PLATFORM = platform.system().lower()
 IS_LINUX = 'linux' in SYS_PLATFORM
@@ -108,14 +107,26 @@ cython_modules = [
 ]
 cython_exts = cythonize(cython_modules, quiet=True)
 
+
+def get_version_and_cmdclass(package_name):
+    import os
+    from importlib.util import module_from_spec, spec_from_file_location
+    spec = spec_from_file_location('version',
+                                   os.path.join(package_name, '_version.py'))
+    module = module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module.__version__, module.cmdclass
+
+
+version, cmdclass = get_version_and_cmdclass('cyvlfeat')
 setup(
     name='cyvlfeat',
-    version=versioneer.get_version(),
-    cmdclass=versioneer.get_cmdclass(),
+    version=version,
+    cmdclass=cmdclass,
     description='Cython wrapper of the VLFeat toolkit',
     url='https://github.com/menpo/cyvlfeat',
     author='Patrick Snape',
-    author_email='p.snape@imperial.ac.uk',
+    author_email='patricksnape@gmail.com',
     ext_modules=cython_exts,
     packages=find_packages()
 )
