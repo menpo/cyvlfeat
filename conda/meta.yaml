@@ -4,18 +4,18 @@ package:
 
 requirements:
   host:
-    - python
-    - setuptools
-    - scipy
-    - matplotlib
-    - numpy
     - cython
+    - numpy
+    - python
+    - scipy
+    - setuptools
     - vlfeat
 
   run:
     - python
     - {{ pin_compatible('vlfeat', min_pin='x.x.x', max_pin='x.x.x') }}
     - {{ pin_compatible('numpy') }}
+    - scipy
 
 test:
   requires:
@@ -23,19 +23,22 @@ test:
     - pytest-cov
 
   imports:
-    - cyvlfeat.quickshift.quickshift
-    - cyvlfeat.vlad.vlad
-    - cyvlfeat.sift.sift
-    - cyvlfeat.sift.dsift
-    - cyvlfeat.sift.phow
     - cyvlfeat.fisher.fisher
+    - cyvlfeat.generic.generic
     - cyvlfeat.hog.hog
     - cyvlfeat.kmeans.kmeans
-    - cyvlfeat.generic.generic
+    - cyvlfeat.quickshift.quickshift
+    - cyvlfeat.sift.dsift
+    - cyvlfeat.sift.phow
+    - cyvlfeat.sift.sift
+    - cyvlfeat.vlad.vlad
 
   commands:
     - pytest $SP_DIR/cyvlfeat -v --cov=cyvlfeat --cov-config .coveragerc
 
 about:
-  home: https://github.com/menpo/cyvlfeat/
-  license: BSD
+  home: https://github.com/menpo/cyvlfeat
+  license: BSD-2-Clause
+  license_family: BSD
+  license_file: LICENSE.txt
+  summary: 'A Python (cython) wrapper of the VLFeat library'

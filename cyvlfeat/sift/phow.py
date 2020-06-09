@@ -1,9 +1,10 @@
 import math
+
 import numpy as np
-from matplotlib import colors as colors
-import scipy.ndimage
+from scipy.ndimage import filters as scipy_filters
+
 from . import dsift
-from cyvlfeat.utils import rgb2gray
+from ..utils import rgb2gray, rgb_to_hsv
 
 
 def phow(image, verbose=False, fast=True, sizes=(4, 6, 8, 10), step=2, color='gray',
@@ -73,8 +74,6 @@ def phow(image, verbose=False, fast=True, sizes=(4, 6, 8, 10), step=2, color='gr
 
     Examples
     --------
-      >>> import scipy.ndimage
-      >>> import matplotlib.colors
       >>> import numpy as np
       >>> from cyvlfeat.sift import phow
       >>> from cyvlfeat.test_util import lena
@@ -128,11 +127,11 @@ def phow(image, verbose=False, fast=True, sizes=(4, 6, 8, 10), step=2, color='gr
                 axis=2)
         # case when user inputs, color ='hsv' and I belongs to RGB space.
         elif color_lower == 'hsv':
-            I = colors.rgb_to_hsv(I)
+            I = rgb_to_hsv(I)
         else:
             # case when user inputs, color ='hsv' and I belongs to RGB space.
             color_lower = 'hsv'
-            I = colors.rgb_to_hsv(I)
+            I = rgb_to_hsv(I)
             print('Color space not recognized, defaulting to HSV color space.')
 
     if verbose:
@@ -150,7 +149,7 @@ def phow(image, verbose=False, fast=True, sizes=(4, 6, 8, 10), step=2, color='gr
 
         # smooth I to the appropriate scale based on the size of the SIFT bins
         sigma = sizes[si] / magnification
-        ims = scipy.ndimage.filters.gaussian_filter(I, sigma)
+        ims = scipy_filters.gaussian_filter(I, sigma)
 
         # extract dense SIFT features from all channels
         temp_all_results = []
