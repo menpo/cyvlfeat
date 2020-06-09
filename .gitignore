@@ -7,10 +7,12 @@ cyvlfeat.egg-info/*
 *.so
 
 # Let's just ignore all cython built files
-cyvlfeat/hog/cyhog.c
-cyvlfeat/gmm/cygmm.c
-cyvlfeat/generic/generic.c
-cyvlfeat/kmeans/cykmeans.c
-cyvlfeat/sift/cysift.c
 cyvlfeat/fisher/cyfisher.c
+cyvlfeat/generic/generic.c
+cyvlfeat/gmm/cygmm.c
+cyvlfeat/hog/cyhog.c
+cyvlfeat/kmeans/cykmeans.c
+cyvlfeat/quickshift/cyquickshift.c
+cyvlfeat/sift/cysift.c
+cyvlfeat/vlad/cyvlad.c
 *.iml
