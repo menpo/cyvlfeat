@@ -9,7 +9,7 @@ cimport numpy as np
 cimport cython
 
 # Import the header files
-from cyvlfeat.cy_utils cimport dtype_from_memoryview
+from cyvlfeat.cy_util cimport dtype_from_memoryview
 from cyvlfeat._vl.host cimport VL_TYPE_FLOAT, VL_TYPE_DOUBLE
 from cyvlfeat._vl.host cimport vl_size
 from cyvlfeat._vl.fisher cimport vl_fisher_encode
