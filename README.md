@@ -32,7 +32,7 @@ At the moment, the following methods from vlfeat are exposed:
 
 To install cyvlfeat, we **strongly suggest you use conda**:
 
-    conda install -c menpo cyvlfeat
+    conda install -c conda-forge cyvlfeat
   
 If you don't want to use conda, your mileage will vary. In particular, you must satisfy the linking/compilation requirements for the package, which include the ``vlfeat`` dynamic library.
 
@@ -48,9 +48,7 @@ To make this easier, we suggest you use [conda](http://conda.pydata.org/minicond
 
 This library **dynamically** links against the ``vlfeat``, and therefore you will need to ensure that it is available to the Python setup environment at build time. As mentioned, this is mostly easily done using conda:
 
-    conda config --add channels menpo
-    conda install cyvlfeat
-    conda remove cyvlfeat
+    conda install vlfeat -c conda-forge
 
 This will install all of cyvlfeat's dependencies, including ``vlfeat``, ``numpy`` and ``cython``. You will likely want to install this into a new conda environment for cyvlfeat development. Please see the [conda documentation](http://conda.pydata.org/docs/faq.html#managing-environments) for an explanation about environments. 
 
@@ -62,7 +60,11 @@ To begin developing, you will need to git fork and clone this repository:
 
 You can now locally install a development version/build cyvlfeat by using:
 
-    CFLAGS="-I/PATH_TO_MINICONDA/miniconda/envs/CONDA_ENV_NAME/include" LDFLAGS="-I/PATH_TO_MINICONDA/miniconda/envs/CONDA_ENV_NAME/lib" pip install -e ./
+    CFLAGS="-I$CONDA_PREFIX/include" LDFLAGS="-L$CONDA_PREFIX/lib" pip install -e ./
+
+You can also only build the Cython extensions locally using the MakeFile:
+
+    make
 
 This will build and install a local version of cyvlfeat for your development. You can also build and test this by using conda itself (from inside the cyvlfeat git repository):
 
@@ -78,9 +80,9 @@ For Windows, you will need to set the variable before building:
     set CONDACI_VERSION=VERSION_HERE
     conda build ./conda
 
-To run the tests manually, ensure ``nose`` is installed (``conda install nose``), and run
+To run the tests manually, ensure ``pytest`` is installed (``conda install -c conda-forge pytest``), and run
 
-    nosetests -v .
+    pytest -v
 
 From inside the git repository.
 
