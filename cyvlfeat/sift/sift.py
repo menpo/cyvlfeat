@@ -99,8 +99,6 @@ def sift(image, n_octaves=None, n_levels=3,  first_octave=0,  peak_thresh=0,
         n_octaves = -1
     if n_levels < 1:
         raise ValueError('n_levels must be > 0')
-    if first_octave < 0:
-        raise ValueError('first_octave must be >= 0')
     if edge_thresh <= 0:
         raise ValueError('edge_thresh must be > 0')
     if peak_thresh < 0:

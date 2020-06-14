@@ -11,13 +11,13 @@ def vlad(x, means, assignments, unnormalized=False, square_root=False,
 
     Parameters
     ----------
-    x : [D, N]  `float32` `ndarray`
-        One column per data vector (e.g. a SIFT descriptor)
-    means :  [F, N]  `float32` `ndarray`
-        One column per kMeans cluster.
-    assignments: [F, N]  `float32` `ndarray`
-        No. of rows = No. of clusters
-        No. of columns = No. of columns of X
+    x : [n_samples, n_features]  `float32` or `float64` `ndarray`
+        One row per data vector (e.g. a SIFT descriptor)
+    means :  [n_clusters, n_features]  `float32` or `float64` `ndarray`
+        One row per kMeans cluster.
+    assignments: [n_samples, n_features]  `float32` or `float64` `ndarray`
+        No. of columns = No. of clusters
+        No. of rows = No. of rows of X
     unnormalized : `bool`, optional
         If ``True``, no overall normalization is applied to the return
         vector.
@@ -36,7 +36,7 @@ def vlad(x, means, assignments, unnormalized=False, square_root=False,
 
     Returns
     -------
-    enc : [k, ] `float32` `ndarray`
+    enc : [k, ] `float32` or `float64` `ndarray`
         A vector of size equal to the product of
         ``k = the n_data_dimensions * n_clusters``.
         
@@ -47,9 +47,9 @@ def vlad(x, means, assignments, unnormalized=False, square_root=False,
     >>> N = 1000
     >>> K = 512
     >>> D = 128
-    >>> x = np.random.uniform(size=(D, N)).astype(np.float32)
-    >>> means = np.random.uniform(size=(D, K)).astype(np.float32)
-    >>> assignments = np.random.uniform(size=(K, N)).astype(np.float32)
+    >>> x = np.random.uniform(size=(N, D)).astype(np.float32)
+    >>> means = np.random.uniform(size=(K, D)).astype(np.float32)
+    >>> assignments = np.random.uniform(size=(N, K)).astype(np.float32)
     >>> enc = vlad(x, means, assignments)
     """
     # check for None
@@ -57,17 +57,20 @@ def vlad(x, means, assignments, unnormalized=False, square_root=False,
         raise ValueError('A required input is None')
 
     # validate the KMeans parameters
-    D = means.shape[0]  # the feature dimensionality
-    K = means.shape[1]  # the number of KMeans centers
+    D = means.shape[1]  # the feature dimensionality
+    K = means.shape[0]  # the number of KMeans centers
     # N = x.shape[1] is the number of samples
 
     # Check one dimension only.
-    if x.shape[0] != D:
+    if x.shape[1] != D:
         raise ValueError('x and means do not have the same dimensionality')
 
-    if assignments.shape[0] != K:
+    if assignments.shape[1] != K:
         raise ValueError('assignments has an unexpected shape')
 
+    x = np.ascontiguousarray(x)
+    means = np.ascontiguousarray(means)
+    assignments = np.ascontiguousarray(assignments)
     result = cy_vlad(x, means, assignments, np.int32(unnormalized),
                      np.int32(square_root), np.int32(normalize_components),
                      np.int32(normalize_mass),

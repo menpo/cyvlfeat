@@ -5,7 +5,8 @@ cimport cython
 from libc.stdio cimport printf
 
 # Import the header files
-from cyvlfeat._vl.host cimport VL_TYPE_FLOAT
+from cyvlfeat.cy_util cimport dtype_from_memoryview
+from cyvlfeat._vl.host cimport VL_TYPE_FLOAT, VL_TYPE_DOUBLE
 from cyvlfeat._vl.host cimport vl_size
 from cyvlfeat._vl.vlad cimport vl_vlad_encode
 from cyvlfeat._vl.vlad cimport VL_VLAD_FLAG_NORMALIZE_COMPONENTS
@@ -14,19 +15,21 @@ from cyvlfeat._vl.vlad cimport VL_VLAD_FLAG_UNNORMALIZED
 from cyvlfeat._vl.vlad cimport VL_VLAD_FLAG_NORMALIZE_MASS
 
 @cython.boundscheck(False)
-cpdef cy_vlad(float[:, :] X,
-            float[:, :] MEANS,
-            float[:, :] ASSIGNMENTS,
+cpdef cy_vlad(cython.floating[:, ::1] X,
+            cython.floating[:, ::1] means,
+            cython.floating[:, ::1] assignments,
             bint unnormalized,
             bint square_root,
             bint normalize_components,
             bint normalize_mass,
             bint verbose):
+    dtype = dtype_from_memoryview(X)
     cdef:
-        vl_size n_clusters = MEANS.shape[1]
-        vl_size n_dimensions = MEANS.shape[0]
-        vl_size n_data = X.shape[1]
+        vl_size n_clusters = means.shape[0]
+        vl_size n_dimensions = means.shape[1]
+        vl_size n_data = X.shape[0]
         int flags = 0
+        cython.floating[::1] enc = np.zeros(n_clusters * n_dimensions, dtype=dtype)
 
     if unnormalized:
         flags |= VL_VLAD_FLAG_UNNORMALIZED
@@ -59,17 +62,15 @@ cpdef cy_vlad(float[:, :] X,
         printf("vl_vlad: square root:           %d\n",
                    square_root)
 
-    cdef float[:] enc = np.zeros(n_clusters * n_dimensions,
-                                 dtype=np.float32)
-
+    vl_float_type = VL_TYPE_FLOAT if dtype == np.float32 else VL_TYPE_DOUBLE
     vl_vlad_encode(&enc[0],
-                  VL_TYPE_FLOAT,
-                  &MEANS[0, 0],
+                  vl_float_type,
+                  &means[0, 0],
                   n_dimensions,
                   n_clusters,
                   &X[0, 0],
                   n_data,
-                  &ASSIGNMENTS[0, 0],
+                  &assignments[0, 0],
                   flags)
 
     return np.asarray(enc)

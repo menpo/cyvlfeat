@@ -6,11 +6,7 @@ from cyvlfeat.cy_util cimport (dtype_from_memoryview, py_printf,
 from libc.string cimport memcpy
 import numpy as np
 cimport numpy as np
-
-
-ctypedef fused floats:
-    np.float32_t
-    np.float64_t
+cimport cython
 
 
 initialization_type = {
@@ -26,10 +22,10 @@ inv_initialization_type = {
 }
 
 
-def cy_gmm(floats[:, :] data, int n_clusters, int max_num_iterations,
+def cy_gmm(cython.floating[:, ::1] data, int n_clusters, int max_num_iterations,
            bytes init_mode, int num_repetitions, int verbose,
-           floats[:] covariance_bound=None, floats[:] init_priors=None,
-           floats[:, :] init_means=None, floats[:, :] init_covars=None,):
+           cython.floating[::1] covariance_bound=None, cython.floating[::1] init_priors=None,
+           cython.floating[:, ::1] init_means=None, cython.floating[:, ::1] init_covars=None,):
     # Set the vlfeat printing function to the Python stdout
     set_python_vl_printf()
 
@@ -38,19 +34,19 @@ def cy_gmm(floats[:, :] data, int n_clusters, int max_num_iterations,
         vl_size n_samples = data.shape[0]
         vl_size n_features = data.shape[1]
 
-        floats covar_scalar_bound = np.nan
-        floats *covar_arr_bound = NULL
+        cython.floating covar_scalar_bound = np.nan
+        cython.floating *covar_arr_bound = NULL
 
-        floats LL = 0
+        cython.floating LL = 0
         VlGMMInitialization vl_init_mode
 
         vl_type vl_data_type
         VlGMM *gmm
 
-        floats[:, ::1] out_means
-        floats[:, ::1] out_covars
-        floats[::1] out_priors
-        floats[:, ::1] out_posteriors
+        cython.floating[:, ::1] out_means
+        cython.floating[:, ::1] out_covars
+        cython.floating[::1] out_priors
+        cython.floating[:, ::1] out_posteriors
 
     vl_init_mode = initialization_type[init_mode]
 
