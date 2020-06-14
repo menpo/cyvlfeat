@@ -6,6 +6,7 @@
 # under the terms of the BSD license.
 import numpy as np
 cimport numpy as np
+cimport cython
 from cyvlfeat._vl.host cimport *
 from cyvlfeat._vl.mathop cimport *
 from cyvlfeat._vl.kmeans cimport *
@@ -15,11 +16,6 @@ from cyvlfeat.cy_util cimport (py_printf, dtype_from_memoryview,
                                set_python_vl_printf)
 from libc.string cimport memcpy
 from libc.stdlib cimport malloc
-
-
-ctypedef fused floats:
-    np.float32_t
-    np.float64_t
 
 
 algorithm_type = {
@@ -44,10 +40,10 @@ distance_type = {
 }
 
 
-cpdef cy_kmeans(floats[:, ::1] data, int num_centers, bytes distance,
+cpdef cy_kmeans(cython.floating[:, ::1] data, int num_centers, bytes distance,
                 bytes initialization, bytes algorithm, int num_repetitions,
                 int num_trees, int max_num_comparisons, int max_num_iterations,
-                float min_energy_variation, bint verbose):
+                cython.floating min_energy_variation, bint verbose):
     # Set the vlfeat printing function to the Python stdout
     set_python_vl_printf()
 
@@ -57,7 +53,7 @@ cpdef cy_kmeans(floats[:, ::1] data, int num_centers, bytes distance,
         int dimension = data.shape[1]
         int num_data = data.shape[0]
         vl_type vl_data_type
-        floats[:, :] centers
+        cython.floating[:, ::1] centers
 
     dtype = dtype_from_memoryview(data)
     if dtype == np.float32:
@@ -103,7 +99,7 @@ cpdef cy_kmeans(floats[:, ::1] data, int num_centers, bytes distance,
     return np.asarray(centers)
 
 
-cpdef cy_kmeans_quantize(floats[:, ::1] data, floats[:, ::1] centers,
+cpdef cy_kmeans_quantize(cython.floating[:, ::1] data, cython.floating[:, ::1] centers,
                          bytes distance, bytes algorithm, int num_trees,
                          int max_num_comparisons, bint verbose):
     # Set the vlfeat printing function to the Python stdout
