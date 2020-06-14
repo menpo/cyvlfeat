@@ -3,14 +3,14 @@ from .cygmm import cy_gmm
 import numpy as np
 
 
-def gmm(X, n_clusters=10, max_num_iterations=100, covariance_bound=None,
+def gmm(x, n_clusters=10, max_num_iterations=100, covariance_bound=None,
         init_mode='rand', init_priors=None, init_means=None, init_covars=None,
         n_repetitions=1, verbose=False):
     """Fit a Gaussian mixture model
 
     Parameters
     ----------
-    X : [n_samples, n_features] `float32/float64` `ndarray`
+    x : [n_samples, n_features] `float32/float64` `ndarray`
         The data to be fit. One data point per row.
     n_clusters : `int`, optional
         Number of output clusters.
@@ -59,13 +59,13 @@ def gmm(X, n_clusters=10, max_num_iterations=100, covariance_bound=None,
     posteriors : [n_samples, n_clusters] `ndarray`
         The posterior probability of each cluster w.r.t each data points.
     """
-    n_samples = X.shape[0]
-    n_features = X.shape[1]
+    n_samples = x.shape[0]
+    n_features = x.shape[1]
 
-    if X.shape[0] == 0:
-        raise ValueError('X should contain at least one row')
-    if np.isnan(X).any() or np.isinf(X).any():
-        raise ValueError("X contains Nans or Infs.")
+    if x.shape[0] == 0:
+        raise ValueError('x should contain at least one row')
+    if np.isnan(x).any() or np.isinf(x).any():
+        raise ValueError("x contains Nans or Infs.")
 
     if n_clusters <= 0 or n_clusters > n_samples:
         raise ValueError(
@@ -81,23 +81,23 @@ def gmm(X, n_clusters=10, max_num_iterations=100, covariance_bound=None,
         raise ValueError("init_mode must be one of {'rand', 'custom', 'kmeans'")
 
     # Make sure we have the correct types
-    X = np.ascontiguousarray(X)
-    if X.dtype not in [np.float32, np.float64]:
+    x = np.ascontiguousarray(x)
+    if x.dtype not in [np.float32, np.float64]:
         raise ValueError('Input data matrix must be of type float32 or float64')
 
     if covariance_bound is not None:
-        covariance_bound = np.asarray(covariance_bound, dtype=np.float)
+        covariance_bound = np.asarray(covariance_bound, dtype=x.dtype)
 
     if init_priors is not None:
-        init_priors = np.require(init_priors, requirements='C', dtype=X.dtype)
+        init_priors = np.require(init_priors, requirements='C', dtype=x.dtype)
         if init_priors.shape != (n_clusters,):
             raise ValueError('init_priors does not have the correct size')
     if init_means is not None:
-        init_means = np.require(init_means, requirements='C', dtype=X.dtype)
+        init_means = np.require(init_means, requirements='C', dtype=x.dtype)
         if init_means.shape != (n_clusters, n_features):
             raise ValueError('init_means does not have the correct size')
     if init_covars is not None:
-        init_covars = np.require(init_covars, requirements='C', dtype=X.dtype)
+        init_covars = np.require(init_covars, requirements='C', dtype=x.dtype)
         if init_covars.shape != (n_clusters, n_features):
             raise ValueError('init_covars does not have the correct size')
 
@@ -110,7 +110,7 @@ def gmm(X, n_clusters=10, max_num_iterations=100, covariance_bound=None,
         raise ValueError('init_mode==custom implies that all initial '
                          'parameters are given')
 
-    return cy_gmm(X, n_clusters, max_num_iterations, init_mode.encode('utf8'),
+    return cy_gmm(x, n_clusters, max_num_iterations, init_mode.encode('utf8'),
                   n_repetitions, int(verbose),
                   covariance_bound=covariance_bound, init_priors=init_priors,
                   init_means=init_means, init_covars=init_covars)
