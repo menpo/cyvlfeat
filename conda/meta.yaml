@@ -21,6 +21,7 @@ test:
   requires:
     - pytest
     - pytest-cov
+    - scikit-image
 
   imports:
     - cyvlfeat.fisher.fisher

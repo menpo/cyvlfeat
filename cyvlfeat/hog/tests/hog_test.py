@@ -1,79 +1,72 @@
-from __future__ import division
+import cyvlfeat
 from cyvlfeat.hog import hog
 import numpy as np
 from numpy.testing import assert_allclose
-from cyvlfeat.test_util import lena
+from scipy.misc import face
+from scipy.io import loadmat
+import pytest
+import os.path as osp
 
-        
-img = lena().astype(np.float32) / 255.
-half_img = img[:, :256]
+img_gray = face(gray=True).astype(np.float32)
+img_rgb = face(gray=False).astype(np.float32)
+# HOG features obtained from the MATLAB/Octave API
+hog_features = loadmat(osp.join(osp.dirname(cyvlfeat.__file__), 'data', 'hog.mat'))
+
+
+@pytest.mark.parametrize('cell_size', [8, 15, 24, 32])
+@pytest.mark.parametrize('n_orientations', [4, 6, 9, 15])
+@pytest.mark.parametrize('variant', ['DalalTriggs', 'UoCTTI'])
+@pytest.mark.parametrize('visualize', [True, False])
+def test_hog_shape(cell_size, n_orientations, variant, visualize):
+    output = hog(img_rgb, cell_size=cell_size,
+                 n_orientations=n_orientations,
+                 variant=variant, visualize=visualize)
+    h = int((img_rgb.shape[0] + cell_size / 2) // cell_size)
+    w = int((img_rgb.shape[1] + cell_size / 2) // cell_size)
+    if visualize:
+        viz_h = 21 * h
+        viz_w = 21 * w
+    if variant == 'UoCTTI':
+        c = 4 + 3 * n_orientations
+    else:
+        c = 4 * n_orientations
+    if visualize:
+        assert output[0].dtype == np.float32
+        assert output[0].shape == (h, w, c)
+        assert output[1].shape == (viz_h, viz_w)
+    else:
+        assert output.dtype == np.float32
+        assert output.shape == (h, w, c)
 
 
 def test_hog_cell_size_32_uoctti():
-    i = img.copy()
-    output = hog(i, 32)
-    assert output.dtype == np.float32
-    assert output.shape == (16, 16, 31)
-    assert_allclose(output[:2, :2, 0],
-                    np.array([[0.104189, 0.056746],
-                              [0.051333, 0.03721]]), rtol=1e-4)
+    des_gray = hog(img_gray, 32)
+    des_rgb = hog(img_rgb, 32)
+
+    assert_allclose(hog_features['hog_des_gray_uoctti'], des_gray, rtol=1e-3)
+    assert_allclose(hog_features['hog_des_rgb_uoctti'], des_rgb, rtol=1e-3)
 
 
-def test_hog_cell_size_32_uoctti_4_orientations():
-    i = img.copy()
-    output = hog(i, 32, n_orientations=4)
-    assert output.dtype == np.float32
-    assert output.shape == (16, 16, 16)
-    assert_allclose(output[:2, :2, 0],
-                    np.array([[0.158388,  0.085595],
-                              [0.078716,  0.062816]]), rtol=1e-5)
+@pytest.mark.parametrize('bilinear_interpolation', [True, False])
+def test_hog_cell_size_32_dalaltriggs(bilinear_interpolation):
+    des_gray = hog(img_gray, 32, variant='DalalTriggs', bilinear_interpolation=bilinear_interpolation)
+    des_rgb = hog(img_rgb, 32, variant='DalalTriggs', bilinear_interpolation=bilinear_interpolation)
 
+    if bilinear_interpolation:
+        assert_allclose(hog_features['hog_des_gray_dalaltriggs_bilinear'], des_gray, rtol=1e-4)
+        assert_allclose(hog_features['hog_des_rgb_dalaltriggs_bilinear'], des_rgb, rtol=1e-4)
+    else:
+        assert_allclose(hog_features['hog_des_gray_dalaltriggs'], des_gray, rtol=1e-4)
+        assert_allclose(hog_features['hog_des_rgb_dalaltriggs'], des_rgb, rtol=1e-4)
 
-def test_hog_cell_size_32_uoctti_non_square():
-    i = half_img.copy()
-    output = hog(i, 32)
-    assert output.dtype == np.float32
-    assert output.shape == (16, 8, 31)
-    assert_allclose(output[:2, :2, 0],
-                    np.array([[0.163912, 0.167787],
-                              [0.086294, 0.079365]]), rtol=1e-5)
+@pytest.mark.parametrize('variant', ['DalalTriggs', 'UoCTTI'])
+def test_hog_channel_order(variant):
+    img_rgb_chanel_first = img_rgb.transpose([2, 0, 1])
+    des_rgb_channel_first, viz_rgb_channel_first = hog(img_rgb_chanel_first, 32, variant=variant,
+                                                       channels_first=True, visualize=True)
+    des_rgb, viz_rgb = hog(img_rgb, 32, variant=variant, channels_first=False, visualize=True)
 
-
-def test_hog_cell_size_32_dalaltriggs():
-    i = img.copy()
-    output = hog(i, 32, variant='DalalTriggs')
-    assert output.dtype == np.float32
-    assert output.shape == (16, 16, 36)
-    assert_allclose(output[:2, :2, 0],
-                    np.array([[0.139408, 0.093407],
-                              [0.070996, 0.065033]]), rtol=1e-5)
-
-
-def test_hog_cell_size_32_dalaltriggs_4_orientations():
-    i = img.copy()
-    output = hog(i, 32, n_orientations=4, variant='DalalTriggs')
-    assert output.dtype == np.float32
-    assert output.shape == (16, 16, 16)
-    assert_allclose(output[:2, :2, 0],
-                    np.array([[0.2,      0.154738],
-                              [0.109898, 0.108115]]), rtol=1e-5)
-
-
-def test_hog_cell_size_32_dalaltriggs_non_square():
-    i = half_img.copy()
-    output = hog(i, 32, variant='DalalTriggs')
-    assert output.dtype == np.float32
-    assert output.shape == (16, 8, 36)
-    assert_allclose(output[:2, :2, 0],
-                    np.array([[0.2,       0.2],
-                              [0.144946,  0.192144]]), rtol=1e-5)
-
-
-def test_hog_cell_size_32_dalaltriggs_bilinear_interpolation():
-    i = img.copy()
-    output = hog(i, 32, variant='DalalTriggs', bilinear_interpolation=True)
-    assert output.dtype == np.float32
-    assert output.shape == (16, 16, 36)
-    assert_allclose(output[:2, -2:, 0],
-                    np.array([[0.01523,  0.017774],
-                              [0.012941, 0.012733]]), rtol=1e-4)
+    assert des_rgb.shape == des_rgb_channel_first.shape
+    assert viz_rgb.shape == viz_rgb_channel_first.shape
+    assert_allclose(des_rgb, des_rgb_channel_first)
+    assert_allclose(viz_rgb, viz_rgb_channel_first)
