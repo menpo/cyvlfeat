@@ -4,7 +4,8 @@ from .cyhog import cy_hog
 
 def hog(image, cell_size, variant='UoCTTI', n_orientations=9,
         directed_polar_field=False, undirected_polar_field=False,
-        bilinear_interpolation=False, verbose=False):
+        bilinear_interpolation=False, verbose=False, visualize=False,
+        channels_first=False):
     r"""
     Computes the HOG features for ``image``
     and the specified ``cell_size``. ``image`` can be either greyscale or RGB
@@ -28,7 +29,9 @@ def hog(image, cell_size, variant='UoCTTI', n_orientations=9,
 
     Parameters
     ----------
-    image : [H, W] or [H, W, 1] or [H, W, 3] `float32` `ndarray`
+    image : [H, W] or [H, W, 1] or [H, W, 3] `float32` `ndarray` (channel-last format)
+        [1, H, W] or [3, H, W] `float32` `ndarray` (channel-first format),
+        see also arg `channel_first`.
         A single channel, RGB or greyscale, `float32` numpy array (ndarray)
         representing the image to calculate descriptors for.
     cell_size : `int`
@@ -56,16 +59,33 @@ def hog(image, cell_size, variant='UoCTTI', n_orientations=9,
         only used for the 'DalalTriggs' variant.
     verbose : `bool`, optional
         If ``True``, be verbose.
+    visualize : `bool`, optional
+        Also return an image of the HOG. For each cell and orientation bin,
+        the image contains a line segment that is centered at the cell center,
+        is perpendicular to the midpoint of the range of angles spanned by the
+        orientation bin, and has intensity proportional to the corresponding
+        histogram value.
+    channel_first : `bool`, optional
+        VLfeat uses ``channel-first`` format by default, while ``channel-last``
+        format is usually used in Python, e.g. scikit-image. Set this flag to
+        `True` if your input is channel-first. cyvlfeat will convert input array
+        from `channel-last` format to ``channel-first`` format internally if this
+        flag is `False`.
 
     Returns
     -------
-    output : `(R, R, D)` `float32` `ndarray`
-        ``R`` is is approximately the number of columns of ``image`` divided
-        by ``cell_size``. ``D`` is the number of feature dimensions.
+    output : `(RH, RW, D)` `float32` `ndarray`
+        ``RH`` and ``RW`` is approximately ``H / cellsize`` and ``W / cellsize``. ``D`` is the number of feature dimensions.
+    hog_image : 2D `uint8` `ndarray`, optional
+        A visualisation of the HOG image. Only provided if `visualize` is `True`.
     """
+    # vlfeat requires image in channel-first style
+    if image.ndim == 3:
+        if not channels_first:
+            image = image.transpose([2, 0, 1])
     # Add a channels axis
     if image.ndim == 2:
-        image = image[..., None]
+        image = np.expand_dims(image, axis=0)
 
     # Validate image size
     if image.ndim != 3:
@@ -78,18 +98,28 @@ def hog(image, cell_size, variant='UoCTTI', n_orientations=9,
         raise ValueError("variant must be in set {'UoCTTI', 'DalalTriggs'}")
     if n_orientations < 0:
         raise ValueError('n_orientations must be > 0')
-    if (directed_polar_field or undirected_polar_field) and image.shape[-1] != 2:
+    if (directed_polar_field or undirected_polar_field) and image.shape[0] != 2:
         raise ValueError('Expected a polar field image of n_channels == 2')
 
     # Ensure types are correct before passing to Cython
-    image = np.require(image, dtype=np.float32, requirements='F')
+    image = np.require(image, dtype=np.float32, requirements='C')
 
     # Shortcut for getting the correct enum value, since is_UoCTTI has
     # an enum value of 1 (True is 1 in Python)
     is_UoCTTI = variant == 'UoCTTI'
 
-    return cy_hog(image, cell_size, is_UoCTTI,
-                  n_orientations,  directed_polar_field,
-                  undirected_polar_field, bilinear_interpolation,
-                  True,  # Return channels as last axis
-                  verbose)
+    result = cy_hog(image, cell_size, is_UoCTTI,
+                    n_orientations, directed_polar_field,
+                    undirected_polar_field, bilinear_interpolation,
+                    True,  # Return channels as last axis
+                    verbose, visualize)
+    if visualize:
+        viz_array = result[1]
+        # properly rescale to 0-255 for visualization
+        scale = 255 / (viz_array.max() - viz_array.min() + np.finfo(np.float32).eps)
+        viz_array = scale * (viz_array - viz_array.min())
+        viz_array = viz_array.astype(np.uint8)
+
+        return result[0], viz_array
+    else:
+        return result

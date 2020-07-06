@@ -10,27 +10,30 @@ cimport cython
 
 # Import the header files
 from cyvlfeat._vl.hog cimport *
-from cyvlfeat._vl.host cimport VL_FALSE
+from cyvlfeat._vl.host cimport VL_FALSE, vl_size
 from cyvlfeat.cy_util cimport py_printf, set_python_vl_printf
 
 
 @cython.boundscheck(False)
-cpdef cy_hog(float[:, :, :] data, int cell_size, int variant,
-             int n_orientations, bint directed_polar_field,
+cpdef cy_hog(float[:, :, ::1] data, vl_size cell_size, int variant,
+             vl_size n_orientations, bint directed_polar_field,
              bint undirected_polar_field, bint bilinear_interpolation,
-             bint return_channels_last_axis, bint verbose):
+             bint return_channels_last_axis, bint verbose, bint visualize):
     # Set the vlfeat printing function to the Python stdout
     set_python_vl_printf()
 
     cdef:
         # Python images are not transposed
+        # RGB image is channel first, aka. (C, H, W)
         VlHog* hog = vl_hog_new(<VlHogVariant>variant,
                                 n_orientations, VL_FALSE)
-        int height = data.shape[0]
-        int width = data.shape[1]
-        int n_channels = data.shape[2]
-        int out_height = 0, out_width = 0, out_n_channels = 0
-        float[:, :, :] out_array
+        vl_size height = data.shape[1]
+        vl_size width = data.shape[2]
+        vl_size n_channels = data.shape[0]
+        vl_size out_height = 0, out_width = 0, out_n_channels = 0
+        float[:, :, ::1] out_array
+        float[:, ::1] viz_array
+        vl_size viz_glyph_size
 
     vl_hog_set_use_bilinear_orientation_assignments(hog,
                                                     bilinear_interpolation)
@@ -38,7 +41,7 @@ cpdef cy_hog(float[:, :, :] data, int cell_size, int variant,
     if directed_polar_field or undirected_polar_field:
         vl_hog_put_polar_field(hog,
                                &data[0, 0, 0],  # Magnitude
-                               &data[0, 0, 1],  # Angle
+                               &data[1, 0, 0],  # Angle
                                directed_polar_field,
                                width, height, cell_size)
     else:  # Assume we have an image
@@ -50,10 +53,10 @@ cpdef cy_hog(float[:, :, :] data, int cell_size, int variant,
     out_n_channels = vl_hog_get_dimension(hog)
 
     if verbose:
-        py_printf('vl_hog: image: [%d x %d x %d]\n', height, width, n_channels)
-        py_printf('vl_hog: descriptor: [%d x %d x %d]\n', out_height, out_width,
+        py_printf('vl_hog: image: [%lld x %lld x %lld]\n', height, width, n_channels)
+        py_printf('vl_hog: descriptor: [%lld x %lld x %lld]\n', out_height, out_width,
                                                        out_n_channels)
-        py_printf('vl_hog: number of orientations: %d\n', n_orientations)
+        py_printf('vl_hog: number of orientations: %lld\n', n_orientations)
         py_printf('vl_hog: bilinear orientation assignments: %s\n',
                   'yes' if bilinear_interpolation else 'no')
         py_printf('vl_hog: variant: %s\n',
@@ -64,17 +67,32 @@ cpdef cy_hog(float[:, :, :] data, int cell_size, int variant,
                   else ('UndirectedPolarField' if undirected_polar_field else
                         'Image'))
 
-    # Unfortunately, writing in C-contiguous ordering implies the channels
-    # should be at the front.
-    out_array = np.empty((out_n_channels, out_height, out_width),
+    # according to https://www.vlfeat.org/api/hog.html
+    # hog features array is (out_n_channels, out_height, out_width) with "C" order
+    out_array = np.zeros((out_n_channels, out_height, out_width),
                          dtype=np.float32, order='C')
 
-    vl_hog_extract(hog, &out_array[0, 0, 0])
-    vl_hog_delete(hog)
+    vl_hog_extract(hog, &out_array[0][0][0])
 
-    # Therefore, a copy is required if the channels should be returned as the
-    # last axis.
+    if visualize:
+        viz_glyph_size = vl_hog_get_glyph_size(hog)
+        viz_width = viz_glyph_size * vl_hog_get_width(hog)
+        viz_height = viz_glyph_size * vl_hog_get_height(hog)
+        viz_array = np.zeros((viz_glyph_size * out_height,
+                            viz_glyph_size * out_width),
+                            dtype=np.float32, order='C')
+        vl_hog_render(hog, &viz_array[0][0], &out_array[0][0][0],
+                      out_width, out_height)
+        if verbose:
+            py_printf("vl_hog: glyph size: %lld\n", viz_glyph_size)
+            py_printf("vl_hog: glyph image: [%lld x %lld]\n", viz_glyph_size * out_height,
+                      viz_glyph_size * out_width)
+
+    vl_hog_delete(hog)
+    # we prefer (out_height, out_width, out_n_channels) in numpy
     if return_channels_last_axis:
         out_array = np.transpose(out_array, [1, 2, 0]).copy()
-
-    return np.asarray(out_array)
+    if visualize:
+        return np.asarray(out_array), np.asarray(viz_array)
+    else:
+        return np.asarray(out_array)

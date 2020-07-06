@@ -40,9 +40,6 @@ cdef extern from "vl/hog.h":
     VlHog* vl_hog_new(VlHogVariant variant, vl_size numOrientations,
                       vl_bool transposed)
     void vl_hog_delete(VlHog* self)
-    void vl_hog_process(VlHog* self, float* features, float* image,
-                        vl_size width, vl_size height, vl_size numChannels,
-                        vl_size cellSize)
 
     void vl_hog_put_image(VlHog * self, float* image, vl_size width,
                           vl_size height, vl_size numChannels, vl_size cellSize)
@@ -54,15 +51,9 @@ cdef extern from "vl/hog.h":
     void vl_hog_extract(VlHog * self, float* features)
     vl_size vl_hog_get_height(VlHog * self)
     vl_size vl_hog_get_width(VlHog * self)
-
-
     void vl_hog_render(VlHog * self, float* image, float* features,
                        vl_size width, vl_size height)
-
     vl_size vl_hog_get_dimension(VlHog* self)
-    vl_index* vl_hog_get_permutation(VlHog* self)
     vl_size vl_hog_get_glyph_size(VlHog* self)
-
-    vl_bool vl_hog_get_use_bilinear_orientation_assignments(VlHog* self)
     void vl_hog_set_use_bilinear_orientation_assignments(VlHog* self,
                                                          vl_bool x)
