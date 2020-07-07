@@ -128,6 +128,6 @@ setup(
     author='Patrick Snape',
     author_email='patricksnape@gmail.com',
     ext_modules=cython_exts,
-    package_data={'cyvlfeat': ['data/*.mat']},
+    package_data={'cyvlfeat': ['data/*.mat', 'data/ascent.descr', 'data/ascent.frame']},
     packages=find_packages()
 )

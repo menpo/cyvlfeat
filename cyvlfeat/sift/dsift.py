@@ -20,6 +20,7 @@ def dsift(image, step=1, size=3, bounds=None, window_size=-1, norm=False,
 
     Does NOT compute a Gaussian scale space of the image. Instead, the image
     should be pre-smoothed at the desired scale level.
+    One could use ``skimage.filters.gaussian`` to smooth the image.
 
     The scale of the extracted descriptors is controlled by the option
     ``size``, i.e. the width in pixels of a spatial bin (recall that a
@@ -85,9 +86,11 @@ def dsift(image, step=1, size=3, bounds=None, window_size=-1, norm=False,
         extracted. The format is ``[YMIN, XMIN, YMAX, XMAX]``. If this
         option is not specified, the entire image is used. The
         bounding box is clipped to the image boundaries.
+    window_size : Set the variance of the Gaussian window that determines the descriptor support.
+        It is expressed in units of spatial bins.
     norm : `bool`, optional
         If ``True``, adds to the ``frames`` output argument a third
-        row containing the descriptor norm, or energy, before
+        column containing the descriptor norm, or energy, before
         contrast normalization. This information can be used to
         suppress low contrast descriptors.
     fast : `bool`, optional
@@ -158,8 +161,8 @@ def dsift(image, step=1, size=3, bounds=None, window_size=-1, norm=False,
             raise ValueError('Step must only contain positive integers.')
 
     # Validate window_size
-    if not isinstance(window_size, int):
-        raise ValueError('Window size must be an integer.')
+    # if not isinstance(window_size, int):
+    #     raise ValueError('Window size must be an integer.')
 
     # Validate geometry
     geometry = np.asarray(geometry)

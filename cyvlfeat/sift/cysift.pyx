@@ -14,13 +14,11 @@ from libc.stdlib cimport qsort
 from cyvlfeat._vl.dsift cimport *
 from cyvlfeat._vl.host cimport *
 from cyvlfeat._vl.sift cimport *
-from cyvlfeat._vl.mathop cimport VL_PI
 from cyvlfeat.cy_util cimport py_printf, set_python_vl_printf
-
 
 @cython.boundscheck(False)
 cpdef cy_dsift(float[:, ::1] data, int[:] step,
-               int[:] size, int[:] bounds, int window_size, bint norm,
+               int[:] size, int[:] bounds, float window_size, bint norm,
                bint fast, bint float_descriptors, int[:] geometry,
                bint verbose):
     # Set the vlfeat printing function to the Python stdout
@@ -87,10 +85,15 @@ cpdef cy_dsift(float[:, ::1] data, int[:] step,
       py_printf("vl_dsift: bin sizes:         [binSizeX, binSizeY] = [%d, %d]\n",
                 geom.binSizeX,
                 geom.binSizeY)
-      py_printf("vl_dsift: flat window:       %d\n", fast)
+      py_printf("vl_dsift: flat window:       yes\n"
+                if fast
+                else "vl_dsift: flat window:       no\n")
       py_printf("vl_dsift: window size:       "
                 "%g\n", vl_dsift_get_window_size(dsift))
       py_printf("vl_dsift: num of features:   %d\n", num_frames)
+      py_printf("vl_dsift: return descriptor as float\n"
+                if float_descriptors
+                else "vl_sift: return descriptor as uint8\n")
 
     # Actually compute the SIFT features
     vl_dsift_process(dsift, &data[0, 0])
@@ -149,7 +152,7 @@ cdef int korder(const void *a, const void *b) nogil:
 cpdef cy_sift(float[:, ::1] data, int n_octaves,
               int n_levels, int first_octave, float peak_threshold,
               float edge_threshold, float norm_threshold, int magnification,
-              int window_size, float[:, :] frames, bint force_orientations,
+              int window_size, float[:, ::1] frames, bint force_orientations,
               bint float_descriptors, bint compute_descriptor, bint verbose):
     # Set the vlfeat printing function to the Python stdout
     set_python_vl_printf()
@@ -207,8 +210,10 @@ cpdef cy_sift(float[:, ::1] data, int n_octaves,
         py_printf("vl_sift:   peak thresh           = %g\n", vl_sift_get_peak_thresh(filt))
         py_printf("vl_sift:   norm thresh           = %g\n", vl_sift_get_norm_thresh(filt))
         py_printf("vl_sift:   window size           = %g\n", vl_sift_get_window_size(filt))
-        py_printf("vl_sift:   float descriptor      = %d\n", float_descriptors)
-
+        py_printf("vl_sift:   magnification         = %g\n", vl_sift_get_magnif(filt))
+        py_printf("vl_sift: return descriptor as float\n"
+                  if float_descriptors
+                  else "vl_sift: return descriptor as uint8\n")
         py_printf("vl_sift: will source frames? yes (%d read)\n"
                   if user_specified_frames
                   else "vl_sift: will source frames? no\n", n_user_keypoints)

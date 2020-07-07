@@ -76,8 +76,8 @@ def phow(image, verbose=False, fast=True, sizes=(4, 6, 8, 10), step=2, color='gr
     --------
       >>> import numpy as np
       >>> from cyvlfeat.sift import phow
-      >>> from cyvlfeat.test_util import lena
-      >>> img = lena().astype(np.float32)
+      >>> from scipy.misc import ascent
+      >>> img = ascent().astype(np.float32)
       >>> frames, descriptors = phow(img, verbose=True)
 
 
@@ -102,7 +102,7 @@ def phow(image, verbose=False, fast=True, sizes=(4, 6, 8, 10), step=2, color='gr
     else:
         num_channels = 3
 
-        # case where user inputs, color ='rgb'or 'hsv'or 'opponent' but I is greyscale.
+        # case where user inputs, color ='rgb' or 'hsv'or 'opponent' but I is greyscale.
         if I.shape[2] == 1:
             I = np.dstack([I, I, I])
 
@@ -121,10 +121,10 @@ def phow(image, verbose=False, fast=True, sizes=(4, 6, 8, 10), step=2, color='gr
             # regions.
 
             alpha = 0.01
-            I = np.concatenate(
+            I = np.stack(
                 (rgb2gray(I), (I[:, :, 0] - I[:, :, 1]) / math.sqrt(2) + alpha * rgb2gray(I),
                  I[:, :, 0] + I[:, :, 1] - 2 * I[:, :, 2] / math.sqrt(6) + alpha * rgb2gray(I)),
-                axis=2)
+                axis=-1)
         # case when user inputs, color ='hsv' and I belongs to RGB space.
         elif color_lower == 'hsv':
             I = rgb_to_hsv(I)
@@ -143,8 +143,6 @@ def phow(image, verbose=False, fast=True, sizes=(4, 6, 8, 10), step=2, color='gr
     temp_descrs = []
 
     for si in range(0, len(sizes)):
-        f = []
-        d = []
         off = math.floor(1.0 + 3.0 / 2.0 * (max(sizes) - sizes[si]))
 
         # smooth I to the appropriate scale based on the size of the SIFT bins
@@ -153,12 +151,11 @@ def phow(image, verbose=False, fast=True, sizes=(4, 6, 8, 10), step=2, color='gr
 
         # extract dense SIFT features from all channels
         temp_all_results = []
-        # temp_arr = np.empty((num_channels, ), dtype=np.float32, order='C')
         data = ims.copy()
         for k in range(num_channels):
 
             # The third dimension of an image matrix represent the no. of channels that are present.
-            # In Matlab, size(I) returns: 256 x256 which is same as the result returned by python's I.shape
+            # In Matlab, size(I) returns: 256 x 256 which is same as the result returned by python's I.shape
             # where I is the numpy array of image. In Matlab, size(I,3) returns 1 for a greyscale
             # image but in Python, I.shape[2] raises an error -> tuple index out of range, simply because
             # there is no third channel. For RGB images I.shape[2] returns 3. The below if-else is a fix
@@ -178,35 +175,28 @@ def phow(image, verbose=False, fast=True, sizes=(4, 6, 8, 10), step=2, color='gr
                                  norm=True, fast=fast, float_descriptors=float_descriptors, verbose=verbose)
 
             temp_all_results.append(temp_results)
+        f = []
+        d = []
+        for item in temp_all_results:
+            f.append(item[0])
+            d.append(item[1])
 
-        for i in range(len(temp_all_results)):
-            f.append(temp_all_results[i][2 * i])
-            d.append(temp_all_results[i][2 * i + 1])
-
-        if color_lower == 'gray':
-            contrast = f[0][:, 2]
-        elif color_lower == 'opponent':
+        # remove low contrast descriptors note that for color descriptors the V component is thresholded
+        if color_lower in ['gray', 'opponent']:
             contrast = f[0][:, 2]
         elif color_lower == 'rgb':
             m = (f[0][:, 2], f[1][:, 2], f[2][:, 2])
-            contrast = np.mean(m, axis=1)
+            contrast = np.mean(m, axis=0)
         else:
             color_lower = 'hsv'
             contrast = f[2][:, 2]
 
-        # remove low contrast descriptors note that for color descriptors the V component is thresholded
-
         for k in range(num_channels):
-            for i, val in enumerate(contrast):
-                if val < contrast_threshold:
-                    d[k][i] = 0
+            d[k][contrast < contrast_threshold] = 0
 
-        dim2 = contrast.shape[0]
-        param2 = (sizes[si]) * np.ones((dim2, 1))
-        temp_frames.append(np.append(f[0], param2, axis=1))
-        frames = np.concatenate(temp_frames, axis=0)
-
-        temp_descrs.append(d[0])
-        descriptors = np.concatenate(temp_descrs, axis=0)
+        temp_frames.append(np.column_stack([f[0][:, :3], sizes[si] * np.ones((f[0].shape[0], ), dtype=np.float32)]))
+        temp_descrs.append(np.column_stack(d))
+    frames = np.concatenate(temp_frames, axis=0)
+    descriptors = np.concatenate(temp_descrs, axis=0)
 
     return frames, descriptors
