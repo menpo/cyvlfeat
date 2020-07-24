@@ -29,6 +29,7 @@ At the moment, the following methods from vlfeat are exposed:
   - sift
     - dsift
     - sift
+    - phow
 
 To install cyvlfeat, we **strongly suggest you use conda**:
 
