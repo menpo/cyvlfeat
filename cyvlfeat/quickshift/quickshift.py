@@ -1,9 +1,11 @@
 import numpy as np
+
 from cyvlfeat.quickshift.cyquickshift import cy_quickshift
 
 
 def quickshift(image, kernel_size, max_dist=None,
-               medoid=False, verbose=False):
+               medoid=False, verbose=False,
+               channel_first=False):
     r"""
     Quick shift is a mode seeking algorithm which links each pixel to
     its nearest neighbor which has an increase in the estimate of the
@@ -44,27 +46,28 @@ def quickshift(image, kernel_size, max_dist=None,
     -------
     >>> import numpy as np
     >>> from cyvlfeat.quickshift.quickshift import quickshift
-    >>> from cyvlfeat.test_util import lena
-    >>> img = lena().astype(np.float32)
-    >>> maps, gaps, estimate = quickshift(img,kernel_size=2,max_dist=10)
+    >>> from scipy.misc import ascent
+    >>> img = ascent().astype(np.float64)
+    >>> maps, gaps, estimate = quickshift(img, kernel_size=2, max_dist=10)
     >>> # medoid segmentation
-    >>> maps, gaps, estimate = quickshift(img,kernel_size=2,max_dist=10,medoid=True)
+    >>> maps, gaps, estimate = quickshift(img, kernel_size=2, max_dist=10, medoid=True)
     """
 
     # check for None
     if image is None or kernel_size is None:
         raise ValueError('A required input is None')
 
-    # Remove last channel
-    if image.ndim == 3 and image.shape[-1] == 1:
-        image = image[..., 0]
+    # vlfeat requires image in channel-first style
+    if image.ndim == 3:
+        if not channel_first:
+            image = image.transpose([2, 0, 1])
+    # Add a channels axis
+    if image.ndim == 2:
+        image = np.expand_dims(image, axis=0)
 
     # Validate image size
-    if image.ndim != 2:
-        raise ValueError('Only 2D arrays are supported')
-
-    #     if image.ndim != 3:
-    #         raise ValueError('Only 3D arrays are supported')
+    if image.ndim != 3:
+        raise ValueError('Only 2D arrays with a channels axis are supported')
 
     compute_estimate = True
 

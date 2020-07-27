@@ -18,7 +18,7 @@ from cyvlfeat._vl.host cimport *
 
 
 @cython.boundscheck(False)
-cpdef cy_quickshift(np.ndarray[double, ndim=2, mode='c'] image,
+cpdef cy_quickshift(np.ndarray[double, ndim=3, mode='c'] image,
                     int kernel_size, int max_dist, bint compute_estimate,
                     bint medoid, bint verbose):
     cdef:
@@ -28,11 +28,11 @@ cpdef cy_quickshift(np.ndarray[double, ndim=2, mode='c'] image,
         int ndims = image.ndim
         VlQS *q
 
-        int n1 = image.shape[0]
-        int n2 = image.shape[1]
+        int n1 = image.shape[1]
+        int n2 = image.shape[2]
 
         # int num_channels = image.shape[2] if ndims == 3 else 1
-        int num_channels = 1
+        int num_channels = image.shape[0]
 
         # parent_c (same size as I) - Intermediate array
         np.ndarray[double, ndim=2, mode='c'] parents_c = np.empty(
@@ -53,12 +53,12 @@ cpdef cy_quickshift(np.ndarray[double, ndim=2, mode='c'] image,
 
 
     if verbose:
-        printf("quickshift:   [N1,N2,K]:             = [%d, %d, %d] \n", n1, n2, num_channels)
+        printf("quickshift:   [N1, N2, K]:           = [%d, %d, %d] \n", n1, n2, num_channels)
         printf("quickshift:   type:                  = %s\n", 'medoid' if medoid else 'quick')
         printf("quickshift:   kernel size:           = %g\n", sigma)
         printf("quickshift:   maximum gap:           = %g\n", tau)
 
-    q = vl_quickshift_new(&image[0,0], n1, n2, num_channels)
+    q = vl_quickshift_new(&image[0, 0, 0], n1, n2, num_channels)
     vl_quickshift_set_kernel_size(q, sigma)
     vl_quickshift_set_max_dist(q, tau)
     vl_quickshift_set_medoid(q, medoid)
