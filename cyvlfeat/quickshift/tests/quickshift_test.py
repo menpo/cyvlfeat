@@ -1,72 +1,51 @@
 import numpy as np
-from numpy.testing import assert_allclose
-from cyvlfeat.quickshift.quickshift import quickshift
+import pytest
+from scipy.misc import ascent, face
+
 from cyvlfeat.quickshift.flatmap import flatmap
+from cyvlfeat.quickshift.quickshift import quickshift
 
-from cyvlfeat.test_util import lena
-
-img = lena().astype(np.float32)
-result = quickshift(img, 2, 10)
-maps = result[0]
+img = ascent().astype(np.float64)
+img_rgb = face(gray=False).astype(np.float64)
 
 
-def test_flatmap_labels():
+def test_quickshift_rgb():
+    result = quickshift(img_rgb,
+                        kernel_size=4,
+                        max_dist=24)
+    assert result[0].dtype == np.float64
+    assert result[1].dtype == np.float64
+    assert result[2].dtype == np.float64
+    assert result[0].shape == img_rgb.shape[:2]
+    assert result[1].shape == img_rgb.shape[:2]
+    assert result[2].shape == img_rgb.shape[:2]
+
+
+@pytest.mark.parametrize('kernel_size', [2, 4, 8])
+@pytest.mark.parametrize('max_dist', [None, 10, 20, 30])
+@pytest.mark.parametrize('medoid', [True, False])
+def test_quickshift(kernel_size, max_dist, medoid):
+    result = quickshift(img,
+                        kernel_size=kernel_size,
+                        max_dist=max_dist,
+                        medoid=medoid)
+    assert result[0].dtype == np.float64
+    assert result[1].dtype == np.float64
+    assert result[0].shape == img.shape
+    assert result[1].shape == img.shape
+    if max_dist is not None:
+        assert result[2].dtype == np.float64
+        assert result[2].shape == img.shape
+
+
+def test_flatmap():
+    maps = quickshift(img, 2, 10)[0]
     labels, clusters = flatmap(maps)
-    assert labels.shape == (512, 512)
-    assert_allclose(labels[0, 0:6], [1027., 1027., 1027., 1027., 1027., 12303.],
-                    rtol=1e-3)
 
-
-def test_flatmap_clusters():
-    labels, clusters = flatmap(maps)
-    assert clusters.shape == (262144,)
-    assert_allclose(clusters[0:6], [1., 1., 1., 1., 1., 56.],
-                    rtol=1e-3)
-
-
-def test_quickshift_medoid_maps():
-    i = img.copy()
-    maps, gaps, estimate = quickshift(i, kernel_size=2, max_dist=10, medoid=True)
-    assert maps.shape == (512, 512)
-    assert_allclose(maps[0:5, 0], [514., 1026., 1026., 1538., 1538.],
-                    rtol=1e-3)
-
-
-def test_quickshift_medoid_gaps():
-    i = img.copy()
-    maps, gaps, estimate = quickshift(i, kernel_size=2, max_dist=10, medoid=True)
-    assert gaps.shape == (512, 512)
-    assert_allclose(gaps[0:5, 0], [228071.506, 290406.801, 323886.572, 323339.597,
-                                   293392.239], rtol=1e-3)
-
-
-def test_quickshift_medoid_estimate():
-    i = img.copy()
-    maps, gaps, estimate = quickshift(i, kernel_size=2, max_dist=10, medoid=True)
-    assert estimate.shape == (512, 512)
-    assert_allclose(estimate[0:5, 0], [8.699, 11.0754, 12.350, 12.322, 11.190],
-                    rtol=1e-3)
-
-
-def test_quickshift_quick_maps():
-    i = img.copy()
-    maps, gaps, estimate = quickshift(i, kernel_size=2, max_dist=10)
-    assert maps.shape == (512, 512)
-    assert_allclose(maps[0:5, 0], [2., 514., 1026., 1025., 1537.],
-                    rtol=1e-3)
-
-
-def test_quickshift_quick_gaps():
-    i = img.copy()
-    maps, gaps, estimate = quickshift(i, kernel_size=2, max_dist=10)
-    assert gaps.shape == (512, 512)
-    assert_allclose(gaps[0:6, 3], [1., 1., 1., 1.4142, 1., 2.2360],
-                    rtol=1e-3)
-
-
-def test_quickshift_quick_estimate():
-    i = img.copy()
-    maps, gaps, estimate = quickshift(i, kernel_size=2, max_dist=10)
-    assert estimate.shape == (512, 512)
-    assert_allclose(estimate[0:5, 0], [8.699, 11.0754, 12.350, 12.322, 11.190],
-                    rtol=1e-3)
+    assert maps.dtype == np.float64
+    assert maps.dtype == img.dtype
+    assert maps.shape == img.shape
+    assert labels.dtype == maps.dtype
+    assert labels.shape == maps.shape
+    assert clusters.dtype == maps.dtype
+    assert clusters.size == maps.size
