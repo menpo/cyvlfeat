@@ -53,10 +53,10 @@ cpdef cy_quickshift(np.ndarray[double, ndim=3, mode='c'] image,
 
 
     if verbose:
-        printf("quickshift:   [N1, N2, K]:           = [%d, %d, %d] \n", n1, n2, num_channels)
-        printf("quickshift:   type:                  = %s\n", 'medoid' if medoid else 'quick')
-        printf("quickshift:   kernel size:           = %g\n", sigma)
-        printf("quickshift:   maximum gap:           = %g\n", tau)
+        print("quickshift:   [N1, N2, K]:           = [%d, %d, %d]" % (n1, n2, num_channels))
+        print("quickshift:   type:                  = %s" % 'medoid' if medoid else 'quick')
+        print("quickshift:   kernel size:           = %g" % sigma)
+        print("quickshift:   maximum gap:           = %g" % tau)
 
     q = vl_quickshift_new(&image[0, 0, 0], n1, n2, num_channels)
     vl_quickshift_set_kernel_size(q, sigma)

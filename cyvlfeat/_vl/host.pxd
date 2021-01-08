@@ -22,8 +22,8 @@ cdef extern from "vl/host.h":
     ctypedef long long vl_index
     cdef int VL_TYPE_FLOAT "VL_TYPE_FLOAT"
     cdef int VL_TYPE_DOUBLE "VL_TYPE_DOUBLE"
-    inline char* vl_get_type_name(vl_type type)
-    inline vl_size vl_get_type_size(vl_type type)
+    char* vl_get_type_name(vl_type type)
+    vl_size vl_get_type_size(vl_type type)
     cdef enum:
         VL_FALSE = 0
     cdef enum:

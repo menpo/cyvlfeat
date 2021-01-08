@@ -92,35 +92,35 @@ cdef extern from "vl/kmeans.h":
                                     void *data,
                                     vl_size numData)
 
-    inline vl_type vl_kmeans_get_data_type(VlKMeans *self)
-    inline VlVectorComparisonType vl_kmeans_get_distance(VlKMeans *self)
+    vl_type vl_kmeans_get_data_type(VlKMeans *self)
+    VlVectorComparisonType vl_kmeans_get_distance(VlKMeans *self)
 
-    inline VlKMeansAlgorithm vl_kmeans_get_algorithm(VlKMeans *self)
-    inline VlKMeansInitialization vl_kmeans_get_initialization(VlKMeans *self)
-    inline vl_size vl_kmeans_get_num_repetitions(VlKMeans *self)
+    VlKMeansAlgorithm vl_kmeans_get_algorithm(VlKMeans *self)
+    VlKMeansInitialization vl_kmeans_get_initialization(VlKMeans *self)
+    vl_size vl_kmeans_get_num_repetitions(VlKMeans *self)
 
-    inline vl_size vl_kmeans_get_dimension(VlKMeans *self)
-    inline vl_size vl_kmeans_get_num_centers(VlKMeans *self)
+    vl_size vl_kmeans_get_dimension(VlKMeans *self)
+    vl_size vl_kmeans_get_num_centers(VlKMeans *self)
 
-    inline int vl_kmeans_get_verbosity(VlKMeans *self)
-    inline vl_size vl_kmeans_get_max_num_iterations(VlKMeans *self)
-    inline double vl_kmeans_get_min_energy_variation(VlKMeans *self)
-    inline vl_size vl_kmeans_get_max_num_comparisons(VlKMeans *self)
-    inline vl_size vl_kmeans_get_num_trees(VlKMeans *self)
-    inline double vl_kmeans_get_energy(VlKMeans *self)
-    inline void* vl_kmeans_get_centers(VlKMeans *self)
+    int vl_kmeans_get_verbosity(VlKMeans *self)
+    vl_size vl_kmeans_get_max_num_iterations(VlKMeans *self)
+    double vl_kmeans_get_min_energy_variation(VlKMeans *self)
+    vl_size vl_kmeans_get_max_num_comparisons(VlKMeans *self)
+    vl_size vl_kmeans_get_num_trees(VlKMeans *self)
+    double vl_kmeans_get_energy(VlKMeans *self)
+    void* vl_kmeans_get_centers(VlKMeans *self)
     
-    inline void vl_kmeans_set_algorithm(VlKMeans *self,
+    void vl_kmeans_set_algorithm(VlKMeans *self,
                                         VlKMeansAlgorithm algorithm)
-    inline void vl_kmeans_set_initialization(
+    void vl_kmeans_set_initialization(
             VlKMeans *self, VlKMeansInitialization initialization)
-    inline void vl_kmeans_set_num_repetitions(VlKMeans *self,
+    void vl_kmeans_set_num_repetitions(VlKMeans *self,
                                               vl_size numRepetitions)
-    inline void vl_kmeans_set_max_num_iterations(VlKMeans *self,
+    void vl_kmeans_set_max_num_iterations(VlKMeans *self,
                                                  vl_size maxNumIterations)
-    inline void vl_kmeans_set_min_energy_variation(VlKMeans *self,
+    void vl_kmeans_set_min_energy_variation(VlKMeans *self,
                                                    double minEnergyVariation)
-    inline void vl_kmeans_set_verbosity(VlKMeans *self, int verbosity)
-    inline void vl_kmeans_set_max_num_comparisons(VlKMeans *self,
+    void vl_kmeans_set_verbosity(VlKMeans *self, int verbosity)
+    void vl_kmeans_set_max_num_comparisons(VlKMeans *self,
                                                   vl_size maxNumComparisons)
-    inline void vl_kmeans_set_num_trees(VlKMeans *self, vl_size numTrees)
+    void vl_kmeans_set_num_trees(VlKMeans *self, vl_size numTrees)

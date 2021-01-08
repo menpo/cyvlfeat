@@ -24,4 +24,4 @@ cdef extern from "vl/mathop.h":
         VlKernelJS = 10          # Jensen-Shannon kernel
     ctypedef _VlVectorComparisonType VlVectorComparisonType
 
-    inline char* vl_get_vector_comparison_type_name(int type)
+    char* vl_get_vector_comparison_type_name(int type)
