@@ -4,12 +4,10 @@ import site
 
 from setuptools import setup, find_packages, Extension
 
-
 SYS_PLATFORM = platform.system().lower()
 IS_LINUX = 'linux' in SYS_PLATFORM
 IS_OSX = 'darwin' == SYS_PLATFORM
 IS_WIN = 'windows' == SYS_PLATFORM
-
 
 # Get Numpy include path without importing it
 NUMPY_INC_PATHS = [os.path.join(r, 'numpy', 'core', 'include')
@@ -90,10 +88,10 @@ try:
     from Cython.Build import cythonize
 except ImportError:
     import warnings
+
     cythonize = no_cythonize
     warnings.warn('Unable to import Cython - attempting to build using the '
                   'pre-compiled C++ files.')
-
 
 cython_modules = [
     build_extension_from_pyx('cyvlfeat/fisher/cyfisher.pyx'),
@@ -105,7 +103,7 @@ cython_modules = [
     build_extension_from_pyx('cyvlfeat/sift/cysift.pyx'),
     build_extension_from_pyx('cyvlfeat/vlad/cyvlad.pyx'),
 ]
-cython_exts = cythonize(cython_modules, quiet=True)
+cython_exts = cythonize(cython_modules, quiet=True, language_level="3")
 
 
 def get_version_and_cmdclass(package_name):

@@ -1,7 +1,7 @@
 # Author: Alexis Mignon <alexis.mignon@probayes.com>
 from cyvlfeat._vl.host cimport *
 from cyvlfeat._vl.gmm cimport *
-from cyvlfeat.cy_util cimport (dtype_from_memoryview, py_printf,
+from cyvlfeat.cy_util cimport (dtype_from_memoryview,
                                set_python_vl_printf)
 from libc.string cimport memcpy
 import numpy as np
@@ -85,25 +85,25 @@ def cy_gmm(cython.floating[:, ::1] data, int n_clusters, int max_num_iterations,
 
     if verbose > 0:
         mode = inv_initialization_type[vl_gmm_get_initialization(gmm)]
-        py_printf("vl_gmm: vl_init_mode = %s\n", <const char *>mode)
-        py_printf("vl_gmm: maxNumIterations = %llu\n", vl_gmm_get_max_num_iterations(gmm))
-        py_printf("vl_gmm: numRepetitions = %llu\n", vl_gmm_get_num_repetitions(gmm))
-        py_printf("vl_gmm: data type = %s\n", vl_get_type_name(vl_gmm_get_data_type(gmm)))
-        py_printf("vl_gmm: data n_features = %llu\n", n_features)
-        py_printf("vl_gmm: num. data points = %llu\n", n_samples)
-        py_printf("vl_gmm: num. Gaussian modes = %d\n", n_clusters)
+        print("vl_gmm: vl_init_mode = %s" % <const char *>mode)
+        print("vl_gmm: maxNumIterations = %llu" % vl_gmm_get_max_num_iterations(gmm))
+        print("vl_gmm: numRepetitions = %llu" % vl_gmm_get_num_repetitions(gmm))
+        print("vl_gmm: data type = %s" % vl_get_type_name(vl_gmm_get_data_type(gmm)))
+        print("vl_gmm: data n_features = %llu" % n_features)
+        print("vl_gmm: num. data points = %llu" % n_samples)
+        print("vl_gmm: num. Gaussian modes = %d" % n_clusters)
+        print("vl_gmm: lower bound on covariance = [", end="")
 
-        py_printf("vl_gmm: lower bound on covariance = [")
         if n_features < 3:
             for i in range(n_features):
-                py_printf(" %f", vl_gmm_get_covariance_lower_bounds(gmm)[i])
+                print(" %f" % vl_gmm_get_covariance_lower_bounds(gmm)[i], end="")
         else:
-            py_printf(" %f %f ... %f",
+            print(" %f %f ... %f" %
                       vl_gmm_get_covariance_lower_bounds(gmm)[0],
                       vl_gmm_get_covariance_lower_bounds(gmm)[1],
-                      vl_gmm_get_covariance_lower_bounds(gmm)[n_features-1])
+                      vl_gmm_get_covariance_lower_bounds(gmm)[n_features-1], end="")
 
-        py_printf("%s", "]\n")
+        print("]")
 
     # Clustering .....................................
     LL = vl_gmm_cluster(gmm, <void*>&data[0, 0], n_samples)

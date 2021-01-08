@@ -11,7 +11,7 @@ cimport cython
 # Import the header files
 from cyvlfeat._vl.hog cimport *
 from cyvlfeat._vl.host cimport VL_FALSE, vl_size
-from cyvlfeat.cy_util cimport py_printf, set_python_vl_printf
+from cyvlfeat.cy_util cimport set_python_vl_printf
 
 
 @cython.boundscheck(False)
@@ -53,19 +53,16 @@ cpdef cy_hog(float[:, :, ::1] data, vl_size cell_size, int variant,
     out_n_channels = vl_hog_get_dimension(hog)
 
     if verbose:
-        py_printf('vl_hog: image: [%lld x %lld x %lld]\n', height, width, n_channels)
-        py_printf('vl_hog: descriptor: [%lld x %lld x %lld]\n', out_height, out_width,
-                                                       out_n_channels)
-        py_printf('vl_hog: number of orientations: %lld\n', n_orientations)
-        py_printf('vl_hog: bilinear orientation assignments: %s\n',
-                  'yes' if bilinear_interpolation else 'no')
-        py_printf('vl_hog: variant: %s\n',
-                  'DalalTriggs' if variant == VlHogVariantDalalTriggs
-                  else 'UOCTTI')
-        py_printf('vl_hog: input type: %s\n',
-                  'DirectedPolarField' if directed_polar_field
-                  else ('UndirectedPolarField' if undirected_polar_field else
-                        'Image'))
+        print('vl_hog: image: [%lld x %lld x %lld]' % (height, width, n_channels))
+        print('vl_hog: descriptor: [%lld x %lld x %lld]' % out_height, out_width, out_n_channels)
+        print('vl_hog: number of orientations: %lld' % (n_orientations))
+        print('vl_hog: bilinear orientation assignments: %s' %
+              'yes' if bilinear_interpolation else 'no')
+        print('vl_hog: variant: %s' %
+              'DalalTriggs' if variant == VlHogVariantDalalTriggs else 'UOCTTI')
+        print('vl_hog: input type: %s' %
+              'DirectedPolarField' if directed_polar_field
+              else ('UndirectedPolarField' if undirected_polar_field else 'Image'))
 
     # according to https://www.vlfeat.org/api/hog.html
     # hog features array is (out_n_channels, out_height, out_width) with "C" order
@@ -84,9 +81,10 @@ cpdef cy_hog(float[:, :, ::1] data, vl_size cell_size, int variant,
         vl_hog_render(hog, &viz_array[0][0], &out_array[0][0][0],
                       out_width, out_height)
         if verbose:
-            py_printf("vl_hog: glyph size: %lld\n", viz_glyph_size)
-            py_printf("vl_hog: glyph image: [%lld x %lld]\n", viz_glyph_size * out_height,
-                      viz_glyph_size * out_width)
+            print("vl_hog: glyph size: %lld" % viz_glyph_size)
+            print("vl_hog: glyph image: [%lld x %lld]" %
+                  viz_glyph_size * out_height,
+                  viz_glyph_size * out_width)
 
     vl_hog_delete(hog)
     # we prefer (out_height, out_width, out_n_channels) in numpy

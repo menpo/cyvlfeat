@@ -12,7 +12,7 @@ from cyvlfeat._vl.mathop cimport *
 from cyvlfeat._vl.kmeans cimport *
 from cyvlfeat._vl.ikmeans cimport *
 from cyvlfeat._vl.hikmeans cimport *
-from cyvlfeat.cy_util cimport (py_printf, dtype_from_memoryview,
+from cyvlfeat.cy_util cimport (dtype_from_memoryview,
                                set_python_vl_printf)
 from libc.string cimport memcpy
 from libc.stdlib cimport malloc
@@ -74,18 +74,18 @@ cpdef cy_kmeans(cython.floating[:, ::1] data, int num_centers, bytes distance,
         vl_kmeans_set_min_energy_variation(kmeans, min_energy_variation)
         
     if verbose:
-        py_printf("kmeans: Initialization = %s\n", initialization)
-        py_printf("kmeans: Algorithm = %s\n", algorithm)
-        py_printf("kmeans: MaxNumIterations = %llu\n", vl_kmeans_get_max_num_iterations(kmeans))
-        py_printf("kmeans: MinEnergyVariation = %f\n", vl_kmeans_get_min_energy_variation(kmeans))
-        py_printf("kmeans: NumRepetitions = %llu\n", vl_kmeans_get_num_repetitions(kmeans))
-        py_printf("kmeans: data type = %s\n", vl_get_type_name(vl_kmeans_get_data_type(kmeans)))
-        py_printf("kmeans: distance = %s\n", vl_get_vector_comparison_type_name(vl_kmeans_get_distance(kmeans)))
-        py_printf("kmeans: data dimension = %d\n", dimension)
-        py_printf("kmeans: num. data points = %d\n", num_data)
-        py_printf("kmeans: num. centers = %d\n", num_centers)
-        py_printf("kmeans: max num. comparisons = %d\n", max_num_comparisons)
-        py_printf("kmeans: num. trees = %d\n", num_trees)
+        print("kmeans: Initialization = %s" % (initialization))
+        print("kmeans: Algorithm = %s" % (algorithm))
+        print("kmeans: MaxNumIterations = %llu" % (vl_kmeans_get_max_num_iterations(kmeans)))
+        print("kmeans: MinEnergyVariation = %f" % (vl_kmeans_get_min_energy_variation(kmeans)))
+        print("kmeans: NumRepetitions = %llu" % (vl_kmeans_get_num_repetitions(kmeans)))
+        print("kmeans: data type = %s" % (vl_get_type_name(vl_kmeans_get_data_type(kmeans))))
+        print("kmeans: distance = %s" % (vl_get_vector_comparison_type_name(vl_kmeans_get_distance(kmeans))))
+        print("kmeans: data dimension = %d" % (dimension))
+        print("kmeans: num. data points = %d" % (num_data))
+        print("kmeans: num. centers = %d" % (num_centers))
+        print("kmeans: max num. comparisons = %d" % (max_num_comparisons))
+        print("kmeans: num. trees = %d" % (num_trees))
 
     energy = vl_kmeans_cluster(kmeans, <void*>&data[0, 0], dimension,
                                num_data, num_centers)
@@ -158,7 +158,7 @@ cpdef cy_ikmeans(np.uint8_t[:, ::1] data, int num_centers, bytes algorithm,
 
     err = vl_ikm_train(ikmf, &data[0, 0], N)
     if err:
-        py_printf("ikmeans: possible overflow!\n")
+        print("ikmeans: possible overflow!")
 
     memcpy(&centers[0, 0], vl_ikm_get_centers(ikmf),
            sizeof(vl_ikmacc_t) * M * K)
@@ -168,7 +168,7 @@ cpdef cy_ikmeans(np.uint8_t[:, ::1] data, int num_centers, bytes algorithm,
     vl_ikm_delete(ikmf)
 
     if verbose:
-        py_printf("ikmeans: done\n")
+        print("ikmeans: done")
 
     return np.asarray(centers), np.asarray(assignments)
 
@@ -299,10 +299,10 @@ cpdef cy_hikmeans(np.uint8_t[:, ::1] data, int num_clusters, int num_leaves,
     tree  = vl_hikm_new(algorithm_type_ikmeans[algorithm])
 
     if verbose:
-        py_printf("hikmeans: # dims: %d\n", M)
-        py_printf("hikmeans: # data: %d\n", N)
-        py_printf("hikmeans: K: %d\n", K)
-        py_printf("hikmeans: depth: %d\n", depth)
+        print("hikmeans: # dims: %d" % (M))
+        print("hikmeans: # data: %d" % (N))
+        print("hikmeans: K: %d" % (K))
+        print("hikmeans: depth: %d" % (depth))
 
     vl_hikm_set_verbosity(tree, verbose)
     vl_hikm_init(tree, M, K, depth)
@@ -314,7 +314,7 @@ cpdef cy_hikmeans(np.uint8_t[:, ::1] data, int num_clusters, int num_leaves,
     vl_hikm_push(tree, &assignments[0,0], &data[0,0], N)
 
     if verbose:
-        py_printf("hikmeans: done.\n")
+        print("hikmeans: done.")
 
     vl_hikm_delete(tree)
 
@@ -332,10 +332,10 @@ cpdef cy_hikmeans_push(np.uint8_t[:, ::1] data, py_tree, bint verbose):
     depth = vl_hikm_get_depth(tree)
 
     if verbose:
-        py_printf("vl_hikmeanspush: ndims: %llu K: %llu depth: %d\n",
-                  vl_hikm_get_ndims(tree),
-                  vl_hikm_get_K(tree),
-                  depth)
+        print("vl_hikmeanspush: ndims: %llu K: %llu depth: %d",
+              vl_hikm_get_ndims(tree),
+              vl_hikm_get_K(tree),
+              depth)
 
     assignments = np.empty((N, depth), dtype=np.uint32, order='C')
     vl_hikm_push(tree, &assignments[0, 0], &data[0, 0], N)

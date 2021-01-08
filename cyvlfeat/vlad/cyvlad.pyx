@@ -45,22 +45,14 @@ cpdef cy_vlad(cython.floating[:, ::1] X,
 
     if verbose:
         # check for 2 * n_clusters * n_dimensions in print spree
-        printf("vl_vlad: num data:         %d\n",
-                   n_data)
-        printf("vl_vlad: num clusters:           %d\n",
-                   n_clusters)
-        printf("vl_vlad: data dimension:           %d\n",
-                   n_dimensions)
-        printf("vl_vlad: code dimension:           %d\n",
-                   2 * n_clusters * n_dimensions)
-        printf("vl_vlad: unnormalized:         %d\n",
-                   unnormalized)
-        printf("vl_vlad: normalize mass:           %d\n",
-                   normalize_mass)
-        printf("vl_vlad: normalize components:           %d\n",
-                   normalize_components)
-        printf("vl_vlad: square root:           %d\n",
-                   square_root)
+        print("vl_vlad: num data:             %d" % n_data)
+        print("vl_vlad: num clusters:         %d" % n_clusters)
+        print("vl_vlad: data dimension:       %d" % n_dimensions)
+        print("vl_vlad: code dimension:       %d" % 2 * n_clusters * n_dimensions)
+        print("vl_vlad: unnormalized:         %d" % unnormalized)
+        print("vl_vlad: normalize mass:       %d" % normalize_mass)
+        print("vl_vlad: normalize components: %d" % normalize_components)
+        print("vl_vlad: square root:          %d" % square_root)
 
     vl_float_type = VL_TYPE_FLOAT if dtype == np.float32 else VL_TYPE_DOUBLE
     vl_vlad_encode(&enc[0],
