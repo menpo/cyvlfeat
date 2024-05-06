@@ -124,7 +124,7 @@ cpdef cy_kmeans_quantize(cython.floating[:, ::1] data, cython.floating[:, ::1] c
     vl_kmeans_set_centers(kmeans, <void*>&centers[0, 0], dimension, num_centers)
 
     if algorithm_type[algorithm] == VlKMeansANN:
-        vl_kmeans_quantize_ann(kmeans, &assignments[0], NULL, <void*>&data[0, 0],
+        vl_kmeans_quantize_ANN(kmeans, &assignments[0], NULL, <void*>&data[0, 0],
                                num_data, 0)
     else:
         vl_kmeans_quantize(kmeans, &assignments[0], NULL, <void*>&data[0, 0],
