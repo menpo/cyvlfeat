@@ -140,7 +140,7 @@ cpdef cy_dsift(float[:, ::1] data, int[:] step,
         return np.asarray(out_frames), np.asarray(out_descriptors).astype(np.uint8)
 
 
-cdef int korder(const void *a, const void *b) nogil:
+cdef int korder(const void *a, const void *b) nogil noexcept:
     cdef float x = (<float*> a)[2] - (<float*> b)[2]
     if x < 0: return -1
     if x > 0: return +1
