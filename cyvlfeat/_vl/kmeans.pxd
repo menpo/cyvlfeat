@@ -64,7 +64,7 @@ cdef extern from "vl/kmeans.h":
                             void *data,
                             vl_size numData)
 
-    void vl_kmeans_quantize_ann(VlKMeans *self,
+    void vl_kmeans_quantize_ANN(VlKMeans *self,
                                 vl_uint32 *assignments,
                                 void *distances,
                                 void *data,
