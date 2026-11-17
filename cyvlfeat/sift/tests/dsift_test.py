@@ -4,13 +4,18 @@ import numpy as np
 import pytest
 from numpy.testing import assert_allclose
 from scipy.datasets import ascent
-from skimage.filters import gaussian
-from skimage.util import img_as_float32
+from scipy.ndimage import gaussian_filter
 
 from cyvlfeat.sift.dsift import dsift
 from cyvlfeat.sift.sift import sift
 
 img = ascent().astype(np.float32)
+
+
+def gaussian(image, sigma):
+    # same as skimage.filters.gaussian on a float image (scikit-image has no wheels on every
+    # platform we build for, so it is not a test dependency)
+    return gaussian_filter(image, sigma, mode='nearest', truncate=4.0)
 
 
 def test_dsift_slow_fast():

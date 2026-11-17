@@ -28,6 +28,6 @@ jobs:
       - name: Build and test from the sdist (no git, no submodule checkout)
         run: |
           uv venv .venv-sdist
-          uv pip install --python .venv-sdist dist/*.tar.gz pytest scipy scikit-image pooch
+          uv pip install --python .venv-sdist dist/*.tar.gz pytest scipy pooch
           cd "$(mktemp -d)"
           "$GITHUB_WORKSPACE/.venv-sdist/bin/python" -m pytest --pyargs cyvlfeat -q
