@@ -18,7 +18,7 @@ classifiers = ["Programming Language :: Cython", "Programming Language :: C"]
 Homepage = "https://github.com/menpo/cyvlfeat"
 
 [dependency-groups]
-dev = ["pytest>=8", "scipy>=1.10", "scikit-image", "pooch"]
+dev = ["pytest>=8", "scipy>=1.10", "pooch"]
 
 [tool.setuptools.packages.find]
 include = ["cyvlfeat*"]
@@ -41,7 +41,7 @@ testpaths = ["cyvlfeat"]
 # cp3xxt builds). VLFeat is compiled into the wheel, so there is nothing to repair/bundle.
 build = ["cp310-*", "cp311-*", "cp312-*", "cp313-*", "cp314-*"]
 skip = ["*-win32", "*_i686", "*t-*"]
-test-requires = ["pytest", "scipy>=1.10", "scikit-image", "pooch"]
+test-requires = ["pytest", "scipy>=1.10", "pooch"]
 # run from outside the checkout so the installed wheel is what gets imported
 test-command = "pytest --pyargs cyvlfeat -q -p no:cacheprovider"
 
