@@ -11,7 +11,8 @@ license = "BSD-2-Clause"
 license-files = ["LICENSE.txt", "VLFEAT-LICENSE"]
 authors = [{ name = "Patrick Snape", email = "patricksnape@gmail.com" }]
 requires-python = ">=3.10"
-dependencies = ["numpy>=1.23"]
+# scipy: cyvlfeat.sift.phow (imported by `import cyvlfeat`) uses scipy.ndimage
+dependencies = ["numpy>=1.23", "scipy>=1.6"]
 classifiers = ["Programming Language :: Cython", "Programming Language :: C"]
 
 [project.urls]
