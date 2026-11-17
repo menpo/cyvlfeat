@@ -32,11 +32,44 @@ jobs:
           - windows-latest     # win amd64
           - macos-15-intel     # macOS x86_64
           - macos-latest       # macOS arm64
+    env:
+      # ccache directory on the host, outside the workspace (cibuildwheel copies the workspace
+      # into its containers). Windows is not cached: MSVC + distutils does not work with ccache.
+      CCACHE_DIR: ${{ runner.temp }}/ccache
     steps:
       - uses: actions/checkout@v4
         with: { submodules: recursive, fetch-depth: 0 }   # setuptools-scm needs tags
+      - name: ccache (Linux) - mount the cache directory into the build containers
+        if: runner.os == 'Linux'
+        run: |
+          mkdir -p "$CCACHE_DIR"
+          echo "CIBW_CONTAINER_ENGINE=docker; create_args: --volume=$CCACHE_DIR:/ccache" >> "$GITHUB_ENV"
+      - name: ccache (macOS) - install and use as the compiler wrapper
+        if: runner.os == 'macOS'
+        run: |
+          brew install ccache
+          mkdir -p "$CCACHE_DIR"
+          echo "CC=ccache clang" >> "$GITHUB_ENV"
+          echo "CCACHE_COMPILERCHECK=content" >> "$GITHUB_ENV"
+          echo "CCACHE_MAXSIZE=500M" >> "$GITHUB_ENV"
+      - name: Restore ccache
+        if: runner.os != 'Windows'
+        uses: actions/cache/restore@v4
+        with:
+          path: ${{ runner.temp }}/ccache
+          key: ccache-${{ matrix.os }}-${{ github.run_id }}
+          restore-keys: ccache-${{ matrix.os }}-
       - uses: pypa/cibuildwheel@v4.3.5
-        # build selection, tests and macOS target are configured in pyproject.toml
+        # build selection, tests and per-platform settings are configured in pyproject.toml
+      - name: ccache statistics (macOS)
+        if: runner.os == 'macOS'
+        run: ccache --show-stats
+      - name: Save ccache
+        if: always() && runner.os != 'Windows'
+        uses: actions/cache/save@v4
+        with:
+          path: ${{ runner.temp }}/ccache
+          key: ccache-${{ matrix.os }}-${{ github.run_id }}
       - uses: actions/upload-artifact@v4
         with:
           name: wheels-${{ matrix.os }}
