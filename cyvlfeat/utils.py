@@ -41,15 +41,13 @@ def rgb_to_hsv(arr):
                          "shape {} was found.".format(arr.shape))
 
     in_shape = arr.shape
-    arr = np.array(
-        arr, copy=False,
-        dtype=np.promote_types(arr.dtype, np.float32),  # Don't work on ints.
-        ndmin=2,  # In case input was 1D.
+    arr = np.atleast_2d(  # In case input was 1D.
+        np.asarray(arr, dtype=np.promote_types(arr.dtype, np.float32))  # Don't work on ints.
     )
     out = np.zeros_like(arr)
     arr_max = arr.max(-1)
     ipos = arr_max > 0
-    delta = arr.ptp(-1)
+    delta = np.ptp(arr, axis=-1)
     s = np.zeros_like(delta)
     s[ipos] = delta[ipos] / arr_max[ipos]
     ipos = delta > 0

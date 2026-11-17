@@ -1,7 +1,7 @@
 import math
 
 import numpy as np
-from scipy.ndimage import filters as scipy_filters
+from scipy.ndimage import gaussian_filter
 
 from . import dsift
 from ..utils import rgb2gray, rgb_to_hsv
@@ -24,7 +24,7 @@ def phow(image, verbose=False, fast=True, sizes=(4, 6, 8, 10), step=2, color='gr
 
     Unlike the  Matlab wrapper of vlfeat, the image
     is pre-smoothed at the desired scale level by gaussian filter provided
-    by Scipy: ``scipy.ndimage.filters.gaussian_filter``.
+    by Scipy: ``scipy.ndimage.gaussian_filter``.
 
     Parameters
     ----------
@@ -76,7 +76,7 @@ def phow(image, verbose=False, fast=True, sizes=(4, 6, 8, 10), step=2, color='gr
     --------
       >>> import numpy as np
       >>> from cyvlfeat.sift import phow
-      >>> from scipy.misc import ascent
+      >>> from scipy.datasets import ascent
       >>> img = ascent().astype(np.float32)
       >>> frames, descriptors = phow(img, verbose=True)
 
@@ -147,7 +147,7 @@ def phow(image, verbose=False, fast=True, sizes=(4, 6, 8, 10), step=2, color='gr
 
         # smooth I to the appropriate scale based on the size of the SIFT bins
         sigma = sizes[si] / magnification
-        ims = scipy_filters.gaussian_filter(I, sigma)
+        ims = gaussian_filter(I, sigma)
 
         # extract dense SIFT features from all channels
         temp_all_results = []

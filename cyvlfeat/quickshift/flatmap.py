@@ -24,7 +24,7 @@ def flatmap(maps):
     >>> import numpy as np
     >>> from cyvlfeat.quickshift.quickshift import quickshift
     >>> from cyvlfeat.quickshift.flatmap import flatmap
-    >>> from scipy.misc import ascent
+    >>> from scipy.datasets import ascent
     >>> img = ascent().astype(np.float64)
     >>> maps, gaps, estimate = quickshift(img, kernel_size=2, max_dist=10)
     >>> labels, clusters = flatmap(maps)
