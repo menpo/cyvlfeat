@@ -3,6 +3,8 @@ recursive-include cyvlfeat *.h *.pyx *.pxd
 # of VLFeat only the library sources (vl/) and its license are needed to build
 recursive-include extern/vlfeat/vl *.c *.h *.tc *.th
 include extern/vlfeat/COPYING
+# the sdist ships the Cython sources only; the C is generated at build time (see setup.py)
+exclude cyvlfeat/*/cy*.c
 prune extern/vlfeat/apps
 prune extern/vlfeat/data
 prune extern/vlfeat/docsrc

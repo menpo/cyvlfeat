@@ -25,6 +25,11 @@ jobs:
         with: { submodules: recursive, fetch-depth: 0 }
       - uses: astral-sh/setup-uv@v5
       - run: uv build --sdist
+      - name: The sdist must contain the Cython sources, not generated C
+        run: |
+          if tar tzf dist/*.tar.gz | grep -E 'cyvlfeat/[a-z]+/cy[a-z]+\.c$'; then
+            echo "the sdist contains generated C files"; exit 1
+          fi
       - name: Build and test from the sdist (no git, no submodule checkout)
         run: |
           uv venv .venv-sdist
