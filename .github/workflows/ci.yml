@@ -28,6 +28,9 @@ jobs:
       - name: Build and test from the sdist (no git, no submodule checkout)
         run: |
           uv venv .venv-sdist
-          uv pip install --python .venv-sdist dist/*.tar.gz pytest scipy pooch
+          uv pip install --python .venv-sdist dist/*.tar.gz
           cd "$(mktemp -d)"
+          # only the declared dependencies are installed here, so a missing one fails loudly
+          "$GITHUB_WORKSPACE/.venv-sdist/bin/python" -c "import cyvlfeat, cyvlfeat.sift.phow"
+          uv pip install --python "$GITHUB_WORKSPACE/.venv-sdist" pytest pooch
           "$GITHUB_WORKSPACE/.venv-sdist/bin/python" -m pytest --pyargs cyvlfeat -q
