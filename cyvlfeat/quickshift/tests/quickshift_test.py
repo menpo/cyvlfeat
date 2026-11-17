@@ -5,8 +5,10 @@ from scipy.datasets import ascent, face
 from cyvlfeat.quickshift.flatmap import flatmap
 from cyvlfeat.quickshift.quickshift import quickshift
 
-img = ascent().astype(np.float64)
-img_rgb = face(gray=False).astype(np.float64)
+# These tests only check dtypes and shapes, and quickshift is slow (cost grows with the pixel
+# count times the kernel window), so use crops rather than the full images.
+img = np.ascontiguousarray(ascent()[:128, :128]).astype(np.float64)
+img_rgb = np.ascontiguousarray(face(gray=False)[:96, :128]).astype(np.float64)
 
 
 def test_quickshift_rgb():
