@@ -188,6 +188,10 @@ setup(
         [extension(m) for m in modules],
         quiet=True,
         language_level="3",
+        # always regenerate the C: it must match the Cython and numpy of the machine that compiles
+        # it. Cython skips files whose .c is newer than the .pyx and its numpy .pxd, which is how a
+        # stale .c from an sdist built against numpy 2.5 got compiled against numpy 2.4 headers.
+        force=True,
         # no nthreads: cythonize uses multiprocessing, which re-runs setup.py in the workers
         # (spawn/forkserver is the default on macOS, Windows and Python 3.14)
     ),
