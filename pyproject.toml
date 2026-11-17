@@ -1,0 +1,49 @@
+[build-system]
+requires = ["setuptools>=77", "setuptools-scm>=8", "cython>=3.0", "numpy>=2"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cyvlfeat"
+dynamic = ["version"]
+description = "Cython wrapper of the VLFeat toolkit"
+readme = "README.md"
+license = "BSD-2-Clause"
+license-files = ["LICENSE.txt", "VLFEAT-LICENSE"]
+authors = [{ name = "Patrick Snape", email = "patricksnape@gmail.com" }]
+requires-python = ">=3.10"
+dependencies = ["numpy>=1.23"]
+classifiers = ["Programming Language :: Cython", "Programming Language :: C"]
+
+[project.urls]
+Homepage = "https://github.com/menpo/cyvlfeat"
+
+[dependency-groups]
+dev = ["pytest>=8", "scipy>=1.10", "scikit-image", "pooch"]
+
+[tool.setuptools.packages.find]
+include = ["cyvlfeat*"]
+
+[tool.setuptools.package-data]
+cyvlfeat = ["data/*.mat", "data/ascent.descr", "data/ascent.frame", "*.pxd", "*/*.pxd", "_vl/*.pxd"]
+
+[tool.setuptools.exclude-package-data]
+"*" = ["*.c", "*.pyx"]
+
+[tool.setuptools_scm]
+version_file = "cyvlfeat/_version.py"
+local_scheme = "no-local-version"
+
+[tool.pytest.ini_options]
+testpaths = ["cyvlfeat"]
+
+[tool.cibuildwheel]
+# One wheel per CPython 3.10-3.14 (the extensions are not abi3 and not free-threading aware, so no
+# cp3xxt builds). VLFeat is compiled into the wheel, so there is nothing to repair/bundle.
+build = ["cp310-*", "cp311-*", "cp312-*", "cp313-*", "cp314-*"]
+skip = ["*-win32", "*_i686", "*t-*"]
+test-requires = ["pytest", "scipy>=1.10", "scikit-image", "pooch"]
+# run from outside the checkout so the installed wheel is what gets imported
+test-command = "pytest --pyargs cyvlfeat -q -p no:cacheprovider"
+
+[tool.cibuildwheel.macos]
+environment = { MACOSX_DEPLOYMENT_TARGET = "11.0" }

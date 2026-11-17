@@ -1,7 +1,18 @@
-include versioneer.py
-include LICENSE.txt
-include cyvlfeat/_version.py
-recursive-include cyvlfeat *.h
-recursive-include cyvlfeat *.c
-recursive-include cyvlfeat *.pyx
-recursive-include cyvlfeat *.pxd
+include LICENSE.txt VLFEAT-LICENSE
+recursive-include cyvlfeat *.h *.pyx *.pxd
+# of VLFeat only the library sources (vl/) and its license are needed to build
+recursive-include extern/vlfeat/vl *.c *.h *.tc *.th
+include extern/vlfeat/COPYING
+prune extern/vlfeat/apps
+prune extern/vlfeat/data
+prune extern/vlfeat/docsrc
+prune extern/vlfeat/make
+exclude extern/vlfeat/Makefile
+exclude extern/vlfeat/Makefile.mak
+exclude extern/vlfeat/README.md
+prune extern/vlfeat/src
+prune extern/vlfeat/toolbox
+exclude extern/vlfeat/vlfeat.sln
+exclude extern/vlfeat/vlfeat.vcproj
+prune extern/vlfeat/vlfeat.xcodeproj
+global-exclude extern/vlfeat/.git*

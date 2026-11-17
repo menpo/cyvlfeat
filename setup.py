@@ -1,134 +1,83 @@
-import os
+"""Build the Cython extensions against a statically linked copy of VLFeat.
+
+VLFeat (BSD-2-Clause) is vendored as a pinned git submodule in extern/vlfeat and its C sources
+are compiled once into a static ``vl`` library that every extension links against, so wheels
+do not need a system libvl.
+"""
+
 import platform
-import site
+import sys
+from pathlib import Path
 
-from setuptools import setup, find_packages, Extension
+import numpy as np
+from Cython.Build import cythonize
+from setuptools import Extension, setup
 
-SYS_PLATFORM = platform.system().lower()
-IS_LINUX = 'linux' in SYS_PLATFORM
-IS_OSX = 'darwin' == SYS_PLATFORM
-IS_WIN = 'windows' == SYS_PLATFORM
+ROOT = Path(__file__).parent
+VLFEAT = ROOT / "extern" / "vlfeat"
+IS_WIN = sys.platform == "win32"
+IS_X86 = platform.machine().lower() in ("x86_64", "amd64", "x86", "i386", "i686")
 
-# Get Numpy include path without importing it
-NUMPY_INC_PATHS = [os.path.join(r, 'numpy', 'core', 'include')
-                   for r in site.getsitepackages() if
-                   os.path.isdir(os.path.join(r, 'numpy', 'core', 'include'))]
-if len(NUMPY_INC_PATHS) == 0:
-    try:
-        import numpy as np
-    except ImportError:
-        raise ValueError("Could not find numpy include dir and numpy not installed before build - "
-                         "cannot proceed with compilation of cython modules.")
-    else:
-        # just ask numpy for it's include dir
-        NUMPY_INC_PATHS = [np.get_include()]
+vl_sources = sorted(
+    str(p.relative_to(ROOT).as_posix())
+    for p in (VLFEAT / "vl").glob("*.c")
+    # getopt_long is only used by the VLFeat command line tools
+    if p.name != "getopt_long.c"
+)
+if not vl_sources:
+    raise SystemExit(
+        "extern/vlfeat is empty: run `git submodule update --init` (or build from an sdist)"
+    )
 
-elif len(NUMPY_INC_PATHS) > 1:
-    print("Found {} numpy include dirs: "
-          "{}".format(len(NUMPY_INC_PATHS), ', '.join(NUMPY_INC_PATHS)))
-    print("Taking first (highest precedence on path): {}".format(
-        NUMPY_INC_PATHS[0]))
-NUMPY_INC_PATH = NUMPY_INC_PATHS[0]
+# AVX is chosen at compile time only, so enabling it would crash on older CPUs; the SSE2
+# paths exist only on x86; OpenMP is not used.
+macros = [("VL_DISABLE_AVX", None), ("VL_DISABLE_OPENMP", None)]
+if not IS_X86:
+    macros.append(("VL_DISABLE_SSE2", None))
+if IS_WIN:
+    # a static library: have MSVC emit plain symbols instead of dllimport stubs
+    macros += [("VL_BUILD_DLL", None), ("_CRT_SECURE_NO_WARNINGS", None)]
 
+include_dirs = [str(VLFEAT)]
+warning_flags = [] if IS_WIN else ["-Wno-unused-function", "-Wno-implicit-function-declaration"]
 
-# ---- C/C++ EXTENSIONS ---- #
-# Stolen (and modified) from the Cython documentation:
-#     http://cython.readthedocs.io/en/latest/src/reference/compilation.html
-def no_cythonize(extensions, **_ignore):
-    import os.path as op
-    for extension in extensions:
-        sources = []
-        for sfile in extension.sources:
-            path, ext = os.path.splitext(sfile)
-            if ext in ('.pyx', '.py'):
-                if extension.language == 'c++':
-                    ext = '.cpp'
-                else:
-                    ext = '.c'
-                sfile = path + ext
-                if not op.exists(sfile):
-                    raise ValueError('Cannot find pre-compiled source file '
-                                     '({}) - please install Cython'.format(sfile))
-            sources.append(sfile)
-        extension.sources[:] = sources
-    return extensions
+libvl = (
+    "vl",
+    {
+        "sources": vl_sources,
+        "include_dirs": include_dirs,
+        "macros": macros,
+        "cflags": warning_flags + ([] if IS_WIN else ["-fvisibility=hidden"]),
+    },
+)
 
 
-def build_extension_from_pyx(pyx_path, extra_sources_paths=None):
-    # If we are building from the conda folder,
-    # then we know we can manually copy some files around
-    # because we have control of the setup. If you are
-    # building this manually or pip installing, you must satisfy
-    # that the vlfeat vl folder is on the PATH (for the headers)
-    # and that the vl.dll file is visible to the build system
-    # as well.
-    include_dirs = [NUMPY_INC_PATH]
-    library_dirs = []
-    if IS_WIN:
-        include_dirs.append(os.environ['LIBRARY_INC'])
-        library_dirs.append(os.environ['LIBRARY_BIN'])
-
-    if extra_sources_paths is None:
-        extra_sources_paths = []
-    extra_sources_paths.insert(0, pyx_path)
-    ext = Extension(name=pyx_path[:-4].replace('/', '.'),
-                    sources=extra_sources_paths,
-                    include_dirs=include_dirs,
-                    library_dirs=library_dirs,
-                    libraries=['vl'],
-                    language='c')
-    if IS_LINUX or IS_OSX:
-        ext.extra_compile_args.extend([
-            '-Wno-unused-function',
-            '-Wno-implicit-function-declaration'
-    ])
-    if IS_OSX:
-        ext.extra_link_args.append('-headerpad_max_install_names')
-    return ext
+def extension(pyx):
+    return Extension(
+        name=pyx[:-4].replace("/", "."),
+        sources=[pyx],
+        include_dirs=[np.get_include(), str(ROOT)] + include_dirs,
+        define_macros=macros + [("NPY_NO_DEPRECATED_API", "NPY_1_7_API_VERSION")],
+        libraries=["vl"],
+        extra_compile_args=warning_flags,
+        language="c",
+    )
 
 
-try:
-    from Cython.Build import cythonize
-except ImportError:
-    import warnings
-
-    cythonize = no_cythonize
-    warnings.warn('Unable to import Cython - attempting to build using the '
-                  'pre-compiled C++ files.')
-
-cython_modules = [
-    build_extension_from_pyx('cyvlfeat/fisher/cyfisher.pyx'),
-    build_extension_from_pyx('cyvlfeat/generic/generic.pyx'),
-    build_extension_from_pyx('cyvlfeat/gmm/cygmm.pyx'),
-    build_extension_from_pyx('cyvlfeat/hog/cyhog.pyx'),
-    build_extension_from_pyx('cyvlfeat/kmeans/cykmeans.pyx'),
-    build_extension_from_pyx('cyvlfeat/quickshift/cyquickshift.pyx'),
-    build_extension_from_pyx('cyvlfeat/sift/cysift.pyx'),
-    build_extension_from_pyx('cyvlfeat/vlad/cyvlad.pyx'),
+modules = [
+    "cyvlfeat/fisher/cyfisher.pyx",
+    "cyvlfeat/generic/generic.pyx",
+    "cyvlfeat/gmm/cygmm.pyx",
+    "cyvlfeat/hog/cyhog.pyx",
+    "cyvlfeat/kmeans/cykmeans.pyx",
+    "cyvlfeat/quickshift/cyquickshift.pyx",
+    "cyvlfeat/sift/cysift.pyx",
+    "cyvlfeat/vlad/cyvlad.pyx",
 ]
-cython_exts = cythonize(cython_modules, quiet=True, language_level="3")
 
-
-def get_version_and_cmdclass(package_name):
-    import os
-    from importlib.util import module_from_spec, spec_from_file_location
-    spec = spec_from_file_location('version',
-                                   os.path.join(package_name, '_version.py'))
-    module = module_from_spec(spec)
-    spec.loader.exec_module(module)
-    return module.__version__, module.cmdclass
-
-
-version, cmdclass = get_version_and_cmdclass('cyvlfeat')
 setup(
-    name='cyvlfeat',
-    version=version,
-    cmdclass=cmdclass,
-    description='Cython wrapper of the VLFeat toolkit',
-    url='https://github.com/menpo/cyvlfeat',
-    author='Patrick Snape',
-    author_email='patricksnape@gmail.com',
-    ext_modules=cython_exts,
-    package_data={'cyvlfeat': ['data/*.mat', 'data/ascent.descr', 'data/ascent.frame']},
-    packages=find_packages()
+    libraries=[libvl],
+    ext_modules=cythonize(
+        [extension(m) for m in modules], quiet=True, language_level="3"
+    ),
 )
