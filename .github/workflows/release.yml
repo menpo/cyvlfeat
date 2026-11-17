@@ -4,9 +4,12 @@ name: Release
 # trusted publishing (OIDC, no tokens) and uploads PEP 740 attestations automatically.
 #   * push a tag `vX.Y.Z`                 -> PyPI (+ GitHub release; aN/bN/rcN/.devN are pre-releases)
 #   * manual run with `publish: testpypi` -> TestPyPI
+#   * pushes to master only build (and warm the ccache that pull requests restore)
+# Tag builds never use ccache: release artifacts are built from a clean state.
 on:
   pull_request:
   push:
+    branches: [master]
     tags: ["v*"]
   workflow_dispatch:
     inputs:
@@ -35,26 +38,35 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with: { submodules: recursive, fetch-depth: 0 }   # setuptools-scm needs tags
-      # ccache lives on the host outside the workspace (cibuildwheel copies the workspace into its
-      # containers). Windows is not cached: MSVC + distutils does not work with ccache.
+      # ccache (Linux + macOS, never on tags or Windows). The cache lives on the host outside the
+      # workspace (cibuildwheel copies the workspace into its containers). It is saved on every run
+      # (also failed ones); runs restore the newest cache of their own ref or of master.
       - name: ccache - choose the cache directory
-        if: runner.os != 'Windows'
+        if: runner.os != 'Windows' && !startsWith(github.ref, 'refs/tags/')
         run: |
           mkdir -p "$RUNNER_TEMP/ccache"
           echo "CCACHE_DIR=$RUNNER_TEMP/ccache" >> "$GITHUB_ENV"
-      - name: ccache (Linux) - mount the cache directory into the build containers
-        if: runner.os == 'Linux'
+      - name: ccache (Linux) - install in the build containers and mount the cache directory
+        if: runner.os == 'Linux' && !startsWith(github.ref, 'refs/tags/')
         run: |
-          echo "CIBW_CONTAINER_ENGINE=docker; create_args: --volume=$CCACHE_DIR:/ccache" >> "$GITHUB_ENV"
+          {
+            echo "CIBW_CONTAINER_ENGINE=docker; create_args: --volume=$CCACHE_DIR:/ccache"
+            echo "CIBW_BEFORE_ALL_LINUX=if command -v apk >/dev/null; then apk add --no-cache ccache; else dnf install -y epel-release && dnf install -y ccache; fi"
+            echo "CIBW_ENVIRONMENT_LINUX=CC='ccache gcc' CCACHE_DIR=/ccache CCACHE_MAXSIZE=500M CCACHE_COMPILERCHECK=content"
+            echo "CIBW_BEFORE_BUILD_LINUX=ccache --zero-stats"
+            echo "CIBW_BEFORE_TEST_LINUX=ccache --show-stats"
+          } >> "$GITHUB_ENV"
       - name: ccache (macOS) - install and use as the compiler wrapper
-        if: runner.os == 'macOS'
+        if: runner.os == 'macOS' && !startsWith(github.ref, 'refs/tags/')
         run: |
           brew install ccache
-          echo "CC=ccache clang" >> "$GITHUB_ENV"
-          echo "CCACHE_COMPILERCHECK=content" >> "$GITHUB_ENV"
-          echo "CCACHE_MAXSIZE=500M" >> "$GITHUB_ENV"
+          {
+            echo "CC=ccache clang"
+            echo "CCACHE_COMPILERCHECK=content"
+            echo "CCACHE_MAXSIZE=500M"
+          } >> "$GITHUB_ENV"
       - name: Restore ccache
-        if: runner.os != 'Windows'
+        if: runner.os != 'Windows' && !startsWith(github.ref, 'refs/tags/')
         uses: actions/cache/restore@v4
         with:
           path: ${{ runner.temp }}/ccache
@@ -63,10 +75,10 @@ jobs:
       - uses: pypa/cibuildwheel@v4.3.5
         # build selection, tests and per-platform settings are configured in pyproject.toml
       - name: ccache statistics (macOS)
-        if: runner.os == 'macOS'
+        if: runner.os == 'macOS' && !startsWith(github.ref, 'refs/tags/')
         run: ccache --show-stats
       - name: Save ccache
-        if: always() && runner.os != 'Windows'
+        if: always() && runner.os != 'Windows' && !startsWith(github.ref, 'refs/tags/')
         uses: actions/cache/save@v4
         with:
           path: ${{ runner.temp }}/ccache

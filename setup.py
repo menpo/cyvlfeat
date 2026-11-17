@@ -5,6 +5,7 @@ are compiled once into a static ``vl`` library that every extension links agains
 do not need a system libvl.
 """
 
+import hashlib
 import os
 import platform
 import sys
@@ -59,17 +60,61 @@ libvl = (
 
 
 class ParallelBuildClib(build_clib):
-    """build_clib that compiles the C sources of a library in parallel (distutils is serial)."""
+    """build_clib that compiles in parallel and shares the result between Python versions.
+
+    * distutils compiles serially; here the C sources are compiled in a thread pool.
+    * libvl does not depend on Python, but every wheel build (one per Python version) would
+      compile it again in its own build/temp.*-cpython-3xx directory. Instead it is built into
+      build/libvl-<key>/, where the key hashes everything that influences the object code
+      (compiler command line, macros, flags, VLFeat sources), so a later build for another Python
+      version reuses it exactly when it would have produced an identical library.
+    """
+
+    def _key(self, build_info):
+        h = hashlib.sha256()
+        compiler = self.compiler
+        command = (
+            getattr(compiler, "compiler_so", None)  # unix
+            or getattr(compiler, "compile_options", None)  # msvc
+            or []
+        )
+        h.update(
+            repr(
+                (
+                    sys.platform,
+                    platform.machine(),
+                    command,
+                    getattr(compiler, "cc", None),
+                    build_info.get("macros"),
+                    build_info.get("cflags"),
+                    build_info.get("include_dirs"),
+                    os.environ.get("MACOSX_DEPLOYMENT_TARGET"),
+                )
+            ).encode()
+        )
+        for path in sorted((VLFEAT / "vl").iterdir()):
+            if path.suffix in (".c", ".h", ".tc", ".th"):
+                h.update(path.name.encode())
+                h.update(path.read_bytes())
+        return h.hexdigest()[:16]
 
     def build_libraries(self, libraries):
         for lib_name, build_info in libraries:
+            # build_ext links against build_clib.build_clib, so point it at the shared directory
+            shared = ROOT / "build" / f"{lib_name}-{self._key(build_info)}"
+            self.build_clib = str(shared)
+            library = self.compiler.library_filename(lib_name, output_dir=str(shared))
+            if os.path.exists(library):
+                print(f"reusing {library}")
+                continue
+
             sources = list(build_info["sources"])
             chunks = [sources[i::JOBS] for i in range(JOBS) if sources[i::JOBS]]
 
             def compile_chunk(chunk, build_info=build_info):
                 return self.compiler.compile(
                     chunk,
-                    output_dir=self.build_temp,
+                    output_dir=str(shared / "obj"),
                     macros=build_info.get("macros"),
                     include_dirs=build_info.get("include_dirs"),
                     extra_postargs=build_info.get("cflags"),
@@ -79,7 +124,7 @@ class ParallelBuildClib(build_clib):
             with ThreadPoolExecutor(len(chunks)) as pool:
                 objects = [obj for objs in pool.map(compile_chunk, chunks) for obj in objs]
             self.compiler.create_static_lib(
-                objects, lib_name, output_dir=self.build_clib, debug=self.debug
+                objects, lib_name, output_dir=str(shared), debug=self.debug
             )
 
 
