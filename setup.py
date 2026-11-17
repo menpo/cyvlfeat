@@ -8,6 +8,7 @@ do not need a system libvl.
 import hashlib
 import os
 import platform
+import shutil
 import sys
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
@@ -16,6 +17,7 @@ import numpy as np
 from Cython.Build import cythonize
 from setuptools import Extension, setup
 from setuptools.command.build_clib import build_clib
+from setuptools.command.build_ext import build_ext
 
 ROOT = Path(__file__).parent
 VLFEAT = ROOT / "extern" / "vlfeat"
@@ -128,11 +130,38 @@ class ParallelBuildClib(build_clib):
             )
 
 
+def stable_numpy_include():
+    """Copy numpy's headers to a fixed path, build/numpy-include-<version>.
+
+    pip builds in an isolated environment with a random name (/tmp/build-env-xxxx), so numpy's
+    real include directory differs on every build and so would the compile command line, which
+    defeats compiler caches such as ccache. The headers are small and keyed by numpy version.
+    """
+    dest = ROOT / "build" / f"numpy-include-{np.__version__}"
+    if not dest.exists():
+        shutil.copytree(np.get_include(), dest)
+    return str(dest)
+
+
+class StableBuildExt(build_ext):
+    """build_ext whose compile command line does not depend on the (random) build venv path."""
+
+    def finalize_options(self):
+        super().finalize_options()
+        # distutils adds <build venv>/include; in pip's isolated build environment that directory
+        # has no headers and only makes the command line vary from build to build
+        self.include_dirs = [
+            d
+            for d in self.include_dirs
+            if any((Path(d) / header).exists() for header in ("Python.h", "pyconfig.h"))
+        ]
+
+
 def extension(pyx):
     return Extension(
         name=pyx[:-4].replace("/", "."),
         sources=[pyx],
-        include_dirs=[np.get_include(), str(ROOT)] + include_dirs,
+        include_dirs=[stable_numpy_include(), str(ROOT)] + include_dirs,
         define_macros=macros + [("NPY_NO_DEPRECATED_API", "NPY_1_7_API_VERSION")],
         libraries=["vl"],
         extra_compile_args=warning_flags,
@@ -153,7 +182,7 @@ modules = [
 
 setup(
     libraries=[libvl],
-    cmdclass={"build_clib": ParallelBuildClib},
+    cmdclass={"build_clib": ParallelBuildClib, "build_ext": StableBuildExt},
     options={"build_ext": {"parallel": JOBS}},
     ext_modules=cythonize(
         [extension(m) for m in modules],
