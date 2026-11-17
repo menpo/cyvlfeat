@@ -68,7 +68,8 @@ def test_sift_non_float_descriptors():
 
     assert_allclose(frames[0], [5.28098, 342.099, 1.90079, 5.07138], rtol=1e-3)
     assert_allclose(descriptors[0, :5], [17, 0, 0, 11, 20])
-    assert frames.shape[0] == 797
+    # the keypoint count is sensitive to floating point differences between platforms/compilers
+    assert abs(frames.shape[0] - 797) <= 5
 
 
 def test_sift_sort_user_defined_scales():

@@ -18,21 +18,23 @@ VLFEAT = ROOT / "extern" / "vlfeat"
 IS_WIN = sys.platform == "win32"
 IS_X86 = platform.machine().lower() in ("x86_64", "amd64", "x86", "i386", "i686")
 
+if not (VLFEAT / "vl" / "generic.c").exists():
+    raise SystemExit(
+        "extern/vlfeat is empty: run `git submodule update --init` (or build from an sdist)"
+    )
+
 vl_sources = sorted(
     str(p.relative_to(ROOT).as_posix())
     for p in (VLFEAT / "vl").glob("*.c")
     # getopt_long is only used by the VLFeat command line tools
     if p.name != "getopt_long.c"
 )
-if not vl_sources:
-    raise SystemExit(
-        "extern/vlfeat is empty: run `git submodule update --init` (or build from an sdist)"
-    )
 
 # AVX is chosen at compile time only, so enabling it would crash on older CPUs; the SSE2
 # paths exist only on x86; OpenMP is not used.
 macros = [("VL_DISABLE_AVX", None), ("VL_DISABLE_OPENMP", None)]
-if not IS_X86:
+# (MSVC never defines __SSE2__, which the SSE2 sources insist on, so they are off on Windows)
+if not IS_X86 or IS_WIN:
     macros.append(("VL_DISABLE_SSE2", None))
 if IS_WIN:
     # a static library: have MSVC emit plain symbols instead of dllimport stubs

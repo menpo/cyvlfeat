@@ -1,3 +1,4 @@
 [submodule "extern/vlfeat"]
 	path = extern/vlfeat
-	url = https://github.com/vlfeat/vlfeat
+	url = https://github.com/menpo/vlfeat
+	branch = menpo/v0.9.21

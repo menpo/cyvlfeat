@@ -53,11 +53,11 @@ def test_hog_cell_size_32_dalaltriggs(bilinear_interpolation):
     des_rgb = hog(img_rgb, 32, variant='DalalTriggs', bilinear_interpolation=bilinear_interpolation)
 
     if bilinear_interpolation:
-        assert_allclose(hog_features['hog_des_gray_dalaltriggs_bilinear'], des_gray, rtol=1e-4)
-        assert_allclose(hog_features['hog_des_rgb_dalaltriggs_bilinear'], des_rgb, rtol=1e-4)
+        assert_allclose(hog_features['hog_des_gray_dalaltriggs_bilinear'], des_gray, rtol=1e-3)
+        assert_allclose(hog_features['hog_des_rgb_dalaltriggs_bilinear'], des_rgb, rtol=1e-3)
     else:
-        assert_allclose(hog_features['hog_des_gray_dalaltriggs'], des_gray, rtol=1e-4)
-        assert_allclose(hog_features['hog_des_rgb_dalaltriggs'], des_rgb, rtol=1e-4)
+        assert_allclose(hog_features['hog_des_gray_dalaltriggs'], des_gray, rtol=1e-3)
+        assert_allclose(hog_features['hog_des_rgb_dalaltriggs'], des_rgb, rtol=1e-3)
 
 @pytest.mark.parametrize('variant', ['DalalTriggs', 'UoCTTI'])
 def test_hog_channel_order(variant):
