@@ -47,12 +47,3 @@ test-command = "pytest --pyargs cyvlfeat -q -p no:cacheprovider"
 
 [tool.cibuildwheel.macos]
 environment = { MACOSX_DEPLOYMENT_TARGET = "11.0" }
-
-[tool.cibuildwheel.linux]
-# ccache speeds up rebuilds of unchanged sources. The cache directory is /ccache inside the build
-# container; release.yml bind-mounts a directory restored from the GitHub Actions cache there
-# (without the mount it is just an empty directory, so local runs work too).
-before-all = "if command -v apk >/dev/null; then apk add --no-cache ccache; else dnf install -y epel-release && dnf install -y ccache; fi"
-environment = "CC='ccache gcc' CCACHE_DIR=/ccache CCACHE_MAXSIZE=500M CCACHE_COMPILERCHECK=content"
-before-build = "ccache --zero-stats"
-before-test = "ccache --show-stats"
