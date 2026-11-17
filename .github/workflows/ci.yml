@@ -1,0 +1,33 @@
+name: CI
+on:
+  push: { branches: [master] }
+  pull_request:
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, ubuntu-24.04-arm, macos-latest, windows-latest]
+        python: ["3.10", "3.14"]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+        with: { submodules: recursive, fetch-depth: 0 }
+      - uses: astral-sh/setup-uv@v5
+      - run: uv sync --python ${{ matrix.python }} --group dev
+      - run: uv run pytest -q
+
+  sdist:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { submodules: recursive, fetch-depth: 0 }
+      - uses: astral-sh/setup-uv@v5
+      - run: uv build --sdist
+      - name: Build and test from the sdist (no git, no submodule checkout)
+        run: |
+          uv venv .venv-sdist
+          uv pip install --python .venv-sdist dist/*.tar.gz pytest scipy scikit-image pooch
+          cd "$(mktemp -d)"
+          "$GITHUB_WORKSPACE/.venv-sdist/bin/python" -m pytest --pyargs cyvlfeat -q
