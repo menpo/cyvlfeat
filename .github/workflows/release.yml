@@ -32,23 +32,24 @@ jobs:
           - windows-latest     # win amd64
           - macos-15-intel     # macOS x86_64
           - macos-latest       # macOS arm64
-    env:
-      # ccache directory on the host, outside the workspace (cibuildwheel copies the workspace
-      # into its containers). Windows is not cached: MSVC + distutils does not work with ccache.
-      CCACHE_DIR: ${{ runner.temp }}/ccache
     steps:
       - uses: actions/checkout@v4
         with: { submodules: recursive, fetch-depth: 0 }   # setuptools-scm needs tags
+      # ccache lives on the host outside the workspace (cibuildwheel copies the workspace into its
+      # containers). Windows is not cached: MSVC + distutils does not work with ccache.
+      - name: ccache - choose the cache directory
+        if: runner.os != 'Windows'
+        run: |
+          mkdir -p "$RUNNER_TEMP/ccache"
+          echo "CCACHE_DIR=$RUNNER_TEMP/ccache" >> "$GITHUB_ENV"
       - name: ccache (Linux) - mount the cache directory into the build containers
         if: runner.os == 'Linux'
         run: |
-          mkdir -p "$CCACHE_DIR"
           echo "CIBW_CONTAINER_ENGINE=docker; create_args: --volume=$CCACHE_DIR:/ccache" >> "$GITHUB_ENV"
       - name: ccache (macOS) - install and use as the compiler wrapper
         if: runner.os == 'macOS'
         run: |
           brew install ccache
-          mkdir -p "$CCACHE_DIR"
           echo "CC=ccache clang" >> "$GITHUB_ENV"
           echo "CCACHE_COMPILERCHECK=content" >> "$GITHUB_ENV"
           echo "CCACHE_MAXSIZE=500M" >> "$GITHUB_ENV"
