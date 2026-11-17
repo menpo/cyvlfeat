@@ -2,7 +2,7 @@ import cyvlfeat
 from cyvlfeat.hog import hog
 import numpy as np
 from numpy.testing import assert_allclose
-from scipy.misc import face
+from scipy.datasets import face
 from scipy.io import loadmat
 import pytest
 import os.path as osp

@@ -1,6 +1,6 @@
 import numpy as np
 import pytest
-from scipy.misc import ascent, face
+from scipy.datasets import ascent, face
 
 from cyvlfeat.quickshift.flatmap import flatmap
 from cyvlfeat.quickshift.quickshift import quickshift

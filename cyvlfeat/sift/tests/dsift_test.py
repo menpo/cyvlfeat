@@ -3,7 +3,7 @@ from math import sqrt
 import numpy as np
 import pytest
 from numpy.testing import assert_allclose
-from scipy.misc import ascent
+from scipy.datasets import ascent
 from skimage.filters import gaussian
 from skimage.util import img_as_float32
 

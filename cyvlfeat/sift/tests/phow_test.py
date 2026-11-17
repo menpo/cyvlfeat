@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 from numpy.testing import assert_allclose
-from scipy.misc import face
+from scipy.datasets import face
 import cyvlfeat
 from cyvlfeat.sift.phow import phow
 import pytest

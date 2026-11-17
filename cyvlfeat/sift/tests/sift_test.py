@@ -3,7 +3,7 @@ import os.path as osp
 import numpy as np
 import pytest
 from numpy.testing import assert_allclose
-from scipy.misc import ascent
+from scipy.datasets import ascent
 from scipy.spatial.distance import cdist
 
 import cyvlfeat
@@ -11,7 +11,7 @@ from cyvlfeat.sift.sift import sift
 
 # actual frames and descriptors are compute by sift from vlfeat binary
 # command: sift -vv --frames --descriptors --first-octave -1 ascent.pgm
-# where ascent.pgm is saved from `scipy.misc.ascent`
+# where ascent.pgm is saved from `scipy.datasets.ascent`
 
 # by default `ascent()` return `int64`, but we need `np.float32`
 img = ascent().astype(np.float32)
